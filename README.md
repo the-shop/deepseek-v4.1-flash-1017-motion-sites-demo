@@ -1,4 +1,4 @@
-# Flash Motion Sites
+# DeepSeek-V4.1-Flash-1017 Motion Sites Demo
 
 Twenty one-page websites, each written by **DeepSeek-V4.1-Flash** in a single API call while prompted to act as a senior motion designer. The model output was not edited: every file in [`sites/`](sites) is exactly what came out of the model.
 
