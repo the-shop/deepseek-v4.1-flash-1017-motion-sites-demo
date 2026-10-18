@@ -1,5 +1,7 @@
 # DeepSeek-V4.1-Flash-1017 Motion Sites Demo
 
+**Live demo:** [the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/) (gallery of all 20 sites on GitHub Pages)
+
 Twenty one-page websites, each written by **DeepSeek-V4.1-Flash** in a single API call while prompted to act as a senior motion designer. The model output was not edited: every file in [`sites/`](sites) is exactly what came out of the model.
 
 Open [`index.html`](index.html) for a gallery, or open any file in `sites/` directly in a browser.
@@ -26,26 +28,26 @@ All 20 sites loaded with **0 console errors and 0 page errors**. The only horizo
 
 | Site | Output tokens | Of which reasoning | Seconds | Console errors |
 | --- | ---: | ---: | ---: | ---: |
-| [01_coffee](sites/01_coffee.html) | 48,790 | 26,968 | 174 | 0 |
-| [02_space](sites/02_space.html) | 58,144 | 38,102 | 207 | 0 |
-| [03_fashion](sites/03_fashion.html) | 39,717 | 23,223 | 142 | 0 |
-| [04_synth](sites/04_synth.html) | 48,708 | 26,542 | 164 | 0 |
-| [05_ocean](sites/05_ocean.html) | 48,657 | 30,954 | 173 | 0 |
-| [06_architect](sites/06_architect.html) | 52,776 | 35,495 | 194 | 0 |
-| [07_fintech](sites/07_fintech.html) | 43,196 | 19,145 | 141 | 0 |
-| [08_festival](sites/08_festival.html) | 42,988 | 24,631 | 148 | 0 |
-| [09_tea](sites/09_tea.html) | 46,378 | 28,795 | 171 | 0 |
-| [10_ai](sites/10_ai.html) | 51,178 | 30,719 | 180 | 0 |
-| [11_bakery](sites/11_bakery.html) | 57,024 | 36,210 | 199 | 0 |
-| [12_watch](sites/12_watch.html) | 55,559 | 33,391 | 197 | 0 |
-| [13_game](sites/13_game.html) | 49,891 | 26,001 | 170 | 0 |
-| [14_travel](sites/14_travel.html) | 54,271 | 32,308 | 189 | 0 |
-| [15_type](sites/15_type.html) | 37,608 | 21,405 | 132 | 0 |
-| [16_climate](sites/16_climate.html) | 47,595 | 31,748 | 178 | 0 |
-| [17_skate](sites/17_skate.html) | 57,128 | 35,018 | 201 | 0 |
-| [18_meditation](sites/18_meditation.html) | 46,454 | 28,511 | 159 | 0 |
-| [19_agency](sites/19_agency.html) | 42,707 | 23,106 | 142 | 0 |
-| [20_chess](sites/20_chess.html) | 55,600 | 38,289 | 204 | 0 |
+| [01_coffee](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/01_coffee.html) ([source](sites/01_coffee.html)) | 48,790 | 26,968 | 174 | 0 |
+| [02_space](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/02_space.html) ([source](sites/02_space.html)) | 58,144 | 38,102 | 207 | 0 |
+| [03_fashion](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/03_fashion.html) ([source](sites/03_fashion.html)) | 39,717 | 23,223 | 142 | 0 |
+| [04_synth](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/04_synth.html) ([source](sites/04_synth.html)) | 48,708 | 26,542 | 164 | 0 |
+| [05_ocean](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/05_ocean.html) ([source](sites/05_ocean.html)) | 48,657 | 30,954 | 173 | 0 |
+| [06_architect](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/06_architect.html) ([source](sites/06_architect.html)) | 52,776 | 35,495 | 194 | 0 |
+| [07_fintech](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/07_fintech.html) ([source](sites/07_fintech.html)) | 43,196 | 19,145 | 141 | 0 |
+| [08_festival](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/08_festival.html) ([source](sites/08_festival.html)) | 42,988 | 24,631 | 148 | 0 |
+| [09_tea](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/09_tea.html) ([source](sites/09_tea.html)) | 46,378 | 28,795 | 171 | 0 |
+| [10_ai](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/10_ai.html) ([source](sites/10_ai.html)) | 51,178 | 30,719 | 180 | 0 |
+| [11_bakery](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/11_bakery.html) ([source](sites/11_bakery.html)) | 57,024 | 36,210 | 199 | 0 |
+| [12_watch](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/12_watch.html) ([source](sites/12_watch.html)) | 55,559 | 33,391 | 197 | 0 |
+| [13_game](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/13_game.html) ([source](sites/13_game.html)) | 49,891 | 26,001 | 170 | 0 |
+| [14_travel](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/14_travel.html) ([source](sites/14_travel.html)) | 54,271 | 32,308 | 189 | 0 |
+| [15_type](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/15_type.html) ([source](sites/15_type.html)) | 37,608 | 21,405 | 132 | 0 |
+| [16_climate](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/16_climate.html) ([source](sites/16_climate.html)) | 47,595 | 31,748 | 178 | 0 |
+| [17_skate](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/17_skate.html) ([source](sites/17_skate.html)) | 57,128 | 35,018 | 201 | 0 |
+| [18_meditation](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/18_meditation.html) ([source](sites/18_meditation.html)) | 46,454 | 28,511 | 159 | 0 |
+| [19_agency](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/19_agency.html) ([source](sites/19_agency.html)) | 42,707 | 23,106 | 142 | 0 |
+| [20_chess](https://the-shop.github.io/deepseek-v4.1-flash-1017-motion-sites-demo/sites/20_chess.html) ([source](sites/20_chess.html)) | 55,600 | 38,289 | 204 | 0 |
 
 Observations from the screenshots:
 
