@@ -1,0 +1,3 @@
+Chess club 'The Gambit Society'. Motion signature: a 3D-perspective chessboard (CSS 3D) that replays a famous game (Immortal Game, Anderssen vs Kieseritzky 1851) with animated piece moves, move list syncs with the board, elegant classic typography.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

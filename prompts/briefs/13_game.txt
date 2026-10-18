@@ -1,0 +1,3 @@
+Indie game trailer page 'Lumen Drift'. Motion signature: a tiny playable mini-game in the hero (canvas: steer a light particle through obstacles with mouse/touch), pixel-art meets glow aesthetics, glitch transitions between sections.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

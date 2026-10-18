@@ -1,0 +1,3 @@
+Travel agency 'Atlas Wander'. Motion signature: an interactive rotating globe (three.js or canvas) with destination pins; clicking a pin smoothly flies the camera and slides in a destination card, boarding-pass style UI.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

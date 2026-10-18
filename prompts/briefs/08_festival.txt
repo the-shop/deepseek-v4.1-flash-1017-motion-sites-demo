@@ -1,0 +1,3 @@
+Music festival 'Solstice 2027' site. Motion signature: audio-reactive-looking generative gradient blobs (WebGL or canvas), lineup names in huge kinetic type that skew with scroll velocity, marquee tickers, maximalist color.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

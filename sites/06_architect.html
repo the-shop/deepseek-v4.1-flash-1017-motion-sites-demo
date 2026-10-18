@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en" class="js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio Vael — Architecture of Quiet Precision</title>
+<meta name="description" content="Studio Vael is an architecture practice working between Athens and Copenhagen. Buildings in stone, concrete and daylight.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ============ RESET / TOKENS ============ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{overflow-x:hidden;overflow-x:clip;-webkit-text-size-adjust:100%}
+body{overflow-x:hidden;overflow-x:clip;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+:root{
+  --paper:#EDE9E2;
+  --paper-2:#E4DFD6;
+  --ink:#0B0B0C;
+  --ink-2:#131314;
+  --accent:#E04A1F;
+  --font:'Inter Tight',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --pad:clamp(18px,4.2vw,72px);
+  --maxw:1680px;
+  --muted:rgba(11,11,12,.52);
+  --line:rgba(11,11,12,.16);
+}
+.sec--ink{--muted:rgba(237,233,226,.55);--line:rgba(237,233,226,.16);background:var(--ink);color:var(--paper)}
+.sec--paper{background:var(--paper);color:var(--ink)}
+
+body{font-family:var(--font);font-weight:300;font-size:16px;line-height:1.55;background:var(--paper);color:var(--ink)}
+
+/* grain */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9997;opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:140px 140px;mix-blend-mode:multiply;
+}
+
+a{color:inherit;text-decoration:none}
+svg{display:block}
+ul,ol{margin:0;padding:0;list-style:none}
+h1,h2,h3,p{margin:0}
+::selection{background:var(--accent);color:var(--paper)}
+
+/* ============ TYPE ============ */
+.label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:400;color:var(--muted);line-height:1.4;
+}
+.h2{
+  font-size:clamp(2.1rem,4.9vw,4.4rem);line-height:.94;letter-spacing:-.038em;
+  font-weight:300;margin:18px 0 0;
+}
+.h3{
+  font-size:clamp(1.35rem,2.2vw,1.85rem);line-height:1.12;letter-spacing:-.025em;font-weight:400;
+}
+.body{font-size:clamp(.95rem,1.05vw,1.06rem);line-height:1.6;color:var(--muted);max-width:46ch}
+.accent{color:var(--accent)}
+
+/* ============ LAYOUT ============ */
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad);position:relative}
+.sec{position:relative;padding:clamp(76px,9.5vw,150px) 0}
+.guides{
+  position:absolute;top:0;bottom:0;left:var(--pad);right:var(--pad);
+  display:grid;grid-template-columns:repeat(12,1fr);pointer-events:none;z-index:0;
+}
+.guides i{border-left:1px solid var(--line);opacity:.55}
+.guides i:last-child{border-right:1px solid var(--line)}
+.guides i:nth-child(n+8){border-color:var(--line);opacity:.3}
+
+/* ============ CURTAIN / INTRO ============ */
+.curtain{display:none}
+.js:not(.reduced) .curtain{
+  display:flex;position:fixed;inset:0;z-index:9999;background:var(--ink);color:var(--paper);
+  align-items:center;justify-content:center;flex-direction:column;gap:22px;
+}
+.curtain-inner{display:flex;flex-direction:column;align-items:center;gap:20px}
+.curtain .label{color:rgba(237,233,226,.55)}
+.loader-bar{width:150px;height:1px;background:rgba(237,233,226,.16);overflow:hidden}
+.loader-bar i{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:0 50%}
+
+/* ============ NAV ============ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  padding:20px var(--pad);
+  transition:background .5s ease,border-color .5s ease,padding .5s ease,backdrop-filter .5s ease;
+  border-bottom:1px solid transparent;
+}
+.nav.is-stuck{
+  background:rgba(237,233,226,.72);backdrop-filter:blur(14px) saturate(1.2);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  border-bottom-color:rgba(11,11,12,.1);padding-top:14px;padding-bottom:14px;
+}
+.brand{display:flex;align-items:center;gap:11px;font-size:14px;letter-spacing:-.01em;font-weight:400}
+.brand-mark{width:19px;height:19px;overflow:visible}
+.brand-mark path{fill:none;stroke:currentColor;stroke-width:1.1;stroke-linejoin:round;opacity:.85}
+.brand-mark path:nth-child(2){stroke:var(--accent);opacity:1}
+.nav-links{display:flex;gap:34px;margin-left:auto;margin-right:34px}
+.nav-links a{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);display:inline-flex;gap:8px;position:relative;padding-bottom:3px;
+}
+.nav-links a span{color:var(--accent);opacity:.75}
+.nav-links a::after{
+  content:'';position:absolute;left:0;bottom:0;height:1px;width:100%;background:currentColor;
+  transform:scaleX(0);transform-origin:100% 50%;transition:transform .45s cubic-bezier(.65,0,.35,1);
+}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after{transform:scaleX(1);transform-origin:0 50%}
+.nav-cta{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:9px;padding:9px 16px;border:1px solid var(--line);
+  border-radius:100px;position:relative;overflow:hidden;transition:color .45s ease,border-color .45s ease;
+}
+.nav-cta .arw{transition:transform .45s cubic-bezier(.65,0,.35,1);font-size:12px}
+.nav-cta::before{
+  content:'';position:absolute;inset:0;background:var(--accent);transform:translateY(101%);
+  transition:transform .5s cubic-bezier(.65,0,.35,1);z-index:-1;
+}
+.nav-cta:hover{color:var(--paper);border-color:var(--accent)}
+.nav-cta:hover::before{transform:translateY(0)}
+.nav-cta:hover .arw{transform:translate(2px,-2px)}
+.nav-cta{isolation:isolate;z-index:1}
+
+/* ============ HERO ============ */
+.hero{
+  min-height:100vh;min-height:100svh;display:flex;flex-direction:column;
+  padding-top:clamp(100px,15vh,168px);padding-bottom:clamp(22px,4vh,44px);
+  position:relative;overflow:hidden;
+}
+.hero-inner{flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:clamp(28px,5vh,56px)}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.hero-title{
+  font-size:clamp(2.9rem,11.4vw,10rem);line-height:.86;letter-spacing:-.048em;font-weight:300;
+  margin:0;position:relative;z-index:2;
+}
+.hero-line{display:block;overflow:hidden;padding-bottom:.09em;margin-bottom:-.09em}
+.hero-line > span{display:block;will-change:transform}
+.js:not(.reduced) .hero-line > span{transform:translateY(112%)}
+.hero-line:nth-child(2) > span{padding-left:.06em}
+.hero-line .dot{color:var(--accent);font-style:normal}
+.hero-rule{height:1px;background:var(--line);transform-origin:0 50%;width:100%}
+.hero-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap}
+.hero-copy{max-width:34ch;font-size:clamp(.9rem,1.05vw,1.02rem);line-height:1.62;color:var(--muted)}
+.hero-scroll{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.scroll-line{width:1px;height:52px;background:rgba(11,11,12,.16);position:relative;overflow:hidden}
+.scroll-line i{position:absolute;top:0;left:0;width:100%;height:40%;background:var(--accent);animation:scrollDrop 2.6s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes scrollDrop{0%{transform:translateY(-100%)}55%{transform:translateY(260%)}100%{transform:translateY(260%)}}
+
+/* ============ MARQUEE ============ */
+.marquee{
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  overflow:hidden;padding:14px 0;background:var(--paper);
+}
+.marquee-track{display:flex;width:max-content;animation:marq 46s linear infinite}
+.marquee-track span{
+  font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--muted);padding-right:44px;white-space:nowrap;
+}
+.marquee-track span b{color:var(--accent);font-weight:400}
+@keyframes marq{to{transform:translate3d(-50%,0,0)}}
+
+/* ============ ASSEMBLY ============ */
+.assembly{position:relative;background:var(--ink);color:var(--paper);--muted:rgba(237,233,226,.55);--line:rgba(237,233,226,.16)}
+.assembly-inner{
+  position:relative;height:100vh;height:100svh;display:flex;flex-direction:column;overflow:hidden;
+}
+.assembly-head{
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  padding-top:clamp(74px,11vh,120px);flex:0 0 auto;
+}
+.dot-mark{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:9px;vertical-align:middle;transform:translateY(-1px)}
+.stage{position:relative;flex:1 1 auto;min-height:0;margin:10px 0}
+.iso{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.stage-note{position:absolute;display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.stage-note--tl{top:6px;left:var(--pad)}
+.stage-note--br{bottom:6px;right:var(--pad);align-items:flex-end}
+.scale-bar{display:flex;gap:3px;margin-top:6px}
+.scale-bar i{display:block;height:5px;width:16px;border-left:1px solid rgba(237,233,226,.5);border-right:1px solid rgba(237,233,226,.5)}
+.scale-bar i:nth-child(1),.scale-bar i:nth-child(3){background:rgba(237,233,226,.22)}
+
+.ln{fill:none;stroke:#EDE9E2;stroke-width:.1;stroke-linecap:round;stroke-linejoin:round}
+.ln--site{stroke:rgba(237,233,226,.17);stroke-width:.048}
+.ln--plinth{stroke:rgba(237,233,226,.8);stroke-width:.085}
+.ln--shaft{stroke-width:.105}
+.ln--crown{stroke-width:.105}
+.ln--wing{stroke-width:.095}
+.ln--floors{stroke:rgba(237,233,226,.42);stroke-width:.045}
+.ln--mullions{stroke:rgba(237,233,226,.3);stroke-width:.042}
+.ln--accent{stroke:var(--accent);stroke-width:.115}
+
+.assembly-foot{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:44px;
+  padding-bottom:clamp(26px,5vh,54px);flex:0 0 auto;
+}
+.captions{position:relative;max-width:520px;width:100%;min-height:112px}
+.caption{
+  position:absolute;left:0;top:0;width:100%;
+  font-size:clamp(.88rem,1.02vw,1rem);line-height:1.62;color:rgba(237,233,226,.72);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .55s cubic-bezier(.33,1,.68,1),transform .55s cubic-bezier(.33,1,.68,1);
+}
+.caption .label{display:block;margin-bottom:9px;color:var(--accent)}
+.caption.is-active{opacity:1;transform:translateY(0)}
+.stages{display:flex;flex-direction:column;gap:9px;align-items:flex-end;flex:0 0 auto}
+.stages li{
+  display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.17em;text-transform:uppercase;color:rgba(237,233,226,.34);
+  transition:color .5s ease;
+}
+.stages li i{display:block;width:0;height:1px;background:var(--accent);transition:width .55s cubic-bezier(.65,0,.35,1)}
+.stages li.is-active{color:var(--paper)}
+.stages li.is-active i{width:22px}
+.assembly-progress{position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(237,233,226,.14)}
+.assembly-progress i{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:0 50%}
+
+/* ============ WORKS ============ */
+.sec-head{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:26px;margin-bottom:clamp(34px,6vw,68px)}
+.sec-head .h2{max-width:14ch}
+.sec-note{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding-bottom:6px}
+.work-list{position:relative;z-index:2}
+.work-link{
+  display:grid;grid-template-columns:58px minmax(0,1fr) 130px 72px 140px 22px;
+  align-items:center;gap:16px;padding:clamp(20px,2.4vw,30px) 20px;margin:0 -20px;
+  border-top:1px solid var(--line);position:relative;
+  transition:background-color .5s ease;
+}
+.work:last-child .work-link{border-bottom:1px solid var(--line)}
+.work-link:hover{background:rgba(11,11,12,.045)}
+.work-i{color:var(--muted);transition:color .45s ease}
+.work-link:hover .work-i{color:var(--accent)}
+.work-name{
+  font-size:clamp(1.25rem,2.5vw,2.1rem);line-height:1.05;letter-spacing:-.03em;font-weight:300;
+  transition:transform .55s cubic-bezier(.33,1,.68,1),color .45s ease;
+}
+.work-link:hover .work-name{transform:translateX(8px);color:var(--accent)}
+.work-meta{color:var(--muted);transition:color .4s ease}
+.work-link:hover .work-meta{color:rgba(11,11,12,.72)}
+.work-arrow{
+  font-size:15px;color:var(--muted);justify-self:end;
+  opacity:0;transform:translate(-6px,6px);
+  transition:opacity .45s ease,transform .55s cubic-bezier(.33,1,.68,1),color .4s ease;
+}
+.work-link:hover .work-arrow{opacity:1;transform:translate(0,0);color:var(--accent)}
+
+/* preview card */
+.preview{
+  position:fixed;top:0;left:0;width:340px;height:250px;z-index:800;pointer-events:none;
+  opacity:0;transition:opacity .4s ease;will-change:transform;
+}
+.preview.is-on{opacity:1}
+.preview-inner{position:relative;width:100%;height:100%;background:var(--paper-2);border:1px solid rgba(11,11,12,.14);overflow:hidden}
+.plate{position:absolute;inset:0;opacity:0;transform:scale(1.06);transition:opacity .45s ease,transform .7s cubic-bezier(.33,1,.68,1)}
+.plate.is-on{opacity:1;transform:scale(1)}
+.plate svg{width:100%;height:100%}
+.plate figcaption{
+  position:absolute;left:14px;bottom:10px;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.18em;text-transform:uppercase;color:rgba(11,11,12,.5);
+}
+
+/* ============ MANIFESTO ============ */
+.manifesto{padding:clamp(80px,12vw,180px) 0 clamp(80px,10vw,150px)}
+.manifesto-text{
+  font-size:clamp(1.5rem,4vw,3.4rem);line-height:1.16;letter-spacing:-.035em;font-weight:300;
+  max-width:22ch;margin-top:26px;
+}
+.manifesto-text .w{opacity:.13;transition:opacity .25s linear}
+.manifesto-text .w.on{opacity:1}
+.manifesto-text .w.em{color:var(--accent)}
+.manifesto-meta{display:flex;justify-content:space-between;gap:24px;margin-top:clamp(40px,6vw,80px);flex-wrap:wrap}
+
+/* ============ APPROACH ============ */
+.approach-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(30px,6vw,90px);position:relative;z-index:2}
+.sticky-col{position:sticky;top:clamp(100px,17vh,160px);align-self:start}
+.sticky-col .h2{margin-top:20px;max-width:11ch}
+.sticky-col .body{margin-top:26px;max-width:34ch}
+.principle{padding:clamp(26px,3vw,40px) 0;border-top:1px solid var(--line);display:grid;grid-template-columns:56px 1fr;gap:18px}
+.principle:last-child{border-bottom:1px solid var(--line)}
+.principle .p-i{color:var(--accent);padding-top:4px}
+.principle h3{margin-bottom:12px}
+.principle p{font-size:clamp(.92rem,1.02vw,1.02rem);line-height:1.62;color:var(--muted);max-width:44ch}
+
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+  margin-top:clamp(60px,9vw,120px);padding-top:clamp(34px,5vw,54px);
+  border-top:1px solid var(--line);position:relative;z-index:2;
+}
+.stat{display:flex;flex-direction:column;gap:10px}
+.stat-n{
+  font-size:clamp(2.4rem,5.4vw,4.6rem);line-height:.9;letter-spacing:-.05em;font-weight:200;
+  font-variant-numeric:tabular-nums;
+}
+.stat-n sup{font-size:.36em;color:var(--accent);vertical-align:super;letter-spacing:0;margin-left:2px}
+
+/* ============ CONTACT ============ */
+.contact{padding-bottom:clamp(70px,9vw,130px)}
+.contact-title{font-size:clamp(2.3rem,7.2vw,6.6rem);line-height:.9;letter-spacing:-.045em;font-weight:300;margin:26px 0 0;max-width:15ch}
+.contact-mail{
+  display:inline-flex;align-items:center;gap:.35em;margin-top:clamp(30px,4.5vw,52px);
+  font-size:clamp(1.15rem,2.6vw,2.2rem);letter-spacing:-.025em;font-weight:300;
+  position:relative;padding-bottom:6px;
+}
+.contact-mail::after{
+  content:'';position:absolute;left:0;bottom:0;width:100%;height:1px;background:currentColor;
+  transform:scaleX(0);transform-origin:100% 50%;transition:transform .6s cubic-bezier(.65,0,.35,1);
+}
+.contact-mail:hover::after{transform:scaleX(1);transform-origin:0 50%}
+.contact-mail .arw{color:var(--accent);font-size:.7em;transition:transform .5s cubic-bezier(.33,1,.68,1)}
+.contact-mail:hover .arw{transform:translate(4px,-4px)}
+.contact-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:28px;
+  margin-top:clamp(54px,8vw,110px);padding-top:clamp(26px,4vw,42px);border-top:1px solid var(--line);
+}
+.contact-grid p{font-size:.95rem;line-height:1.62;color:var(--muted)}
+.contact-grid .label{display:block;margin-bottom:12px}
+.contact-grid a{position:relative;color:var(--muted);transition:color .35s ease}
+.contact-grid a:hover{color:var(--ink)}
+#clock{font-family:var(--mono);font-size:.95rem;letter-spacing:.04em;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ============ FOOTER ============ */
+.footer{background:var(--ink);color:var(--paper);padding:clamp(50px,7vw,90px) 0 30px;--muted:rgba(237,233,226,.5);--line:rgba(237,233,226,.14)}
+.footer-mark{
+  font-size:clamp(3.2rem,15.5vw,14rem);line-height:.8;letter-spacing:-.055em;font-weight:300;
+  display:flex;justify-content:space-between;overflow:hidden;
+}
+.footer-mark span{display:block}
+.footer-row{
+  display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;
+  margin-top:clamp(34px,5vw,60px);padding-top:22px;border-top:1px solid var(--line);
+}
+.footer-links{display:flex;gap:26px;flex-wrap:wrap}
+.footer-links a{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);transition:color .35s ease}
+.footer-links a:hover{color:var(--accent)}
+.to-top{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted);cursor:pointer;background:none;border:0;
+  padding:0;transition:color .35s ease;
+}
+.to-top:hover{color:var(--accent)}
+.to-top .arw{transition:transform .45s cubic-bezier(.33,1,.68,1)}
+.to-top:hover .arw{transform:translateY(-4px)}
+
+/* ============ REVEAL DEFAULTS ============ */
+.js:not(.reduced) [data-reveal]{opacity:0}
+
+/* ============ REDUCED / FALLBACK ============ */
+.reduced .hero-line > span{transform:none !important}
+.reduced [data-reveal]{opacity:1 !important;transform:none !important}
+.reduced .curtain{display:none !important}
+.reduced .assembly-inner{height:auto;min-height:0;padding-bottom:20px}
+.reduced .iso{position:static;height:56vh;min-height:320px}
+.reduced .caption{position:static;opacity:1;transform:none;margin-bottom:18px}
+.reduced .captions{min-height:0;display:grid;gap:0}
+.reduced .stage{min-height:0}
+.reduced .scroll-line i{animation:none;transform:translateY(60%)}
+.reduced .marquee-track{animation:none}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1080px){
+  .work-link{grid-template-columns:48px minmax(0,1fr) 110px 62px;gap:14px}
+  .work-meta.tag{display:none}
+  .work-arrow{display:none}
+  .nav-links{gap:22px;margin-right:22px}
+}
+@media (max-width:860px){
+  .guides{display:none}
+  .nav-links{display:none}
+  .nav-cta{margin-left:auto}
+  .approach-grid{grid-template-columns:1fr;gap:34px}
+  .sticky-col{position:static}
+  .sticky-col .h2{max-width:14ch}
+  .stats{grid-template-columns:repeat(2,1fr);gap:34px 20px}
+  .contact-grid{grid-template-columns:repeat(2,1fr);gap:32px 20px}
+  .preview{display:none}
+  .assembly-foot{gap:20px;align-items:flex-start;flex-direction:column;padding-bottom:34px}
+  .stages{display:none}
+  .captions{min-height:132px}
+  .stage-note--tl{display:none}
+  .ln{stroke-width:.155}
+  .ln--site{stroke-width:.075}
+  .ln--plinth{stroke-width:.13}
+  .ln--shaft,.ln--crown{stroke-width:.155}
+  .ln--wing{stroke-width:.14}
+  .ln--floors{stroke-width:.07}
+  .ln--mullions{stroke-width:.065}
+  .ln--accent{stroke-width:.17}
+}
+@media (max-width:620px){
+  .work-link{
+    grid-template-columns:30px minmax(0,1fr) auto;
+    grid-template-areas:"i name name" ". loc year";
+    gap:2px 0;padding:18px 14px;margin:0 -14px;row-gap:6px;
+  }
+  .work-i{grid-area:i;align-self:start;padding-top:6px}
+  .work-name{grid-area:name}
+  .work-meta.loc{grid-area:loc}
+  .work-meta.year{grid-area:year;text-align:right}
+  .contact-grid{grid-template-columns:1fr;gap:26px}
+  .hero-foot{flex-direction:column;align-items:flex-start;gap:28px}
+  .hero-scroll{align-items:flex-start;flex-direction:row;align-items:center;gap:14px}
+  .scroll-line{height:34px;width:1px}
+  .brand span{display:none}
+  .nav-cta{padding:8px 13px}
+  .footer-row{flex-direction:column;align-items:flex-start;gap:18px}
+}
+@media (max-height:680px){
+  .assembly-head{padding-top:70px}
+  .captions{min-height:96px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ CURTAIN ============ -->
+<div class="curtain" aria-hidden="true">
+  <div class="curtain-inner">
+    <span class="label">Studio Vael</span>
+    <div class="loader-bar"><i></i></div>
+    <span class="label">Athens — Copenhagen</span>
+  </div>
+</div>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="Studio Vael — home">
+    <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 2.6 21.4 8v8L12 21.4 2.6 16V8z"/>
+      <path d="M12 2.6v18.8"/>
+    </svg>
+    <span>Studio Vael</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#works"><span>01</span>Works</a>
+    <a href="#process"><span>02</span>Process</a>
+    <a href="#studio"><span>03</span>Studio</a>
+  </nav>
+  <a class="nav-cta" href="#contact">Start a project <span class="arw">↗</span></a>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero sec--paper">
+    <div class="wrap hero-inner">
+      <div class="guides" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="hero-top">
+        <p class="label">Architecture &amp; Interiors — Athens / Copenhagen</p>
+        <p class="label">Est. 2009</p>
+      </div>
+
+      <h1 class="hero-title">
+        <span class="hero-line"><span>Buildings</span></span>
+        <span class="hero-line"><span>that hold</span></span>
+        <span class="hero-line"><span>the silence<em class="dot">.</em></span></span>
+      </h1>
+
+      <div class="hero-rule" aria-hidden="true"></div>
+
+      <div class="hero-foot">
+        <p class="hero-copy">Studio Vael is a practice of eleven architects working between Athens and Copenhagen. We build slowly — in stone, concrete and daylight — for clients who value the long view.</p>
+        <div class="hero-scroll">
+          <span class="label">Scroll to assemble</span>
+          <span class="scroll-line" aria-hidden="true"><i></i></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Residential <b>·</b> Cultural <b>·</b> Adaptive Reuse <b>·</b> Interiors <b>·</b> Masterplanning <b>·</b> Selected works 2021—2025 <b>·</b> </span>
+      <span>Residential <b>·</b> Cultural <b>·</b> Adaptive Reuse <b>·</b> Interiors <b>·</b> Masterplanning <b>·</b> Selected works 2021—2025 <b>·</b> </span>
+    </div>
+  </div>
+
+  <!-- ============ ASSEMBLY ============ -->
+  <section class="assembly sec--ink" id="process">
+    <div class="assembly-inner">
+      <div class="wrap assembly-head">
+        <p class="label"><span class="dot-mark"></span>02 — Process</p>
+        <p class="label">The drawing, line by line</p>
+      </div>
+
+      <div class="wrap stage">
+        <svg class="iso" id="iso" viewBox="0 0 40 44" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Isometric line drawing of a tower under construction">
+          <g class="art"></g>
+        </svg>
+        <div class="stage-note stage-note--tl">
+          <p class="label">Vael Tower</p>
+          <p class="label" style="opacity:.6">Study 04 — Isometric</p>
+        </div>
+        <div class="stage-note stage-note--br">
+          <p class="label">Scale 1:200</p>
+          <div class="scale-bar"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+
+      <div class="wrap assembly-foot">
+        <div class="captions">
+          <p class="caption is-active" data-cap="0">
+            <span class="label">01 — Ground</span>
+            Every project begins as a site survey: contours, sun paths, the neighbours' windows. We draw what is already there before adding a single line of our own.
+          </p>
+          <p class="caption" data-cap="1">
+            <span class="label">02 — Structure</span>
+            A concrete frame spans seven metres in every direction. Nothing is hidden: the columns stay visible at every floor, so the building explains itself.
+          </p>
+          <p class="caption" data-cap="2">
+            <span class="label">03 — Envelope</span>
+            Limestone, glass, and a deep reveal at each window. The facade is drawn twice — once for the street, once for the sky above it.
+          </p>
+          <p class="caption" data-cap="3">
+            <span class="label">04 — Light</span>
+            Vertical slots cut through eight floors, dropping daylight into the plan. At noon the building holds no shadow at its centre.
+          </p>
+        </div>
+        <ol class="stages">
+          <li class="is-active"><i></i><span>01</span> Ground</li>
+          <li><i></i><span>02</span> Structure</li>
+          <li><i></i><span>03</span> Envelope</li>
+          <li><i></i><span>04</span> Light</li>
+        </ol>
+      </div>
+
+      <div class="assembly-progress" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
+
+  <!-- ============ WORKS ============ -->
+  <section class="sec sec--paper" id="works">
+    <div class="wrap">
+      <div class="guides" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <header class="sec-head">
+        <div>
+          <p class="label">03 — Selected Works</p>
+          <h2 class="h2">Five buildings,<br>one idea each.</h2>
+        </div>
+        <p class="sec-note">2021 — 2025 · Residential / Cultural / Adaptive reuse</p>
+      </header>
+
+      <ul class="work-list">
+        <li class="work">
+          <a class="work-link" href="#contact" data-plate="0">
+            <span class="work-i label">01</span>
+            <span class="work-name">Kolonaki Slope House</span>
+            <span class="work-meta loc label">Athens, GR</span>
+            <span class="work-meta year label">2024</span>
+            <span class="work-meta tag label">Residential</span>
+            <span class="work-arrow">↗</span>
+          </a>
+        </li>
+        <li class="work">
+          <a class="work-link" href="#contact" data-plate="1">
+            <span class="work-i label">02</span>
+            <span class="work-name">Meridian Pavilion</span>
+            <span class="work-meta loc label">Basel, CH</span>
+            <span class="work-meta year label">2023</span>
+            <span class="work-meta tag label">Cultural</span>
+            <span class="work-arrow">↗</span>
+          </a>
+        </li>
+        <li class="work">
+          <a class="work-link" href="#contact" data-plate="2">
+            <span class="work-i label">03</span>
+            <span class="work-name">Casa Albers</span>
+            <span class="work-meta loc label">Porto, PT</span>
+            <span class="work-meta year label">2022</span>
+            <span class="work-meta tag label">Residential</span>
+            <span class="work-arrow">↗</span>
+          </a>
+        </li>
+        <li class="work">
+          <a class="work-link" href="#contact" data-plate="3">
+            <span class="work-i label">04</span>
+            <span class="work-name">Quiet Tower</span>
+            <span class="work-meta loc label">Kyoto, JP</span>
+            <span class="work-meta year label">2021</span>
+            <span class="work-meta tag label">Mixed-use</span>
+            <span class="work-arrow">↗</span>
+          </a>
+        </li>
+        <li class="work">
+          <a class="work-link" href="#contact" data-plate="4">
+            <span class="work-i label">05</span>
+            <span class="work-name">Vault Gallery</span>
+            <span class="work-meta loc label">Copenhagen, DK</span>
+            <span class="work-meta year label">2025</span>
+            <span class="work-meta tag label">Adaptive reuse</span>
+            <span class="work-arrow">↗</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="preview" id="preview" aria-hidden="true">
+      <div class="preview-inner">
+        <figure class="plate is-on">
+          <svg viewBox="0 0 340 250" fill="none" stroke="#0B0B0C" stroke-width="1">
+            <rect x="40" y="30" width="260" height="180"/>
+            <path d="M40 126h148M188 30v180M124 126v84M188 96h112"/>
+            <rect x="208" y="60" width="60" height="40"/>
+            <path d="M58 194l20-26 14 12" stroke="#E04A1F" stroke-width="1.5"/>
+          </svg>
+          <figcaption>01 — Kolonaki Slope House</figcaption>
+        </figure>
+        <figure class="plate">
+          <svg viewBox="0 0 340 250" fill="none" stroke="#0B0B0C" stroke-width="1">
+            <path d="M44 190Q170 46 296 190"/>
+            <path d="M68 190Q170 84 272 190"/>
+            <path d="M44 190h252"/>
+            <path d="M90 190v-44M144 190v-64M196 190v-64M250 190v-44"/>
+            <circle cx="170" cy="190" r="3" fill="#E04A1F" stroke="none"/>
+          </svg>
+          <figcaption>02 — Meridian Pavilion</figcaption>
+        </figure>
+        <figure class="plate">
+          <svg viewBox="0 0 340 250" fill="none" stroke="#0B0B0C" stroke-width="1">
+            <rect x="70" y="38" width="200" height="164"/>
+            <rect x="94" y="55" width="152" height="130"/>
+            <rect x="118" y="72" width="104" height="96"/>
+            <rect x="142" y="89" width="56" height="62" stroke="#E04A1F"/>
+          </svg>
+          <figcaption>03 — Casa Albers</figcaption>
+        </figure>
+        <figure class="plate">
+          <svg viewBox="0 0 340 250" fill="none" stroke="#0B0B0C" stroke-width="1">
+            <path d="M76 208h188M86 186h168M96 164h148M106 142h128M116 120h108M126 98h88M136 76h68"/>
+            <path d="M170 76V42" stroke="#E04A1F"/>
+            <path d="M164 48l6-6 6 6" stroke="#E04A1F"/>
+          </svg>
+          <figcaption>04 — Quiet Tower</figcaption>
+        </figure>
+        <figure class="plate">
+          <svg viewBox="0 0 340 250" fill="none" stroke="#0B0B0C" stroke-width="1">
+            <path d="M44 200v-42a30 30 0 0 1 60 0v42"/>
+            <path d="M112 200v-42a30 30 0 0 1 60 0v42"/>
+            <path d="M180 200v-42a30 30 0 0 1 60 0v42"/>
+            <path d="M248 200v-42a30 30 0 0 1 30 0v42"/>
+            <path d="M40 200h252" stroke-width="1.4"/>
+            <path d="M74 158v42" stroke="#E04A1F" stroke-width="1.5"/>
+          </svg>
+          <figcaption>05 — Vault Gallery</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MANIFESTO ============ -->
+  <section class="sec sec--paper manifesto">
+    <div class="wrap">
+      <p class="label" data-reveal>Manifesto</p>
+      <p class="manifesto-text" id="manifesto">We build slowly. Stone is quarried, not printed. Light is studied, not simulated. A room is finished only when it is quiet. Our practice is a long argument with gravity — and we are patient.</p>
+      <div class="manifesto-meta">
+        <p class="label" data-reveal>Written by the partners, Athens, 2023</p>
+        <p class="label" data-reveal>Every drawing is still made by hand first.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ APPROACH ============ -->
+  <section class="sec sec--ink" id="studio">
+    <div class="wrap">
+      <div class="approach-grid">
+        <div class="sticky-col">
+          <p class="label" data-reveal>04 — Approach</p>
+          <h2 class="h2" data-reveal>Three rules<br>we don't break.</h2>
+          <p class="body" data-reveal>They are not marketing. They are the sequence in which decisions get made, and they have cost us commissions we would have liked.</p>
+        </div>
+        <div class="principles">
+          <article class="principle" data-reveal>
+            <p class="p-i label">01</p>
+            <div>
+              <h3 class="h3">Draw the site first.</h3>
+              <p>Before a single wall, we spend two weeks measuring what already exists: the slope, the prevailing wind, the shadow of the building next door. The first forty drawings of any Vael project are of something we did not make.</p>
+            </div>
+          </article>
+          <article class="principle" data-reveal>
+            <p class="p-i label">02</p>
+            <div>
+              <h3 class="h3">One material, used completely.</h3>
+              <p>Every building is organised around a single primary material — limestone, board-formed concrete, cross-laminated timber. We would rather understand one thing deeply than specify twenty we only half know.</p>
+            </div>
+          </article>
+          <article class="principle" data-reveal>
+            <p class="p-i label">03</p>
+            <div>
+              <h3 class="h3">Leave the last ten percent empty.</h3>
+              <p>Rooms need room. We keep a deliberate margin in every plan — a window seat, a stair that is wider than it must be — so the building can absorb a life it did not predict.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat" data-reveal>
+          <span class="stat-n" data-count="41">00</span>
+          <span class="label">Built works</span>
+        </div>
+        <div class="stat" data-reveal>
+          <span class="stat-n" data-count="12">00</span>
+          <span class="label">Countries</span>
+        </div>
+        <div class="stat" data-reveal>
+          <span class="stat-n" data-count="16">00</span>
+          <span class="label">Years of practice</span>
+        </div>
+        <div class="stat" data-reveal>
+          <span class="stat-n" data-count="9">00</span>
+          <span class="label">Awards <sup>+</sup></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section class="sec sec--paper contact" id="contact">
+    <div class="wrap">
+      <div class="guides" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="label" data-reveal>05 — Contact</p>
+      <h2 class="contact-title" data-reveal>Let's build<br>something quiet.</h2>
+      <a class="contact-mail" href="mailto:studio@vael.archi" data-reveal>studio@vael.archi <span class="arw">↗</span></a>
+
+      <div class="contact-grid">
+        <div data-reveal>
+          <span class="label">Athens studio</span>
+          <p>18 Dexamenis Street<br>106 80 Athens, Greece<br>+30 210 364 8821</p>
+        </div>
+        <div data-reveal>
+          <span class="label">Copenhagen studio</span>
+          <p>Refshalevej 147<br>1432 København K, Denmark<br>+45 32 96 44 10</p>
+        </div>
+        <div data-reveal>
+          <span class="label">Elsewhere</span>
+          <p><a href="#contact">Instagram</a><br><a href="#contact">LinkedIn</a><br><a href="#contact">Are.na</a></p>
+        </div>
+        <div data-reveal>
+          <span class="label">Local time — Athens</span>
+          <p id="clock">--:--:--</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer sec--ink">
+  <div class="wrap">
+    <div class="footer-mark" aria-hidden="true">
+      <span>Studio</span><span class="accent">Vael</span>
+    </div>
+    <div class="footer-row">
+      <p class="label">© 2025 Studio Vael — All drawings our own</p>
+      <div class="footer-links">
+        <a href="#works">Works</a>
+        <a href="#process">Process</a>
+        <a href="#studio">Studio</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <button class="to-top" id="toTop">Back to top <span class="arw">↑</span></button>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var docEl = document.documentElement;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var canAnimate = !!(window.gsap && window.ScrollTrigger) && !reduceMotion;
+
+  if (!canAnimate) {
+    docEl.classList.add('reduced');
+    docEl.classList.remove('js');
+  }
+
+  /* ---------------------------------------------------------
+     ISOMETRIC BUILDER
+  --------------------------------------------------------- */
+  var isoData = (function buildIso() {
+    var svg = document.getElementById('iso');
+    if (!svg) return null;
+    var art = svg.querySelector('g.art');
+    var NS = 'http://www.w3.org/2000/svg';
+    var S = 0.8660254;
+    var list = [];
+
+    function P(x, y, z) { return [(x - y) * S, (x + y) * 0.5 - z]; }
+    function add(pts, g) { list.push({ p: pts.map(function (a) { return P(a[0], a[1], a[2]); }), g: g }); }
+    function ln(a, b, g) { add([a, b], g); }
+    function ring(x0, y0, x1, y1, z, g) {
+      add([[x0, y0, z], [x1, y0, z], [x1, y1, z], [x0, y1, z], [x0, y0, z]], g);
+    }
+
+    /* --- site grid --- */
+    var SITE = { x0: -5, x1: 21, y0: -5, y1: 11, z: -1.6 };
+    var gx, gy;
+    for (gx = SITE.x0; gx <= SITE.x1 + 0.001; gx += 3.25) {
+      ln([gx, SITE.y0, SITE.z], [gx, SITE.y1, SITE.z], 'site');
+    }
+    for (gy = SITE.y0; gy <= SITE.y1 + 0.001; gy += 3.25) {
+      ln([SITE.x0, gy, SITE.z], [SITE.x1, gy, SITE.z], 'site');
+    }
+
+    /* --- plinth --- */
+    var PL = { x0: -1.5, x1: 17, y0: -1.5, y1: 7.5, z0: -1.6, z1: 0 };
+    ring(PL.x0, PL.y0, PL.x1, PL.y1, PL.z1, 'plinth');
+    ln([PL.x1, PL.y0, PL.z1], [PL.x1, PL.y0, PL.z0], 'plinth');
+    ln([PL.x1, PL.y1, PL.z1], [PL.x1, PL.y1, PL.z0], 'plinth');
+    ln([PL.x0, PL.y1, PL.z1], [PL.x0, PL.y1, PL.z0], 'plinth');
+    ln([PL.x1, PL.y0, PL.z0], [PL.x1, PL.y1, PL.z0], 'plinth');
+    ln([PL.x1, PL.y1, PL.z0], [PL.x0, PL.y1, PL.z0], 'plinth');
+
+    /* --- tower shaft --- */
+    var T = { x0: 0, x1: 7, y0: 0, y1: 7, h: 17 };
+    ln([T.x1, T.y0, 0], [T.x1, T.y0, T.h], 'shaft');
+    ln([T.x0, T.y1, 0], [T.x0, T.y1, T.h], 'shaft');
+    ring(T.x0, T.y0, T.x1, T.y1, T.h, 'shaft');
+
+    /* --- crown --- */
+    var C = { x0: 1.7, x1: 5.3, y0: 1.7, y1: 5.3, h0: 17, h1: 23.5 };
+    ln([C.x1, C.y1, C.h0], [C.x1, C.y1, C.h1], 'crown');
+    ln([C.x1, C.y0, C.h0], [C.x1, C.y0, C.h1], 'crown');
+    ln([C.x0, C.y1, C.h0], [C.x0, C.y1, C.h1], 'crown');
+    ring(C.x0, C.y0, C.x1, C.y1, C.h0, 'crown');
+    ring(C.x0, C.y0, C.x1, C.y1, C.h1, 'crown');
+
+    /* --- wing --- */
+    var W = { x0: 9.5, x1: 15.5, y0: 0.5, y1: 6.5, h: 7.5 };
+    ln([W.x1, W.y1, 0], [W.x1, W.y1, W.h], 'wing');
+    ln([W.x1, W.y0, 0], [W.x1, W.y0, W.h], 'wing');
+    ln([W.x0, W.y1, 0], [W.x0, W.y1, W.h], 'wing');
+    ring(W.x0, W.y0, W.x1, W.y1, W.h, 'wing');
+    ln([W.x1, W.y0, 0], [W.x1, W.y1, 0], 'wing');
+    ln([W.x0, W.y1, 0], [W.x1, W.y1, 0], 'wing');
+
+    /* --- floors --- */
+    var z;
+    for (z = 2.83; z < T.h - 1; z += 2.83) {
+      ln([T.x1, T.y0, z], [T.x1, T.y1, z], 'floors');
+      ln([T.x0, T.y1, z], [T.x1, T.y1, z], 'floors');
+    }
+
+    /* --- mullions --- */
+    [1.75, 3.5, 5.25].forEach(function (v) {
+      ln([T.x1, v, 0], [T.x1, v, T.h], 'mullions');
+      ln([v, T.y1, 0], [v, T.y1, T.h], 'mullions');
+    });
+
+    /* --- accent --- */
+    ln([3.5, 3.5, C.h1], [3.5, 3.5, 28.5], 'accent');
+    ln([3.05, 3.5, 28.5], [3.95, 3.5, 28.5], 'accent');
+    ln([T.x1, T.y1, 0], [T.x1, T.y1, T.h], 'accent');
+
+    /* --- bounds --- */
+    var minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+    list.forEach(function (o) {
+      o.p.forEach(function (p) {
+        if (p[0] < minX) minX = p[0];
+        if (p[0] > maxX) maxX = p[0];
+        if (p[1] < minY) minY = p[1];
+        if (p[1] > maxY) maxY = p[1];
+      });
+    });
+    var pad = 1.6;
+    svg.setAttribute('viewBox',
+      (minX - pad).toFixed(2) + ' ' + (minY - pad).toFixed(2) + ' ' +
+      (maxX - minX + pad * 2).toFixed(2) + ' ' + (maxY - minY + pad * 2).toFixed(2));
+
+    /* --- paths --- */
+    var byGroup = {};
+    list.forEach(function (o) {
+      var d = 'M' + o.p.map(function (p) { return p[0].toFixed(2) + ' ' + p[1].toFixed(2); }).join(' L');
+      var path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'ln ln--' + o.g);
+      path.setAttribute('vector-effect', 'none');
+      art.appendChild(path);
+      (byGroup[o.g] = byGroup[o.g] || []).push(path);
+    });
+
+    return { byGroup: byGroup, svg: svg };
+  })();
+
+  /* ---------------------------------------------------------
+     STATIC FALLBACK
+  --------------------------------------------------------- */
+  if (!canAnimate) {
+    /* Everything visible, nothing animates. */
+    var reducedCaptions = document.querySelectorAll('.caption');
+    for (var rc = 0; rc < reducedCaptions.length; rc++) reducedCaptions[rc].classList.add('is-active');
+    var reducedStages = document.querySelectorAll('.stages li');
+    for (var rs = 0; rs < reducedStages.length; rs++) reducedStages[rs].classList.add('is-active');
+    initClock();
+    initAnchors(null);
+    return;
+  }
+
+  /* ---------------------------------------------------------
+     SMOOTH SCROLL
+  --------------------------------------------------------- */
+  gsap.registerPlugin(ScrollTrigger);
+
+  var lenis = null;
+  if (window.Lenis) {
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.7
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* ---------------------------------------------------------
+     INTRO
+  --------------------------------------------------------- */
+  gsap.set('.hero-line > span', { yPercent: 0, y: 0 });
+
+  var heroLines = gsap.utils.toArray('.hero-line > span');
+  gsap.set(heroLines, { y: function () { return window.innerHeight * 0.14; } });
+
+  var intro = gsap.timeline({
+    defaults: { ease: 'expo.out' },
+    onComplete: function () {
+      var c = document.querySelector('.curtain');
+      if (c) c.style.display = 'none';
+    }
+  });
+
+  intro
+    .to('.loader-bar i', { scaleX: 1, duration: 0.55, ease: 'power2.inOut' }, 0)
+    .to('.curtain-inner', { opacity: 0, duration: 0.35, ease: 'power2.inOut' }, 0.5)
+    .to('.curtain', { yPercent: -100, duration: 1.15, ease: 'expo.inOut' }, 0.62)
+    .to(heroLines, {
+      y: 0, duration: 1.3, stagger: 0.085, ease: 'expo.out',
+      onStart: function () { gsap.set(heroLines, { clearProps: 'transform' }); }
+    }, 0.78)
+    .from('.nav', { opacity: 0, y: -14, duration: 0.9 }, 1.0)
+    .from('.hero-rule', { scaleX: 0, duration: 1.3, ease: 'expo.inOut' }, 0.95)
+    .from('.hero-top > *', { opacity: 0, y: 12, duration: 0.9, stagger: 0.07 }, 1.0)
+    .from('.hero-foot > *', { opacity: 0, y: 18, duration: 0.95, stagger: 0.09 }, 1.08);
+
+  /* ---------------------------------------------------------
+     NAV STATE
+  --------------------------------------------------------- */
+  var nav = document.getElementById('nav');
+  function onScroll() {
+    if (window.scrollY > 30) nav.classList.add('is-stuck');
+    else nav.classList.remove('is-stuck');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------------------------------------------------------
+     ASSEMBLY TIMELINE
+  --------------------------------------------------------- */
+  (function assembly() {
+    if (!isoData) return;
+
+    var paths = isoData.svg.querySelectorAll('.ln');
+    for (var i = 0; i < paths.length; i++) {
+      var L = 0;
+      try { L = paths[i].getTotalLength(); } catch (e) { L = 0; }
+      if (!L) L = 1;
+      paths[i].style.strokeDasharray = L;
+      paths[i].style.strokeDashoffset = L;
+    }
+
+    var caps = gsap.utils.toArray('.caption');
+    var stageItems = gsap.utils.toArray('.stages li');
+    var bar = document.querySelector('.assembly-progress i');
+    var current = 0;
+
+    var tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.assembly',
+        start: 'top top',
+        end: '+=240%',
+        pin: '.assembly-inner',
+        pinSpacing: true,
+        scrub: 0.7,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: function (self) {
+          if (bar) bar.style.transform = 'scaleX(' + self.progress + ')';
+          var t = self.progress * tl.duration();
+          var idx = 0;
+          for (var k = 0; k < marks.length; k++) {
+            if (t <= marks[k]) { idx = k; break; }
+            idx = k;
+          }
+          if (idx !== current) {
+            current = idx;
+            caps.forEach(function (c, n) { c.classList.toggle('is-active', n === idx); });
+            stageItems.forEach(function (s, n) { s.classList.toggle('is-active', n === idx); });
+          }
+        }
+      }
+    });
+
+    var marks = [];
+
+    function step(name, dur, stag) {
+      var els = isoData.byGroup[name];
+      if (!els || !els.length) return;
+      tl.to(els, { strokeDashoffset: 0, duration: dur, stagger: stag, ease: 'none' }, '>');
+    }
+
+    step('site', 0.45, 0.012);
+    step('plinth', 0.5, 0.05);
+    marks.push(tl.duration());
+
+    step('shaft', 0.5, 0.06);
+    step('crown', 0.5, 0.05);
+    step('wing', 0.45, 0.05);
+    marks.push(tl.duration());
+
+    step('floors', 0.5, 0.04);
+    step('mullions', 0.4, 0.04);
+    marks.push(tl.duration());
+
+    step('accent', 0.6, 0.16);
+    marks.push(tl.duration());
+  })();
+
+  /* ---------------------------------------------------------
+     SCROLL REVEALS
+  --------------------------------------------------------- */
+  gsap.utils.toArray('[data-reveal]').forEach(function (el) {
+    gsap.fromTo(el,
+      { opacity: 0, y: 26 },
+      {
+        opacity: 1, y: 0, duration: 1.05, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+        onStart: function () { el.style.willChange = 'transform, opacity'; },
+        onComplete: function () { el.style.willChange = 'auto'; }
+      }
+    );
+  });
+
+  gsap.from('.work-link', {
+    opacity: 0, y: 26, duration: 0.95, stagger: 0.07, ease: 'power3.out',
+    scrollTrigger: { trigger: '.work-list', start: 'top 88%', once: true }
+  });
+
+  /* ---------------------------------------------------------
+     MANIFESTO WORD REVEAL
+  --------------------------------------------------------- */
+  (function manifesto() {
+    var el = document.getElementById('manifesto');
+    if (!el) return;
+    var accented = ['quiet.', 'gravity', 'patient.'];
+    var words = el.textContent.trim().split(/\s+/);
+    el.innerHTML = words.map(function (w) {
+      var cls = 'w';
+      if (accented.indexOf(w) > -1) cls += ' em';
+      return '<span class="' + cls + '">' + w + '</span>';
+    }).join(' ');
+
+    var spans = el.querySelectorAll('.w');
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 82%',
+      end: 'bottom 62%',
+      scrub: true,
+      onUpdate: function (self) {
+        var p = self.progress;
+        var n = Math.floor(p * (spans.length + 2));
+        for (var i = 0; i < spans.length; i++) {
+          spans[i].classList.toggle('on', i <= n);
+        }
+      }
+    });
+  })();
+
+  /* ---------------------------------------------------------
+     COUNTERS
+  --------------------------------------------------------- */
+  gsap.utils.toArray('[data-count]').forEach(function (el) {
+    var end = parseInt(el.getAttribute('data-count'), 10) || 0;
+    var obj = { v: 0 };
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 88%',
+      once: true,
+      onEnter: function () {
+        gsap.to(obj, {
+          v: end, duration: 1.7, ease: 'power2.out',
+          onUpdate: function () {
+            var n = Math.round(obj.v);
+            el.textContent = (n < 10 ? '0' : '') + n;
+          }
+        });
+      }
+    });
+  });
+
+  /* ---------------------------------------------------------
+     WORKS PREVIEW
+  --------------------------------------------------------- */
+  (function preview() {
+    var box = document.getElementById('preview');
+    if (!box) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    var plates = box.querySelectorAll('.plate');
+    var links = gsap.utils.toArray('.work-link');
+    var tx = 0, ty = 0, px = 0, py = 0, active = false;
+
+    window.addEventListener('mousemove', function (e) {
+      tx = e.clientX;
+      ty = e.clientY;
+    }, { passive: true });
+
+    gsap.ticker.add(function () {
+      if (!active) return;
+      px += (tx - px) * 0.13;
+      py += (ty - py) * 0.13;
+      box.style.transform = 'translate3d(' + (px - 170) + 'px,' + (py - 125) + 'px,0)';
+    });
+
+    links.forEach(function (link) {
+      link.addEventListener('mouseenter', function () {
+        var i = parseInt(link.getAttribute('data-plate'), 10) || 0;
+        plates.forEach(function (p, n) { p.classList.toggle('is-on', n === i); });
+        if (!active) {
+          px = tx; py = ty;
+          box.style.transform = 'translate3d(' + (px - 170) + 'px,' + (py - 125) + 'px,0)';
+          active = true;
+          box.classList.add('is-on');
+        }
+      });
+      link.addEventListener('mouseleave', function () {
+        active = false;
+        box.classList.remove('is-on');
+      });
+    });
+  })();
+
+  /* ---------------------------------------------------------
+     ANCHORS / TO TOP / CLOCK
+  --------------------------------------------------------- */
+  initAnchors(lenis);
+  initClock();
+
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    toTop.addEventListener('click', function () {
+      if (lenis) lenis.scrollTo(0, { duration: 1.6 });
+      else window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  /* ---------------------------------------------------------
+     HELPERS
+  --------------------------------------------------------- */
+  function initAnchors(smooth) {
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var href = a.getAttribute('href');
+        if (!href || href.length < 2) return;
+        var target = document.querySelector(href);
+        if (!target) return;
+        e.preventDefault();
+        if (smooth) smooth.scrollTo(target, { duration: 1.5, offset: 0 });
+        else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
+  function initClock() {
+    var el = document.getElementById('clock');
+    if (!el) return;
+    function tick() {
+      try {
+        var t = new Date().toLocaleTimeString('en-GB', {
+          timeZone: 'Europe/Athens', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        el.textContent = t + ' EET';
+      } catch (e) {
+        el.textContent = '--:--:--';
+      }
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* ---------------------------------------------------------
+     REFRESH HOOKS
+  --------------------------------------------------------- */
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+  }
+  window.addEventListener('load', function () { ScrollTrigger.refresh(); });
+  window.addEventListener('resize', function () {
+    clearTimeout(window.__vzT);
+    window.__vzT = setTimeout(function () { ScrollTrigger.refresh(); }, 220);
+  });
+
+})();
+</script>
+</body>
+</html>

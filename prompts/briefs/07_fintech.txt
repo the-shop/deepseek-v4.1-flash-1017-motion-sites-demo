@@ -1,0 +1,3 @@
+Landing page for 'Ledgerly', a fintech app. Motion signature: 3D-tilting phone mockup built in CSS showing an animated UI, numbers counting up, animated bar/line charts drawn on scroll, glassmorphism cards with light sheen following cursor.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

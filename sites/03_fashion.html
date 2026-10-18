@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOIR / SS27 — Lookbook</title>
+<meta name="description" content="NOIR/SS27 — a study in black. Lookbook, 24 looks, Paris.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --ink:#0A0A0A;
+  --ink-2:#0F0F0F;
+  --bone:#EDE9E1;
+  --bone-dim:#8C877E;
+  --acid:#D9FF3D;
+  --line:rgba(237,233,225,.14);
+  --pad:clamp(16px,4vw,56px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);
+  color:var(--bone);
+  font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:14px;
+  line-height:1.5;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+body.has-cursor,body.has-cursor *{cursor:none !important}
+svg{display:block}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+::selection{background:var(--acid);color:var(--ink)}
+:focus-visible{outline:1px solid var(--acid);outline-offset:4px}
+
+.display{font-family:'Anton',Impact,'Haettenschweiler',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:-.02em}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400}
+.tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:400}
+.acid{color:var(--acid)}
+
+/* ============ GRAIN ============ */
+.grain{
+  position:fixed;inset:-50%;z-index:9997;pointer-events:none;opacity:.16;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+  animation:grainShift 8s steps(6) infinite;
+}
+@keyframes grainShift{
+  0%{transform:translate(0,0)}
+  20%{transform:translate(-2%,1%)}
+  40%{transform:translate(1%,-2%)}
+  60%{transform:translate(-1%,2%)}
+  80%{transform:translate(2%,-1%)}
+  100%{transform:translate(0,0)}
+}
+
+/* ============ CURSOR ============ */
+.cursor{display:none;position:fixed;top:0;left:0;z-index:10000;pointer-events:none;mix-blend-mode:difference}
+body.has-cursor .cursor{display:block}
+.cursor__dot{position:absolute;top:0;left:0;width:6px;height:6px;border-radius:50%;background:#fff}
+.cursor__ring{
+  position:absolute;top:0;left:0;width:42px;height:42px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.85);
+  display:grid;place-items:center;
+}
+.cursor__label{
+  font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.16em;
+  color:#fff;text-transform:uppercase;opacity:0;transform:scale(.6);transition:opacity .25s,transform .25s;
+}
+.cursor.is-hot .cursor__label{opacity:1;transform:scale(1)}
+
+/* ============ LOADER ============ */
+.loader{position:fixed;inset:0;z-index:10000}
+.loader__panels{position:absolute;inset:0;display:flex}
+.loader__panel{flex:1;background:var(--bone);will-change:clip-path}
+.loader__ui{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:var(--pad);color:var(--ink)}
+.loader__row{display:flex;justify-content:space-between;align-items:flex-start}
+.loader__word{
+  font-family:'Anton',Impact,sans-serif;text-transform:uppercase;
+  font-size:clamp(64px,17vw,240px);line-height:.85;letter-spacing:-.03em;color:var(--ink);
+}
+.loader__bar{position:relative;height:1px;background:rgba(10,10,10,.18);overflow:hidden}
+.loader__bar span{position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left}
+
+/* ============ TOPBAR ============ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:16px var(--pad);
+  color:#fff;mix-blend-mode:difference;pointer-events:none;
+}
+.topbar > *{pointer-events:auto}
+.topbar__brand{font-family:'Anton',sans-serif;font-size:15px;letter-spacing:.02em}
+.topbar__brand sup{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;vertical-align:super}
+.topbar__mid{display:flex;gap:clamp(10px,2vw,28px)}
+.topbar__mid span{opacity:.75}
+
+/* ============ HERO ============ */
+.hero{
+  position:relative;min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:calc(58px + env(safe-area-inset-top)) var(--pad) 22px;
+  overflow:hidden;
+}
+.hero__ghost{
+  position:absolute;right:-3vw;top:50%;transform:translateY(-50%);
+  height:min(118vh,940px);aspect-ratio:400/660;opacity:.07;pointer-events:none;
+}
+.hero__ghost svg{width:100%;height:100%}
+.hero__ghost path{fill:var(--bone)}
+.hero__inner{position:relative;z-index:2;display:flex;flex-direction:column;gap:clamp(10px,2vh,26px);flex:1;justify-content:center}
+.hero__eyebrow{display:flex;flex-wrap:wrap;gap:8px clamp(12px,3vw,40px);justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px}
+.hero__eyebrow span{opacity:.65}
+.hero__type{overflow:hidden}
+.hero__word{
+  display:block;font-size:clamp(56px,38vw,600px);line-height:1;
+  margin-bottom:-.14em;letter-spacing:-.035em;
+}
+.hero__word sup{font-size:.13em;vertical-align:super;letter-spacing:0;color:var(--acid)}
+.hero__sub{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:clamp(4px,1.2vh,14px)}
+.hero__slash{font-size:clamp(24px,4.2vw,68px);line-height:.9;letter-spacing:-.02em}
+.hero__serif{font-size:clamp(22px,3.4vw,54px);line-height:1;color:var(--bone);opacity:.92;text-align:right}
+.hero__foot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:12px;margin-top:clamp(14px,3vh,34px)}
+.hero__foot p{opacity:.6}
+.cue{display:flex;align-items:center;gap:10px}
+.cue__line{position:relative;width:62px;height:1px;background:var(--line);overflow:hidden}
+.cue__line i{position:absolute;inset:0;background:var(--acid);transform:translateX(-100%);animation:cueRun 2.4s cubic-bezier(.76,0,.24,1) infinite}
+@keyframes cueRun{0%{transform:translateX(-100%)}55%{transform:translateX(0)}100%{transform:translateX(100%)}}
+
+/* ============ MARQUEE ============ */
+.marquee{background:var(--acid);color:var(--ink);overflow:hidden;border-block:1px solid var(--ink)}
+.marquee__inner{display:flex;width:max-content;animation:mq 30s linear infinite;will-change:transform}
+.marquee__inner span{
+  font-family:'Anton',sans-serif;text-transform:uppercase;white-space:nowrap;
+  font-size:clamp(22px,3.4vw,44px);line-height:1;letter-spacing:.01em;
+  padding:10px 0;display:flex;align-items:center;gap:clamp(18px,3vw,44px);
+}
+.marquee__inner em{
+  font-family:'Instrument Serif',Georgia,serif;font-style:italic;text-transform:none;font-size:.9em;
+}
+.marquee__dot{width:.4em;height:.4em;border-radius:50%;background:var(--ink);display:inline-block}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* ============ SECTION SHELL ============ */
+.sec{position:relative;overflow:hidden}
+.sec--bone{background:var(--bone);color:var(--ink)}
+.sec--ink{background:var(--ink);color:var(--bone)}
+.sec__inner{max-width:1560px;margin:0 auto;padding:clamp(52px,8vw,120px) var(--pad)}
+
+/* ============ MANIFESTO ============ */
+.mf{display:grid;grid-template-columns:110px 1fr;gap:clamp(18px,4vw,64px)}
+.mf__aside{display:flex;flex-direction:column;justify-content:space-between;gap:26px}
+.mf__num{font-family:'Anton',sans-serif;font-size:clamp(38px,5vw,76px);line-height:.9;opacity:.14}
+.badge{width:104px;height:104px;position:relative}
+.badge svg{width:100%;height:100%;animation:spin 22s linear infinite}
+.badge text{font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:.16em;fill:currentColor;text-transform:uppercase}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mf__title{
+  font-family:'Anton',sans-serif;text-transform:uppercase;letter-spacing:-.025em;
+  font-size:clamp(42px,8.6vw,148px);line-height:.86;margin-bottom:clamp(26px,4vw,56px);
+}
+.mf__title em{font-family:'Instrument Serif',Georgia,serif;font-style:italic;text-transform:none;font-size:.94em;letter-spacing:-.01em}
+.line{display:block;overflow:hidden}
+.line > span{display:block;will-change:transform}
+.mf__copy{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,4vw,56px);max-width:1100px;margin-bottom:clamp(34px,5vw,72px)}
+.mf__lead{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(20px,2.5vw,36px);line-height:1.18;letter-spacing:-.01em}
+.mf__lead em{font-style:italic}
+.mf__body{font-size:12.5px;line-height:1.85;font-weight:300;letter-spacing:.02em;max-width:44ch;opacity:.82}
+.mf__body + .mf__body{margin-top:14px}
+.mf__facts{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,3vw,40px);border-top:1px solid rgba(10,10,10,.2);padding-top:16px}
+.mf__facts h4{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;text-transform:uppercase;opacity:.5;margin-bottom:8px}
+.mf__facts p{font-size:12px;line-height:1.6;font-weight:300;letter-spacing:.01em}
+
+/* ============ GALLERY ============ */
+.gallery{
+  height:100vh;height:100svh;display:flex;flex-direction:column;
+  padding:calc(54px + env(safe-area-inset-top)) 0 16px;overflow:hidden;background:var(--ink);
+}
+.g__head{display:flex;justify-content:space-between;align-items:center;padding:0 var(--pad) 12px}
+.g__head .tag{opacity:.55}
+.g__viewport{flex:1;min-height:0;overflow:hidden}
+.g__track{
+  display:flex;gap:clamp(10px,1.4vw,24px);height:100%;
+  padding:0 var(--pad);will-change:transform;
+}
+.plate{
+  position:relative;flex:0 0 auto;width:clamp(232px,26vw,352px);height:100%;
+  background:var(--ink-2);border:1px solid var(--line);
+  padding:clamp(12px,1.4vw,20px);display:flex;flex-direction:column;
+  overflow:hidden;transition:background .5s ease,border-color .5s ease;
+}
+.plate::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--acid);
+  transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.76,0,.24,1);
+}
+@media (hover:hover){
+  .plate:hover{background:#141414;border-color:rgba(217,255,61,.4)}
+  .plate:hover::after{transform:scaleX(1)}
+  .plate:hover .sil{fill:var(--acid)}
+  .plate:hover .plate__num{color:var(--acid);opacity:1}
+}
+.plate__top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.plate__num{font-family:'Anton',sans-serif;font-size:clamp(16px,1.6vw,22px);color:var(--bone);opacity:.55;transition:color .4s,opacity .4s}
+.plate__kind{font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.42}
+.plate__fig{flex:1;min-height:0;display:grid;place-items:center;padding:6px 0}
+.plate__fig svg{width:100%;height:100%;overflow:visible}
+.sil{fill:var(--bone);opacity:.9;transition:fill .5s ease;fill-rule:evenodd}
+.det{fill:none;stroke:var(--ink);stroke-width:1.6;opacity:.55;vector-effect:non-scaling-stroke}
+.plate__bot{border-top:1px solid var(--line);padding-top:10px;margin-top:6px}
+.plate__bot h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(15px,1.5vw,20px);letter-spacing:.01em;line-height:1.05;margin-bottom:4px}
+.plate__bot p{font-size:9px;letter-spacing:.18em;text-transform:uppercase;opacity:.45}
+.plate--end{
+  width:clamp(200px,22vw,300px);background:transparent;border:1px dashed rgba(237,233,225,.18);
+  display:grid;place-items:center;text-align:center;gap:10px;
+}
+.plate--end .endnum{font-family:'Anton',sans-serif;font-size:clamp(40px,5vw,72px);line-height:.9;opacity:.25}
+.plate--end p{font-size:9px;letter-spacing:.22em;text-transform:uppercase;opacity:.4;max-width:16ch;line-height:1.9}
+.g__foot{display:flex;align-items:center;gap:16px;padding:14px var(--pad) 0}
+.g__bar{flex:1;height:1px;background:var(--line);position:relative;overflow:hidden}
+.g__bar i{position:absolute;inset:0;background:var(--acid);transform:scaleX(0);transform-origin:left}
+.g__count{font-size:10px;letter-spacing:.2em;opacity:.6;min-width:70px;text-align:right}
+
+/* ============ ANATOMY ============ */
+.an{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(24px,5vw,80px);align-items:start;max-width:1560px;margin:0 auto;padding:clamp(52px,8vw,120px) var(--pad)}
+.an__head{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;border-bottom:1px solid rgba(10,10,10,.2);padding-bottom:18px;margin-bottom:clamp(18px,4vw,44px)}
+.an__head h2{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(28px,4.6vw,68px);line-height:.9;letter-spacing:-.02em}
+.an__head h2 em{font-family:'Instrument Serif',Georgia,serif;font-style:italic;text-transform:none}
+.an__head .tag{opacity:.5}
+.an__figure{position:sticky;top:11vh;align-self:start}
+.an__figure svg{width:100%;height:auto;max-height:78vh}
+.an__figure text{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;fill:currentColor;text-transform:uppercase}
+.draw{fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.draw--bold{stroke-width:2}
+.draw--thin{opacity:.4;stroke-width:1}
+.an__dot{fill:currentColor}
+.an__notes{display:flex;flex-direction:column;gap:clamp(26px,4vw,52px);padding-top:6px}
+.note{border-top:1px solid rgba(10,10,10,.16);padding-top:14px}
+.note__head{display:flex;align-items:baseline;gap:14px;margin-bottom:10px}
+.note__n{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;opacity:.45}
+.note h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(20px,2.6vw,34px);line-height:1;letter-spacing:-.01em}
+.note p{font-size:12.5px;line-height:1.8;font-weight:300;letter-spacing:.01em;max-width:46ch;opacity:.8}
+
+/* ============ INDEX ============ */
+.ix{max-width:1560px;margin:0 auto;padding:clamp(52px,8vw,120px) var(--pad)}
+.ix__head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:clamp(24px,4vw,52px)}
+.ix__head h2{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(34px,7vw,116px);line-height:.86;letter-spacing:-.03em}
+.ix__head h2 em{font-family:'Instrument Serif',Georgia,serif;font-style:italic;text-transform:none;font-size:.92em}
+.ix__head .tag{opacity:.5;padding-bottom:10px}
+.ix__list{border-top:1px solid var(--line)}
+.ix__row{
+  position:relative;display:grid;grid-template-columns:64px 1.6fr 1fr .8fr 32px;
+  align-items:center;gap:14px;padding:clamp(13px,1.6vw,20px) clamp(8px,1.4vw,20px);
+  border-bottom:1px solid var(--line);isolation:isolate;overflow:hidden;
+}
+.ix__row::before{
+  content:"";position:absolute;inset:0;background:var(--acid);z-index:-1;
+  transform:scaleY(0);transform-origin:bottom;transition:transform .5s cubic-bezier(.76,0,.24,1);
+}
+.ix__row > *{transition:color .35s ease,transform .5s cubic-bezier(.76,0,.24,1)}
+.ix__n{font-size:10px;letter-spacing:.2em;opacity:.45}
+.ix__name{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(18px,2.4vw,32px);line-height:1;letter-spacing:-.01em}
+.ix__mat{font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.5}
+.ix__col{font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.5}
+.ix__go{font-size:13px;opacity:.35;text-align:right}
+@media (hover:hover){
+  .ix__row:hover::before{transform:scaleY(1)}
+  .ix__row:hover > *{color:var(--ink);opacity:1}
+  .ix__row:hover .ix__name{transform:translateX(10px)}
+  .ix__row:hover .ix__n{transform:translateX(6px)}
+}
+.ix__foot{display:flex;justify-content:space-between;gap:16px;margin-top:22px;flex-wrap:wrap}
+.ix__foot .tag{opacity:.4}
+
+/* peek */
+.ix__peek{
+  position:fixed;top:0;left:0;width:190px;height:250px;z-index:800;pointer-events:none;
+  opacity:0;transform:scale(.9);will-change:transform,opacity;
+}
+.ix__peek .peek{
+  position:absolute;inset:0;background:var(--bone);display:grid;place-items:center;padding:16px;
+  opacity:0;transition:opacity .3s ease;
+}
+.ix__peek .peek svg{width:100%;height:100%}
+.ix__peek .peek path{fill:var(--ink)}
+@media (hover:none){.ix__peek{display:none}}
+
+/* ============ FOOTER ============ */
+.footer{position:relative;background:var(--ink);overflow:hidden;padding-top:clamp(48px,7vw,96px)}
+.ft__top{max-width:1560px;margin:0 auto;padding:0 var(--pad) clamp(40px,6vw,80px);display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line);padding-bottom:clamp(30px,4vw,54px)}
+.ft__mail{
+  display:inline-block;font-family:'Anton',sans-serif;text-transform:uppercase;
+  font-size:clamp(24px,4.6vw,72px);line-height:1;letter-spacing:-.02em;align-self:flex-start;
+  padding-bottom:.06em;border-bottom:2px solid transparent;
+}
+.ft__mail:hover{color:var(--acid)}
+.ft__word{
+  font-family:'Anton',sans-serif;text-transform:uppercase;text-align:center;
+  font-size:clamp(90px,29vw,470px);line-height:.72;letter-spacing:-.04em;
+  color:transparent;-webkit-text-stroke:1px rgba(237,233,225,.28);
+  padding:clamp(14px,3vw,40px) var(--pad) 0;user-select:none;
+}
+.ft__bot{
+  max-width:1560px;margin:0 auto;padding:22px var(--pad) 26px;
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  border-top:1px solid var(--line);
+}
+.ft__bot span,.ft__bot a{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;opacity:.5}
+.ft__bot a:hover{opacity:1;color:var(--acid)}
+
+/* ============ REVEAL HELPERS ============ */
+.reveal{will-change:transform,opacity}
+
+/* ============ REDUCED MOTION ============ */
+.reduce .marquee__inner{animation:none}
+.reduce .cue__line i{animation:none}
+.reduce .badge svg{animation:none}
+.reduce .g__viewport{overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.reduce .g__track{transform:none !important}
+.reduce .plate{scroll-snap-align:center}
+.reduce .gallery{height:auto;min-height:auto;padding-bottom:26px}
+.reduce .g__track{height:64vh}
+.reduce .grain{animation:none}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1000px){
+  .mf{grid-template-columns:1fr}
+  .mf__aside{flex-direction:row;align-items:center;justify-content:space-between}
+  .badge{width:76px;height:76px}
+  .an{grid-template-columns:1fr}
+  .an__figure{position:relative;top:0;max-width:420px;margin:0 auto}
+  .an__figure svg{max-height:none}
+}
+@media (max-width:760px){
+  .topbar__mid{display:none}
+  .mf__copy{grid-template-columns:1fr}
+  .mf__facts{grid-template-columns:1fr;gap:18px}
+  .ix__row{grid-template-columns:40px 1fr 24px;gap:10px}
+  .ix__mat,.ix__col{display:none}
+  .hero__serif{text-align:left}
+  .hero__sub{gap:6px}
+  .hero__ghost{right:-24vw;opacity:.055}
+  .g__head,.g__foot{padding-left:var(--pad);padding-right:var(--pad)}
+  .plate{width:min(74vw,300px)}
+  .plate--end{width:min(56vw,220px)}
+  .ft__word{-webkit-text-stroke-width:.8px}
+}
+@media (prefers-reduced-motion:reduce){
+  .marquee__inner{animation:none}
+  .cue__line i{animation:none}
+  .badge svg{animation:none}
+  .grain{animation:none}
+  .plate,.plate::after,.ix__row::before,.ix__row > *{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="cursor__ring"><span class="cursor__label">VIEW</span></div>
+  <div class="cursor__dot"></div>
+</div>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader__panels" aria-hidden="true">
+    <div class="loader__panel"></div>
+    <div class="loader__panel"></div>
+    <div class="loader__panel"></div>
+    <div class="loader__panel"></div>
+    <div class="loader__panel"></div>
+  </div>
+  <div class="loader__ui">
+    <div class="loader__row">
+      <span class="tag">MAISON NOIR — PARIS 3ᵉ</span>
+      <span class="tag">LOOKBOOK N°27</span>
+    </div>
+    <div class="loader__word">NOIR/SS27</div>
+    <div>
+      <div class="loader__bar"><span></span></div>
+      <div class="loader__row" style="margin-top:10px">
+        <span class="tag">SPRING / SUMMER 2027</span>
+        <span class="tag">24 LOOKS</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar__brand">NOIR<sup>®</sup></div>
+  <div class="topbar__mid tag">
+    <span>SS27</span>
+    <span>PARIS</span>
+    <span>24 LOOKS</span>
+  </div>
+  <div class="tag" style="opacity:.85">LOOKBOOK / 01</div>
+</header>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top">
+    <div class="hero__ghost" aria-hidden="true">
+      <svg viewBox="0 0 400 660" preserveAspectRatio="xMidYMid meet">
+        <path d="M200 52C176 52 158 58 146 70L100 88L64 320L112 336L124 268L124 640L276 640L276 268L288 336L336 320L300 88L254 70C242 58 224 52 200 52Z"/>
+      </svg>
+    </div>
+
+    <div class="hero__inner">
+      <div class="hero__eyebrow">
+        <span class="tag hero__mini">MAISON NOIR — ATELIER 07</span>
+        <span class="tag hero__mini">COLLECTION SS27</span>
+        <span class="tag hero__mini acid">ÉDITION 01 / 24 LOOKS</span>
+      </div>
+
+      <div class="hero__type">
+        <span class="hero__word display" id="heroWord">NOIR<sup>®</sup></span>
+      </div>
+
+      <div class="hero__sub">
+        <span class="hero__slash display hero__mini">/SS27</span>
+        <span class="hero__serif serif hero__mini">a study in black</span>
+      </div>
+
+      <div class="hero__foot">
+        <p class="tag hero__mini">SPRING / SUMMER 2027</p>
+        <p class="tag hero__mini">SHOWN IN PARIS, 6ᵉ — JUNE 2026</p>
+        <div class="cue hero__mini" data-mag="0.4">
+          <span class="tag">SCROLL</span>
+          <span class="cue__line"><i></i></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__inner" id="mq">
+      <span>NOIR/SS27 <span class="marquee__dot"></span> AVANT-GARDE <span class="marquee__dot"></span> <em>silhouette as argument</em> <span class="marquee__dot"></span> PARIS <span class="marquee__dot"></span> 24 LOOKS <span class="marquee__dot"></span></span>
+      <span>NOIR/SS27 <span class="marquee__dot"></span> AVANT-GARDE <span class="marquee__dot"></span> <em>silhouette as argument</em> <span class="marquee__dot"></span> PARIS <span class="marquee__dot"></span> 24 LOOKS <span class="marquee__dot"></span></span>
+    </div>
+  </div>
+
+  <!-- ============ 01 MANIFESTO ============ -->
+  <section class="sec sec--bone" id="manifesto">
+    <div class="sec__inner">
+      <div class="mf">
+        <aside class="mf__aside">
+          <span class="mf__num">01</span>
+          <div class="badge" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+              <defs>
+                <path id="badgePath" d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/>
+              </defs>
+              <text><textPath href="#badgePath" startOffset="0">NOIR · SS27 · ATELIER 07 · PARIS · </textPath></text>
+            </svg>
+          </div>
+        </aside>
+
+        <div class="mf__main">
+          <h2 class="mf__title">
+            <span class="line"><span>WE CUT</span></span>
+            <span class="line"><span>IN <em>silence.</em></span></span>
+          </h2>
+
+          <div class="mf__copy">
+            <p class="mf__lead reveal">NOIR/SS27 is twenty-four garments and one rule: the body is not corrected, it is <em>framed</em>.</p>
+            <div>
+              <p class="mf__body reveal">Every piece begins as a flat plane — bonded wool, silk faille, raw cotton canvas, horsehair — held under weights for seventy-two hours before a single blade touches it. We do not drape. We subtract.</p>
+              <p class="mf__body reveal">What remains is a silhouette that refuses the waist. Volume is drawn from the seam alone: zero darts, zero fusible, zero apology.</p>
+            </div>
+          </div>
+
+          <div class="mf__facts">
+            <div class="reveal">
+              <h4>Origin</h4>
+              <p>Atelier 07, Rue de Turenne, Paris 3ᵉ. Sixth floor, no lift.</p>
+            </div>
+            <div class="reveal">
+              <h4>Method</h4>
+              <p>Zero darts. All volume is carried by the seam and the weight of the cloth.</p>
+            </div>
+            <div class="reveal">
+              <h4>Material</h4>
+              <p>Bonded wool, silk faille, raw canvas, horsehair, horn.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 GALLERY ============ -->
+  <section class="gallery" id="looks">
+    <div class="g__head">
+      <span class="tag">02 — THE LOOKS / SELECTION</span>
+      <span class="tag">SCROLL HORIZONTALLY →</span>
+    </div>
+
+    <div class="g__viewport">
+      <div class="g__track" id="track">
+
+        <!-- 01 -->
+        <article class="plate" data-mag="0">
+          <div class="plate__top">
+            <span class="plate__num">01</span>
+            <span class="plate__kind">Outerwear</span>
+          </div>
+          <div class="plate__fig">
+            <svg viewBox="0 0 400 660" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="sil" d="M200 52C176 52 158 58 146 70L100 88L64 320L112 336L124 268L124 640L276 640L276 268L288 336L336 320L300 88L254 70C242 58 224 52 200 52Z"/>
+              <path class="det" d="M200 62L200 640M162 64L200 204L238 64"/>
+            </svg>
+          </div>
+          <div class="plate__bot">
+            <h3>Void Coat</h3>
+            <p>Bonded wool · Drop shoulder</p>
+          </div>
+        </article>
+
+        <!-- 02 -->
+        <article class="plate" data-mag="0">
+          <div class="plate__top">
+            <span class="plate__num">02</span>
+            <span class="plate__kind">Dress</span>
+          </div>
+          <div class="plate__fig">
+            <svg viewBox="0 0 400 660" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="sil" d="M200 58C183 58 170 64 164 76L148 108L140 640L260 640L252 108L236 76C230 64 217 58 200 58ZM188 372L212 372L212 640L188 640Z"/>
+              <path class="det" d="M200 68L200 340"/>
+            </svg>
+          </div>
+          <div class="plate__bot">
+            <h3>Spine</h3>
+            <p>Silk faille · Column cut</p>
+          </div>
+        </article>
+
+        <!-- 03 -->
+        <article class="plate" data-mag="0">
+          <div class="plate__top">
+            <span class="plate__num">03</span>
+            <span class="plate__kind">Tailoring</span>
+          </div>
+          <div class="plate__fig">
+            <svg viewBox="0 0 400 660" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="sil" d="M196 56L118 90L94 302L140 318L150 238L150 560L196 560Z"/>
+              <path class="sil" d="M204 56L282 90L306 302L260 318L250 238L250 560L204 560Z"/>
+              <path class="det" d="M196 60L196 560M204 60L204 560"/>
+            </svg>
+          </div>
+          <div class="plate__bot">
+            <h3>Cage</h3>
+            <p>Raw canvas · Split construction</p>
+          </div>
+        </article>
+
+        <!-- 04 -->
+        <article class="plate" data-mag="0">
+          <div class="plate__top">
+            <span class="plate__num">04</span>
+            <span class="plate__kind">Knitwear</span>
+          </div>
+          <div class="plate__fig">
+            <svg viewBox="0 0 400 660" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="sil" d="M200 56C170 56 148 64 134 78L96 96L52 420L100 434L118 300L118 560L282 560L282 300L300 434L348 420L304 96L266 78C252 64 230 56 200 56Z"/>
+              <path class="det" d="M200 66L200 560M150 120L250 120"/>
+            </svg>
+          </div>
+          <div class="plate__bot">
+            <h3>Salt</h3>
+            <p>Merino · Oversized gauge</p>
+          </div>
+        </article>
+
+        <!-- 05 -->
+        <article class="plate" data-mag="0">
+          <div class="plate__top">
+            <span class="plate__num">05</span>
+            <span class="plate__kind">Cape</span>
+          </div>
+          <div class="plate__fig">
+            <svg viewBox="0 0 400 660" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="sil" d="M200 48C170 48 150 72 150 104C150 128 164 146 200 146C236 146 250 128 250 104C250 72 230 48 200 48Z"/>
+              <path class="sil" d="M200 138L120 186L66 620L334 620L280 186Z"/>
+              <path class="det" d="M200 150L200 620M160 108C160 126 178 134 200 134C222 134 240 126 240 108"/>
+            </svg>
+          </div>
+          <div class="plate__bot">
+            <h3>Halt</h3>
+            <p>Horsehair · Hooded volume</p>
+          </div>
+        </article>
+
+        <!-- 06 -->
+        <article class="plate" data-mag="0">
+          <div class="plate__top">
+            <span class="plate__num">06</span>
+            <span class="plate__kind">Trousering</span>
+          </div>
+          <div class="plate__fig">
+            <svg viewBox="0 0 400 660" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <path class="sil" d="M140 60L260 60L266 300L296 640L228 640L200 372L172 640L104 640L134 300Z"/>
+              <path class="det" d="M140 92L260 92M200 60L200 372"/>
+            </svg>
+          </div>
+          <div class="plate__bot">
+            <h3>Floor</h3>
+            <p>Wool gabardine · Wide fit</p>
+          </div>
+        </article>
+
+        <!-- END -->
+        <div class="plate plate--end" aria-hidden="true">
+          <span class="endnum">24</span>
+          <p>Looks total.<br>Eighteen remain unreleased.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="g__foot">
+      <div class="g__bar"><i id="gBar"></i></div>
+      <span class="g__count" id="gCount">01 / 06</span>
+    </div>
+  </section>
+
+  <!-- ============ 03 ANATOMY ============ -->
+  <section class="sec sec--bone" id="anatomy">
+    <div class="an">
+      <div class="an__head">
+        <h2>One silhouette,<br><em>thirty-one</em> decisions.</h2>
+        <span class="tag">03 — ANATOMY / VOID COAT</span>
+      </div>
+
+      <div class="an__figure">
+        <svg viewBox="0 0 500 720" preserveAspectRatio="xMidYMid meet" aria-label="Technical drawing of the Void Coat">
+          <!-- outer -->
+          <path class="draw draw--bold" d="M208 72 L168 94 L118 306 L164 324 L178 238 L178 648 L322 648 L322 238 L336 324 L382 306 L332 94 L292 72 Q250 100 208 72 Z"/>
+          <!-- construction -->
+          <path class="draw" d="M250 100 L250 648"/>
+          <path class="draw" d="M208 74 L250 206 L292 74"/>
+          <path class="draw" d="M178 470 L228 470"/>
+          <path class="draw" d="M272 470 L322 470"/>
+          <path class="draw draw--thin" d="M188 618 L312 618"/>
+          <!-- buttons -->
+          <circle class="an__dot btn-dot" cx="250" cy="300" r="4"/>
+          <circle class="an__dot btn-dot" cx="250" cy="360" r="4"/>
+          <circle class="an__dot btn-dot" cx="250" cy="420" r="4"/>
+          <!-- shoulder dimension -->
+          <path class="draw draw--thin" d="M168 40 L332 40"/>
+          <path class="draw draw--thin" d="M168 30 L168 50"/>
+          <path class="draw draw--thin" d="M332 30 L332 50"/>
+          <text x="250" y="24" text-anchor="middle">SHOULDER 48CM</text>
+          <!-- length dimension -->
+          <path class="draw draw--thin" d="M424 94 L424 648"/>
+          <path class="draw draw--thin" d="M414 94 L434 94"/>
+          <path class="draw draw--thin" d="M414 648 L434 648"/>
+          <text x="442" y="376" transform="rotate(90 442 376)" text-anchor="middle">LENGTH 148CM</text>
+          <!-- callout -->
+          <path class="draw draw--thin" d="M250 206 L366 168"/>
+          <circle class="an__dot call-dot" cx="250" cy="206" r="4"/>
+          <text x="374" y="164">PEAK LAPEL 12CM</text>
+          <!-- hem callout -->
+          <path class="draw draw--thin" d="M312 618 L392 660"/>
+          <circle class="an__dot call-dot" cx="312" cy="618" r="4"/>
+          <text x="400" y="664">HAND HEM 3CM</text>
+        </svg>
+      </div>
+
+      <div class="an__notes">
+        <div class="note reveal">
+          <div class="note__head"><span class="note__n">01</span><h3>Shoulder</h3></div>
+          <p>A fourteen-centimetre drop. The seam is set behind the arm so the shoulder reads as a single, unresolved plane — never a corner.</p>
+        </div>
+        <div class="note reveal">
+          <div class="note__head"><span class="note__n">02</span><h3>Lapel</h3></div>
+          <p>One peak, twelve centimetres, pressed flat. No interfacing, no canvas — the bonded wool is expected to hold itself, or to fail honestly.</p>
+        </div>
+        <div class="note reveal">
+          <div class="note__head"><span class="note__n">03</span><h3>Closure</h3></div>
+          <p>Three horn buttons. The fourth is a ghost: stitched, non-functional, present only so the eye finds symmetry it can rest in.</p>
+        </div>
+        <div class="note reveal">
+          <div class="note__head"><span class="note__n">04</span><h3>Hem</h3></div>
+          <p>Finished by hand in a three-centimetre blind stitch. No fusible tape. The coat should fall, not stand. It is the last thing we do and the first thing you notice.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 INDEX ============ -->
+  <section class="sec sec--ink" id="index">
+    <div class="ix">
+      <div class="ix__head">
+        <h2>THE <em>24</em> LOOKS</h2>
+        <span class="tag">04 — INDEX / EIGHT SHOWN</span>
+      </div>
+
+      <ul class="ix__list" id="ixList">
+        <li class="ix__row" data-shape="0">
+          <span class="ix__n">01</span>
+          <span class="ix__name">Void Coat</span>
+          <span class="ix__mat">Bonded wool</span>
+          <span class="ix__col">Noir</span>
+          <span class="ix__go">↗</span>
+        </li>
+        <li class="ix__row" data-shape="1">
+          <span class="ix__n">02</span>
+          <span class="ix__name">Spine Dress</span>
+          <span class="ix__mat">Silk faille</span>
+          <span class="ix__col">Noir</span>
+          <span class="ix__go">↗</span>
+        </li>
+        <li class="ix__row" data-shape="2">
+          <span class="ix__n">03</span>
+          <span class="ix__name">Cage Blazer</span>
+          <span class="ix__mat">Raw canvas</span>
+          <span class="ix__col">Chalk</span>
+          <span class="ix__go">↗</span>
+        </li>
+        <li class="ix__row" data-shape="3">
+          <span class="ix__n">04</span>
+          <span class="ix__name">Salt Knit</span>
+          <span class="ix__mat">Merino</span>
+          <span class="ix__col">Ash</span>
+          <span class="ix__go">↗</span>
+        </li>
+        <li class="ix__row" data-shape="4">
+          <span class="ix__n">05</span>
+          <span class="ix__name">Halt Cape</span>
+          <span class="ix__mat">Horsehair</span>
+          <span class="ix__col">Noir</span>
+          <span class="ix__go">↗</span>
+        </li>
+        <li class="ix__row" data-shape="5">
+          <span class="ix__n">06</span>
+          <span class="ix__name">Floor Trouser</span>
+          <span class="ix__mat">Wool gabardine</span>
+          <span class="ix__col">Noir</span>
+          <span class="ix__go">↗</span>
+        </li>
+        <li class="ix__row" data-shape="1">
+          <span class="ix__n">07</span>
+          <span class="ix__name">Seam Shirt</span>
+          <span class="ix__mat">Cotton poplin</span>
+          <span class="ix__col">Bone</span>
+          <span class="ix__go">↗</span>
+        </li>
+        <li class="ix__row" data-shape="0">
+          <span class="ix__n">08</span>
+          <span class="ix__name">Null Vest</span>
+          <span class="ix__mat">Felted wool</span>
+          <span class="ix__col">Noir</span>
+          <span class="ix__go">↗</span>
+        </li>
+      </ul>
+
+      <div class="ix__foot">
+        <span class="tag">SIXTEEN FURTHER LOOKS AVAILABLE ON REQUEST</span>
+        <span class="tag">PRESS — ATELIER@NOIR.STUDIO</span>
+      </div>
+    </div>
+
+    <!-- floating peek -->
+    <div class="ix__peek" id="peek" aria-hidden="true">
+      <div class="peek"><svg viewBox="0 0 400 660"><path d="M200 52C176 52 158 58 146 70L100 88L64 320L112 336L124 268L124 640L276 640L276 268L288 336L336 320L300 88L254 70C242 58 224 52 200 52Z"/></svg></div>
+      <div class="peek"><svg viewBox="0 0 400 660"><path d="M200 58C183 58 170 64 164 76L148 108L140 640L260 640L252 108L236 76C230 64 217 58 200 58ZM188 372L212 372L212 640L188 640Z"/></svg></div>
+      <div class="peek"><svg viewBox="0 0 400 660"><path d="M196 56L118 90L94 302L140 318L150 238L150 560L196 560Z"/><path d="M204 56L282 90L306 302L260 318L250 238L250 560L204 560Z"/></svg></div>
+      <div class="peek"><svg viewBox="0 0 400 660"><path d="M200 56C170 56 148 64 134 78L96 96L52 420L100 434L118 300L118 560L282 560L282 300L300 434L348 420L304 96L266 78C252 64 230 56 200 56Z"/></svg></div>
+      <div class="peek"><svg viewBox="0 0 400 660"><path d="M200 48C170 48 150 72 150 104C150 128 164 146 200 146C236 146 250 128 250 104C250 72 230 48 200 48Z"/><path d="M200 138L120 186L66 620L334 620L280 186Z"/></svg></div>
+      <div class="peek"><svg viewBox="0 0 400 660"><path d="M140 60L260 60L266 300L296 640L228 640L200 372L172 640L104 640L134 300Z"/></svg></div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="ft__top">
+    <span class="tag" style="opacity:.45">05 — ENQUIRIES</span>
+    <a class="ft__mail" href="mailto:atelier@noir.studio" data-mag="0.18">atelier@noir.studio</a>
+    <span class="tag" style="opacity:.45">PRESS &amp; SALES — +33 1 84 00 27 27</span>
+  </div>
+
+  <div class="ft__word" aria-hidden="true">NOIR</div>
+
+  <div class="ft__bot">
+    <span>© 2027 NOIR MAISON — PARIS 3ᵉ</span>
+    <span>SS27 LOOKBOOK — EDITION 01</span>
+    <a href="#top" data-mag="0.4">BACK TO TOP ↑</a>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  if (reduce) document.documentElement.classList.add("reduce");
+
+  if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------------- LENIS ---------------- */
+  var lenis = null;
+  if (!reduce && window.Lenis) {
+    try {
+      lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1, touchMultiplier: 1.6, smoothWheel: true });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+      gsap.ticker.lagSmoothing(0);
+    } catch (e) { lenis = null; }
+  }
+
+  /* ---------------- LOADER ---------------- */
+  var loader = document.getElementById("loader");
+  var heroWord = document.getElementById("heroWord");
+  var heroMinis = gsap.utils.toArray(".hero__mini");
+
+  if (reduce) {
+    if (loader) loader.style.display = "none";
+  } else {
+    if (lenis) lenis.stop();
+    gsap.set(heroWord, { yPercent: 116 });
+    gsap.set(heroMinis, { opacity: 0, y: 16 });
+    gsap.set(".hero__ghost", { opacity: 0, scale: 1.08 });
+
+    var tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+    tl.to(".loader__bar span", { scaleX: 1, duration: 0.55, ease: "power2.inOut" }, 0)
+      .to(".loader__word", { opacity: 0, y: -26, duration: 0.45, ease: "power2.in" }, 0.55)
+      .to(".loader__ui .tag", { opacity: 0, duration: 0.3 }, 0.55)
+      .to(".loader__panel", {
+        clipPath: "inset(0 0 100% 0)",
+        duration: 0.95,
+        stagger: 0.075,
+        ease: "power4.inOut"
+      }, 0.7)
+      .to(heroWord, { yPercent: 0, duration: 1.25, ease: "power4.out" }, 0.95)
+      .to(heroMinis, { opacity: 1, y: 0, duration: 0.9, stagger: 0.05 }, 1.05)
+      .to(".hero__ghost", { opacity: 0.07, scale: 1, duration: 1.6, ease: "power2.out" }, 1.0)
+      .add(function () {
+        if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+        if (lenis) lenis.start();
+        ScrollTrigger.refresh();
+      }, 1.85);
+  }
+
+  /* ---------------- CURSOR + MAGNET ---------------- */
+  if (fine && !reduce && window.gsap) {
+    document.body.classList.add("has-cursor");
+    var cur = document.getElementById("cursor");
+    var ring = cur.querySelector(".cursor__ring");
+    var dot = cur.querySelector(".cursor__dot");
+
+    gsap.set([ring, dot], { xPercent: -50, yPercent: -50 });
+
+    var mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    var ringX = gsap.quickTo(ring, "x", { duration: 0.5, ease: "power3" });
+    var ringY = gsap.quickTo(ring, "y", { duration: 0.5, ease: "power3" });
+    var dotX = gsap.quickTo(dot, "x", { duration: 0.08, ease: "power2" });
+    var dotY = gsap.quickTo(dot, "y", { duration: 0.08, ease: "power2" });
+
+    window.addEventListener("mousemove", function (e) {
+      mx = e.clientX; my = e.clientY;
+      ringX(mx); ringY(my); dotX(mx); dotY(my);
+    }, { passive: true });
+
+    var hotEls = document.querySelectorAll("a, .plate, .ix__row, [data-mag]");
+    hotEls.forEach(function (el) {
+      el.addEventListener("mouseenter", function () {
+        gsap.to(ring, { scale: 1.9, borderColor: "rgba(217,255,61,1)", duration: 0.4, ease: "power3.out" });
+        gsap.to(dot, { scale: 0.2, duration: 0.3 });
+      });
+      el.addEventListener("mouseleave", function () {
+        gsap.to(ring, { scale: 1, borderColor: "rgba(255,255,255,.85)", duration: 0.45, ease: "power3.out" });
+        gsap.to(dot, { scale: 1, duration: 0.3 });
+      });
+    });
+
+    /* magnetic */
+    document.querySelectorAll("[data-mag]").forEach(function (el) {
+      var strength = parseFloat(el.getAttribute("data-mag")) || 0.3;
+      if (strength === 0) return;
+      el.addEventListener("mousemove", function (e) {
+        var r = el.getBoundingClientRect();
+        var x = (e.clientX - r.left - r.width / 2) * strength;
+        var y = (e.clientY - r.top - r.height / 2) * strength;
+        gsap.to(el, { x: x, y: y, duration: 0.6, ease: "power3.out", overwrite: "auto" });
+      });
+      el.addEventListener("mouseleave", function () {
+        gsap.to(el, { x: 0, y: 0, duration: 0.9, ease: "elastic.out(1, 0.4)", overwrite: "auto" });
+      });
+    });
+
+    /* hero parallax */
+    var hero = document.querySelector(".hero");
+    var ghost = document.querySelector(".hero__ghost");
+    if (hero && ghost && !reduce) {
+      hero.addEventListener("mousemove", function (e) {
+        var px = (e.clientX / window.innerWidth - 0.5) * 46;
+        var py = (e.clientY / window.innerHeight - 0.5) * 34;
+        gsap.to(ghost, { x: px, y: py, duration: 1.3, ease: "power3.out", overwrite: "auto" });
+      }, { passive: true });
+    }
+  }
+
+  /* ---------------- SCROLL REVEALS ---------------- */
+  if (!reduce && window.ScrollTrigger) {
+    // line masks
+    gsap.utils.toArray(".line > span").forEach(function (inner) {
+      gsap.from(inner, {
+        yPercent: 112,
+        duration: 1.15,
+        ease: "power4.out",
+        scrollTrigger: { trigger: inner.parentNode, start: "top 88%" }
+      });
+    });
+
+    // generic reveals
+    gsap.utils.toArray(".reveal").forEach(function (el) {
+      gsap.from(el, {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: { trigger: el, start: "top 90%" }
+      });
+    });
+
+    // index rows
+    gsap.from(".ix__row", {
+      y: 26,
+      opacity: 0,
+      duration: 0.85,
+      stagger: 0.055,
+      ease: "power3.out",
+      scrollTrigger: { trigger: ".ix__list", start: "top 84%" }
+    });
+
+    // footer word
+    gsap.from(".ft__word", {
+      yPercent: 30,
+      opacity: 0,
+      duration: 1.4,
+      ease: "power4.out",
+      scrollTrigger: { trigger: ".footer", start: "top 78%" }
+    });
+  }
+
+  /* ---------------- ANATOMY DRAW ---------------- */
+  (function () {
+    var paths = gsap.utils.toArray(".an__figure .draw");
+    var extras = gsap.utils.toArray(".an__figure text, .an__figure circle");
+
+    if (reduce || !window.ScrollTrigger) return;
+
+    paths.forEach(function (p) {
+      var len = 900;
+      try { len = p.getTotalLength(); } catch (e) { len = 900; }
+      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+    });
+    gsap.set(extras, { opacity: 0 });
+
+    var t = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".an",
+        start: "top 72%",
+        end: "bottom 68%",
+        scrub: 0.9
+      }
+    });
+
+    t.to(paths, { strokeDashoffset: 0, duration: 1, ease: "none", stagger: 0.055 }, 0)
+     .to(extras, { opacity: 1, duration: 0.6, stagger: 0.03 }, 0.55);
+  })();
+
+  /* ---------------- HORIZONTAL GALLERY ---------------- */
+  (function () {
+    var track = document.getElementById("track");
+    var gallery = document.querySelector(".gallery");
+    var bar = document.getElementById("gBar");
+    var count = document.getElementById("gCount");
+    if (!track || !gallery) return;
+
+    if (reduce || !window.ScrollTrigger) {
+      if (bar) bar.style.transform = "scaleX(1)";
+      return;
+    }
+
+    var current = 0;
+    var total = 6;
+
+    function amount() {
+      var w = track.scrollWidth - document.documentElement.clientWidth;
+      return Math.max(1, w);
+    }
+
+    gsap.to(track, {
+      x: function () { return -amount(); },
+      ease: "none",
+      scrollTrigger: {
+        trigger: gallery,
+        start: "top top",
+        end: function () { return "+=" + amount(); },
+        pin: true,
+        scrub: 0.7,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: function (self) {
+          if (bar) bar.style.transform = "scaleX(" + self.progress + ")";
+          var i = Math.min(total, Math.max(1, Math.round(self.progress * (total - 1)) + 1));
+          if (i !== current && count) {
+            current = i;
+            count.textContent = (i < 10 ? "0" + i : i) + " / 0" + total;
+          }
+        }
+      }
+    });
+  })();
+
+  /* ---------------- INDEX PEEK ---------------- */
+  (function () {
+    if (!fine || reduce) return;
+    var peek = document.getElementById("peek");
+    var rows = document.querySelectorAll(".ix__row");
+    if (!peek || !rows.length) return;
+
+    var peeks = peek.querySelectorAll(".peek");
+    var pxTo = gsap.quickTo(peek, "x", { duration: 0.6, ease: "power3" });
+    var pyTo = gsap.quickTo(peek, "y", { duration: 0.6, ease: "power3" });
+    var mx = 0, my = 0;
+
+    window.addEventListener("mousemove", function (e) {
+      mx = e.clientX + 26;
+      my = e.clientY - 125;
+      pxTo(mx); pyTo(my);
+    }, { passive: true });
+
+    rows.forEach(function (row) {
+      row.addEventListener("mouseenter", function () {
+        var idx = parseInt(row.getAttribute("data-shape"), 10) || 0;
+        peeks.forEach(function (p, i) { p.style.opacity = i === idx ? "1" : "0"; });
+        gsap.to(peek, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out", overwrite: "auto" });
+        pxTo(mx); pyTo(my);
+      });
+      row.addEventListener("mouseleave", function () {
+        gsap.to(peek, { opacity: 0, scale: 0.9, duration: 0.35, ease: "power2.out", overwrite: "auto" });
+      });
+    });
+  })();
+
+  /* ---------------- ANCHOR SCROLL ---------------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var id = a.getAttribute("href");
+      if (!id || id === "#") return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      if (lenis) {
+        lenis.scrollTo(target, { duration: 1.5, offset: 0 });
+      } else {
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset, behavior: reduce ? "auto" : "smooth" });
+      }
+    });
+  });
+
+  /* ---------------- REFRESH ---------------- */
+  if (window.ScrollTrigger) {
+    window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+    }
+    var rt;
+    window.addEventListener("resize", function () {
+      clearTimeout(rt);
+      rt = setTimeout(function () { ScrollTrigger.refresh(); }, 200);
+    });
+  }
+})();
+</script>
+</body>
+</html>

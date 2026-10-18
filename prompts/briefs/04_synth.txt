@@ -1,0 +1,3 @@
+Product page for 'Pulse-9', a hardware synthesizer. Motion signature: interactive on-screen knobs and keys that actually play sound via Web Audio API, waveform visualizer on canvas reacting to playback, neon retro-future style.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

@@ -1,0 +1,3 @@
+Climate data story 'One Degree'. Motion signature: scrollytelling with a sticky visualization: warming stripes animate in, a canvas thermometer rises, an SVG map region heat-colors, numbers tween, each step choreographed to scroll position.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

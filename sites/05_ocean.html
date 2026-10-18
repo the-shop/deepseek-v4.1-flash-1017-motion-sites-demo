@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Blue Trust — Marine Conservation for the 71%</title>
+<meta name="description" content="Deep Blue Trust works with coastal communities, marine scientists and policy-makers to restore the ocean — from sunlit reefs to abyssal plains no one has ever seen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  html.lenis,html.lenis body{height:auto}
+  .lenis.lenis-smooth{scroll-behavior:auto !important}
+  body{
+    margin:0;
+    background:#02090f;
+    color:#eaf8fc;
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    font-weight:400;
+    line-height:1.55;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  :root{
+    --ink:#eaf8fc;
+    --muted:rgba(206,232,242,.68);
+    --dim:rgba(206,232,242,.42);
+    --line:rgba(180,225,240,.15);
+    --cyan:#7ff0ff;
+  }
+  ::selection{background:rgba(127,240,255,.28);color:#fff}
+
+  /* ---------- background stack ---------- */
+  #bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .zone{position:absolute;inset:0;will-change:opacity;opacity:0}
+  .zone-1{background:linear-gradient(180deg,#0f6f8e 0%,#0b6081 25%,#08506e 55%,#063f58 80%,#043346 100%);opacity:1}
+  .zone-2{background:linear-gradient(180deg,#043346 0%,#042c42 30%,#032235 62%,#021a29 100%)}
+  .zone-3{background:linear-gradient(180deg,#021a29 0%,#01131f 35%,#010c15 70%,#00080e 100%)}
+  .zone-4{background:linear-gradient(180deg,#00080e 0%,#000509 45%,#000204 100%)}
+
+  /* ---------- surface bloom & rays ---------- */
+  #surface{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+  .sun-bloom{
+    position:absolute;top:-38vh;left:50%;transform:translateX(-50%);
+    width:150vw;height:110vh;
+    background:radial-gradient(ellipse 50% 45% at 50% 50%,rgba(196,247,255,.72) 0%,rgba(150,232,252,.34) 32%,rgba(90,200,235,.10) 58%,transparent 78%);
+    mix-blend-mode:screen;
+  }
+  .ray{
+    position:absolute;top:-14vh;width:11vw;height:105vh;
+    background:linear-gradient(180deg,rgba(190,247,255,.42),rgba(190,247,255,.12) 42%,transparent 78%);
+    filter:blur(16px);
+    mix-blend-mode:screen;
+    transform-origin:top center;
+    animation:raySway 16s ease-in-out infinite alternate;
+    opacity:.65;
+  }
+  .ray:nth-child(2){left:12%;transform:rotate(7deg);animation-delay:-3s;animation-duration:19s}
+  .ray:nth-child(3){left:31%;transform:rotate(-5deg);animation-delay:-7s;animation-duration:14s;opacity:.5}
+  .ray:nth-child(4){left:56%;transform:rotate(4deg);animation-delay:-1s;animation-duration:21s;opacity:.55}
+  .ray:nth-child(5){left:74%;transform:rotate(-8deg);animation-delay:-9s;animation-duration:17s;opacity:.42}
+  @keyframes raySway{
+    from{transform:rotate(-4deg) scaleY(1);opacity:.3}
+    to{transform:rotate(6deg) scaleY(1.12);opacity:.72}
+  }
+  .wave-band{
+    position:absolute;top:0;left:0;width:200%;height:90px;
+    opacity:.42;
+    animation:waveShift 22s linear infinite;
+  }
+  @keyframes waveShift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ---------- parallax creatures ---------- */
+  #parallax,#parallax-front{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+  #parallax{z-index:2}
+  #parallax-front{z-index:20}
+  .px{position:absolute;inset:0;will-change:transform,opacity}
+  .swimmer{position:absolute;left:0;top:var(--t,40%);width:var(--w,80px);opacity:var(--o,.5);animation:swimR var(--d,50s) linear infinite;animation-delay:var(--delay,-10s)}
+  .swimmer.left{animation-name:swimL}
+  .swimmer-inner{display:block;animation:bob var(--bd,7s) ease-in-out infinite alternate}
+  .swimmer svg{display:block;width:100%;height:auto;fill:rgba(196,238,250,.85)}
+  .swimmer.left svg{transform:scaleX(-1)}
+  @keyframes swimR{from{transform:translate3d(-22vw,0,0)}to{transform:translate3d(122vw,0,0)}}
+  @keyframes swimL{from{transform:translate3d(122vw,0,0)}to{transform:translate3d(-22vw,0,0)}}
+  @keyframes bob{from{transform:translateY(-7px) rotate(-1.5deg)}to{transform:translateY(7px) rotate(1.5deg)}}
+
+  .jelly{
+    position:absolute;left:var(--l,50%);top:var(--t,40%);width:var(--w,110px);
+    color:rgba(150,224,255,.85);
+    animation:jellyFloat var(--d,11s) ease-in-out infinite alternate;
+    animation-delay:var(--delay,0s);
+  }
+  .jelly svg{display:block;width:100%;height:auto;fill:currentColor}
+  @keyframes jellyFloat{
+    from{transform:translate3d(0,-22px,0) rotate(-3.5deg)}
+    to{transform:translate3d(8px,22px,0) rotate(3.5deg)}
+  }
+
+  .kelp{position:absolute;bottom:-4vh;left:var(--l,50%);width:var(--w,120px);color:rgba(120,200,200,.55)}
+  .kelp svg{display:block;width:100%;height:auto;transform-origin:50% 100%;animation:sway var(--d,9s) ease-in-out infinite alternate}
+  @keyframes sway{from{transform:rotate(-4deg) scaleY(1)}to{transform:rotate(5deg) scaleY(1.04)}}
+
+  #fx{position:fixed;inset:0;z-index:3;pointer-events:none}
+
+  .front-jelly{position:absolute;right:-8vw;bottom:-14vh;width:min(46vw,520px);color:rgba(120,200,255,.55);opacity:0;filter:blur(3px)}
+  .front-jelly svg{display:block;width:100%;height:auto;fill:currentColor;animation:jellyFloat 14s ease-in-out infinite alternate}
+
+  /* ---------- layout ---------- */
+  .wrap{width:min(1180px,calc(100% - 56px));margin-inline:auto}
+  main{position:relative;z-index:10}
+  section{position:relative;padding:19vh 0;scroll-margin-top:80px}
+
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--cyan);opacity:.82;margin:0 0 26px;
+    display:flex;align-items:center;gap:14px;font-weight:400;
+  }
+  .eyebrow::before{content:'';width:36px;height:1px;background:currentColor;opacity:.55;flex:none}
+  .h2{
+    font-family:'Instrument Serif',Georgia,serif;font-weight:400;
+    font-size:clamp(2.05rem,4.6vw,3.85rem);line-height:1.03;letter-spacing:-.022em;
+    margin:0 0 26px;max-width:17ch;
+  }
+  .h2 em{font-style:italic;color:#b6f5ff}
+  p.lede{font-size:clamp(1rem,1.1vw,1.09rem);line-height:1.68;color:var(--muted);max-width:56ch;font-weight:300;margin:0 0 20px}
+  p.lede + p.lede{color:rgba(206,232,242,.5)}
+  .strong{color:var(--ink);font-weight:500}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border-radius:100px;
+    font-size:13.5px;letter-spacing:.01em;text-decoration:none;cursor:pointer;border:1px solid transparent;
+    transition:transform .5s cubic-bezier(.2,.8,.2,1),background .45s,border-color .45s,color .45s,box-shadow .45s;
+    will-change:transform;white-space:nowrap;
+  }
+  .btn-primary{background:var(--cyan);color:#032430;font-weight:500}
+  .btn-primary:hover{transform:translateY(-2px);background:#fff;box-shadow:0 12px 34px rgba(127,240,255,.35)}
+  .btn-ghost{border-color:var(--line);color:var(--ink);background:rgba(255,255,255,.02)}
+  .btn-ghost:hover{transform:translateY(-2px);border-color:rgba(180,235,250,.5);background:rgba(127,240,255,.09)}
+  .btn .arrow{transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+  .btn:hover .arrow{transform:translateX(4px)}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 30px;
+  }
+  .nav::before{
+    content:'';position:absolute;left:-10%;right:-10%;top:-30px;height:150px;z-index:-1;
+    background:linear-gradient(180deg,rgba(1,12,20,.62) 0%,rgba(1,12,20,.24) 48%,transparent 100%);
+    pointer-events:none;
+  }
+  .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);font-size:14px;letter-spacing:.01em;font-weight:500}
+  .brand-mark{width:26px;height:26px;color:var(--cyan);flex:none}
+  .brand span{white-space:nowrap}
+  .nav-links{display:flex;gap:34px}
+  .nav-links a{
+    position:relative;color:rgba(226,244,250,.72);text-decoration:none;font-size:13px;letter-spacing:.015em;
+    transition:color .4s;
+  }
+  .nav-links a::after{
+    content:'';position:absolute;left:0;right:0;bottom:-5px;height:1px;background:var(--cyan);
+    transform:scaleX(0);transform-origin:right;transition:transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-links a:hover{color:#fff}
+  .nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
+  .nav-cta{padding:11px 22px;font-size:12.5px}
+
+  /* ---------- depth meter ---------- */
+  .meter{
+    position:fixed;right:36px;top:50%;transform:translateY(-50%);z-index:40;
+    display:flex;flex-direction:column;align-items:center;gap:18px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .meter-rail{
+    position:relative;width:2px;height:230px;border-radius:2px;
+    background:linear-gradient(180deg,rgba(160,240,255,.55),rgba(160,240,255,.06));
+  }
+  .meter-fill{
+    position:absolute;left:0;top:0;width:2px;height:0;border-radius:2px;
+    background:linear-gradient(180deg,rgba(200,250,255,.95),rgba(127,240,255,.35));
+  }
+  .meter-thumb{
+    position:absolute;left:50%;top:0;width:9px;height:9px;border-radius:50%;
+    transform:translate(-50%,-50%);
+    background:#dffbff;
+    box-shadow:0 0 12px 2px rgba(127,240,255,.85),0 0 30px 6px rgba(127,240,255,.28);
+  }
+  .meter-readout{
+    position:absolute;right:20px;top:50%;transform:translateY(-50%);
+    white-space:nowrap;font-size:11px;letter-spacing:.1em;color:rgba(224,248,255,.9);
+  }
+  .meter-readout b{font-weight:500}
+  .meter-zone{
+    font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(180,230,245,.52);
+    writing-mode:horizontal-tb;white-space:nowrap;
+  }
+  .meter-pill{display:none}
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100vh;min-height:100svh;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:130px 0 120px;
+    position:relative;
+  }
+  .hero-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:rgba(190,245,255,.85);margin:0 0 30px;display:flex;align-items:center;gap:14px;
+  }
+  .hero-eyebrow::before{content:'';width:36px;height:1px;background:currentColor;opacity:.55;flex:none}
+  .hero-title{
+    font-family:'Instrument Serif',Georgia,serif;font-weight:400;
+    font-size:clamp(2.4rem,6.9vw,5.9rem);
+    line-height:.99;letter-spacing:-.028em;margin:0 0 34px;max-width:14ch;
+  }
+  .mask{display:block;overflow:hidden;padding-bottom:.06em}
+  .mask > span{display:block;will-change:transform}
+  .hero-title em{font-style:italic;color:#a8f2ff;text-shadow:0 0 34px rgba(127,240,255,.45)}
+  .hero-sub{
+    font-size:clamp(1rem,1.18vw,1.12rem);line-height:1.65;color:rgba(214,238,246,.76);
+    max-width:50ch;font-weight:300;margin:0 0 40px;
+  }
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .hero-foot{position:absolute;left:0;right:0;bottom:30px;z-index:2}
+  .hero-foot-inner{
+    display:flex;justify-content:space-between;align-items:center;gap:20px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:rgba(200,232,242,.55);
+  }
+  .scroll-cue{display:inline-flex;align-items:center;gap:14px}
+  .cue-line{position:relative;width:46px;height:1px;background:rgba(180,225,240,.24);flex:none;overflow:hidden}
+  .cue-line::after{
+    content:'';position:absolute;inset:0;background:var(--cyan);
+    animation:cueRun 2.8s cubic-bezier(.65,0,.35,1) infinite;
+  }
+  @keyframes cueRun{
+    0%{transform:scaleX(0);transform-origin:left}
+    45%{transform:scaleX(1);transform-origin:left}
+    55%{transform:scaleX(1);transform-origin:right}
+    100%{transform:scaleX(0);transform-origin:right}
+  }
+
+  /* ---------- stats ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    margin-top:70px;
+  }
+  .stat{padding:32px 24px 34px 0;border-left:1px solid var(--line)}
+  .stat:first-child{border-left:0;padding-left:0}
+  .stat:not(:first-child){padding-left:26px}
+  .stat-num{
+    font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2rem,3.5vw,3rem);line-height:1;
+    color:#a8f2ff;letter-spacing:-.02em;display:block;margin-bottom:12px;
+  }
+  .stat-label{font-size:12.5px;line-height:1.5;color:rgba(206,232,242,.6);display:block;font-weight:300}
+
+  /* ---------- zones ---------- */
+  .zones{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:58px}
+  .zone-card{
+    position:relative;padding:28px 22px 30px;border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(180deg,rgba(12,44,64,.5),rgba(3,18,28,.28));
+    overflow:hidden;
+    transition:transform .55s cubic-bezier(.2,.8,.2,1),border-color .55s,background .55s;
+    will-change:transform;
+  }
+  .zone-card::after{
+    content:'';position:absolute;left:0;right:0;top:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(127,240,255,.7),transparent);
+    opacity:0;transition:opacity .55s;
+  }
+  .zone-card:hover{transform:translateY(-7px);border-color:rgba(127,240,255,.4);background:linear-gradient(180deg,rgba(18,66,92,.62),rgba(5,26,40,.4))}
+  .zone-card:hover::after{opacity:1}
+  .zone-idx{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;
+    color:rgba(127,240,255,.55);display:block;margin-bottom:34px;
+  }
+  .zone-depth{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;
+    color:rgba(206,232,242,.5);display:block;margin-bottom:10px;
+  }
+  .zone-name{
+    font-family:'Instrument Serif',Georgia,serif;font-size:1.55rem;line-height:1.1;
+    margin:0 0 14px;letter-spacing:-.01em;
+  }
+  .zone-copy{font-size:13px;line-height:1.62;color:rgba(206,232,242,.6);margin:0;font-weight:300}
+
+  /* ---------- field work ---------- */
+  .work-list{border-top:1px solid var(--line);margin-top:54px}
+  .work-row{
+    display:grid;grid-template-columns:84px 1fr 232px;gap:28px;align-items:baseline;
+    padding:26px 6px;border-bottom:1px solid var(--line);
+    transition:background .5s,padding .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .work-row:hover{background:rgba(127,240,255,.05);padding-left:18px;padding-right:18px}
+  .work-year{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;color:rgba(127,240,255,.72)}
+  .work-title{font-size:clamp(1rem,1.35vw,1.18rem);line-height:1.35;color:rgba(234,248,252,.92);font-weight:400}
+  .work-result{font-size:12.5px;line-height:1.5;color:rgba(206,232,242,.55);text-align:right;font-weight:300}
+
+  /* ---------- support ---------- */
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px}
+  .tier{
+    position:relative;padding:32px 26px 34px;border:1px solid var(--line);border-radius:18px;
+    background:linear-gradient(180deg,rgba(8,34,50,.42),rgba(2,14,22,.24));
+    transition:transform .55s cubic-bezier(.2,.8,.2,1),border-color .55s,background .55s;
+    will-change:transform;display:flex;flex-direction:column;
+  }
+  .tier:hover{transform:translateY(-7px);border-color:rgba(127,240,255,.38);background:linear-gradient(180deg,rgba(14,56,80,.55),rgba(3,20,32,.35))}
+  .tier.featured{
+    border-color:rgba(127,240,255,.42);
+    background:linear-gradient(180deg,rgba(127,240,255,.11),rgba(127,240,255,.015));
+  }
+  .tier-name{font-family:'Instrument Serif',Georgia,serif;font-size:1.7rem;margin:0 0 6px;letter-spacing:-.01em}
+  .tier-price{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;color:rgba(127,240,255,.85);margin:0 0 22px}
+  .tier-copy{font-size:13.5px;line-height:1.62;color:rgba(206,232,242,.62);margin:0 0 28px;font-weight:300;flex:1}
+  .tier-btn{
+    display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink);text-decoration:none;padding-bottom:5px;
+    border-bottom:1px solid rgba(180,225,240,.3);align-self:flex-start;
+    transition:border-color .45s,color .45s;
+  }
+  .tier:hover .tier-btn{border-color:var(--cyan);color:var(--cyan)}
+  .support-note{
+    margin-top:34px;font-size:11.5px;letter-spacing:.06em;color:rgba(206,232,242,.42);
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  /* ---------- footer ---------- */
+  footer{position:relative;z-index:10;padding:88px 0 40px;border-top:1px solid var(--line);background:linear-gradient(180deg,transparent,rgba(0,3,6,.55))}
+  .foot-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.4fr;gap:44px}
+  .foot-brand{display:flex;align-items:center;gap:11px;color:var(--ink);font-size:15px;font-weight:500;margin-bottom:16px}
+  .foot-brand svg{width:26px;height:26px;color:var(--cyan);flex:none}
+  .foot-tagline{font-size:13px;line-height:1.6;color:rgba(206,232,242,.55);max-width:26ch;font-weight:300;margin:0}
+  .foot-col h4{
+    font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:rgba(206,232,242,.4);margin:0 0 20px;font-weight:400;
+  }
+  .foot-col a,.foot-col span{
+    display:block;font-size:13px;color:rgba(206,232,242,.72);text-decoration:none;
+    margin-bottom:12px;transition:color .4s,transform .4s;font-weight:300;
+  }
+  .foot-col a:hover{color:var(--cyan);transform:translateX(3px)}
+  .newsletter{display:flex;border-bottom:1px solid rgba(180,225,240,.24);padding-bottom:8px;transition:border-color .4s}
+  .newsletter:focus-within{border-color:var(--cyan)}
+  .newsletter input{
+    flex:1;background:transparent;border:0;outline:0;color:var(--ink);
+    font-family:'Inter',sans-serif;font-size:13px;padding:6px 0;min-width:0;
+  }
+  .newsletter input::placeholder{color:rgba(206,232,242,.35)}
+  .newsletter button{
+    background:transparent;border:0;color:var(--cyan);cursor:pointer;font-size:16px;
+    padding:0 4px;transition:transform .4s;
+  }
+  .newsletter button:hover{transform:translateX(4px)}
+  .newsletter-msg{font-size:11px;color:rgba(127,240,255,.85);margin-top:10px;height:14px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em}
+  .foot-bottom{
+    margin-top:66px;padding-top:26px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.13em;
+    text-transform:uppercase;color:rgba(206,232,242,.34);
+  }
+  .to-top{color:rgba(206,232,242,.6);text-decoration:none;display:inline-flex;gap:9px;align-items:center;transition:color .4s}
+  .to-top:hover{color:var(--cyan)}
+
+  /* ---------- reduced motion ---------- */
+  .reduce .swimmer,.reduce .jelly svg,.reduce .kelp svg,.reduce .ray,.reduce .wave-band,
+  .reduce .cue-line::after,.reduce .front-jelly svg{animation:none !important}
+  .reduce [data-r]{opacity:1 !important;transform:none !important}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1024px){
+    .zones{grid-template-columns:repeat(2,1fr)}
+    .tiers{grid-template-columns:1fr}
+    .foot-top{grid-template-columns:1fr 1fr;gap:40px}
+    .meter{right:22px}
+    .work-row{grid-template-columns:70px 1fr 180px;gap:20px}
+  }
+  @media (max-width:860px){
+    .nav-links{display:none}
+    .meter{
+      right:auto;left:16px;bottom:16px;top:auto;transform:none;
+      flex-direction:row;align-items:center;gap:0;
+      background:rgba(2,14,24,.66);border:1px solid var(--line);border-radius:100px;
+      padding:9px 16px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    }
+    .meter-rail{display:none}
+    .meter-zone{display:none}
+    .meter-pill{display:flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:.13em}
+    .meter-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px 2px rgba(127,240,255,.7);flex:none}
+    .meter-pill .pill-zone{color:rgba(206,232,242,.55);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;padding-left:10px;border-left:1px solid var(--line)}
+    .hero{padding:110px 0 130px}
+    .hero-foot{bottom:76px}
+    .hero-meta{display:none}
+    .front-jelly{width:70vw;right:-20vw}
+  }
+  @media (max-width:720px){
+    .wrap{width:calc(100% - 40px)}
+    .nav{padding:16px 20px}
+    .brand span{font-size:13px}
+    .nav-cta{padding:9px 18px;font-size:12px}
+    section{padding:15vh 0}
+    .stats{grid-template-columns:1fr 1fr;margin-top:48px}
+    .stat{padding:26px 16px 26px 0}
+    .stat:nth-child(odd){border-left:0;padding-left:0}
+    .stat:nth-child(even){padding-left:18px}
+    .stat:nth-child(3),.stat:nth-child(4){border-top:1px solid var(--line)}
+    .zones{grid-template-columns:1fr;gap:12px;margin-top:40px}
+    .zone-idx{margin-bottom:22px}
+    .work-list{margin-top:38px}
+    .work-row{grid-template-columns:1fr;gap:8px;padding:22px 4px}
+    .work-result{text-align:left}
+    .work-row:hover{padding-left:10px;padding-right:10px}
+    .tiers{margin-top:40px;gap:12px}
+    .foot-top{grid-template-columns:1fr;gap:34px}
+    .foot-bottom{flex-direction:column;align-items:flex-start;gap:14px}
+    .hero-cta .btn{flex:1 1 auto;justify-content:center}
+    .h2{max-width:20ch}
+    .hero-title{max-width:16ch}
+    p.lede{max-width:100%}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= SVG SPRITE ================= -->
+<svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <g id="fish-shape">
+      <path d="M95 25c-8-13-34-19-62-13-10 2-15 8-17 13 2 5 7 11 17 13 28 6 54 0 62-13z"/>
+      <path d="M18 25 2 9l4 16-4 16z"/>
+      <circle cx="79" cy="21" r="2.6" fill="#02121c"/>
+    </g>
+    <g id="jelly-shape">
+      <path d="M8 54C8 25 27 5 50 5s42 20 42 49c-16 10-68 10-84 0z"/>
+      <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6">
+        <path d="M24 58c-3 18 6 26 2 46"/>
+        <path d="M37 62c-3 16 5 22 1 42"/>
+        <path d="M50 64c-2 18 4 24 0 42"/>
+        <path d="M63 62c3 16-5 22-1 42"/>
+        <path d="M76 58c3 18-6 26-2 46"/>
+      </g>
+    </g>
+    <g id="kelp-shape">
+      <path d="M12 240C2 196 24 170 14 130 6 96 22 66 12 30 6 14 10 6 12 0"
+            fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- ================= BACKGROUND ================= -->
+<div id="bg" aria-hidden="true">
+  <div class="zone zone-1"></div>
+  <div class="zone zone-2"></div>
+  <div class="zone zone-3"></div>
+  <div class="zone zone-4"></div>
+</div>
+
+<div id="surface" aria-hidden="true">
+  <div class="sun-bloom"></div>
+  <div class="ray"></div>
+  <div class="ray"></div>
+  <div class="ray"></div>
+  <div class="ray"></div>
+  <svg class="wave-band" viewBox="0 0 1600 90" preserveAspectRatio="none">
+    <path d="M0 44c100-26 200-26 300 0s200 26 300 0 200-26 300 0 200 26 300 0 200-26 300 0v20c-100 26-200 26-300 0s-200-26-300 0-200 26-300 0-200-26-300 0-200 26-300 0z" fill="rgba(210,248,255,.28)"/>
+    <path d="M0 30c100 20 200 20 300 0s200-20 300 0 200 20 300 0 200-20 300 0 200 20 300 0v6c-100 20-200 20-300 0s-200-20-300 0-200 20-300 0-200-20-300 0-200 20-300 0z" fill="rgba(190,244,255,.16)"/>
+  </svg>
+</div>
+
+<!-- ================= PARALLAX LAYERS ================= -->
+<div id="parallax" aria-hidden="true">
+
+  <!-- far, faint fish -->
+  <div class="px" data-speed="0.05" data-kind="fish">
+    <span class="swimmer" style="--t:16%;--w:34px;--d:78s;--delay:-22s;--o:.16">
+      <span class="swimmer-inner" style="--bd:9s"><svg viewBox="0 0 100 50"><use href="#fish-shape"/></svg></span>
+    </span>
+    <span class="swimmer left" style="--t:63%;--w:28px;--d:92s;--delay:-44s;--o:.13">
+      <span class="swimmer-inner" style="--bd:11s"><svg viewBox="0 0 100 50"><use href="#fish-shape"/></svg></span>
+    </span>
+    <span class="swimmer" style="--t:82%;--w:38px;--d:104s;--delay:-70s;--o:.12">
+      <span class="swimmer-inner" style="--bd:10s"><svg viewBox="0 0 100 50"><use href="#fish-shape"/></svg></span>
+    </span>
+  </div>
+
+  <!-- mid fish school -->
+  <div class="px" data-speed="0.13" data-kind="fish">
+    <span class="swimmer" style="--t:28%;--w:74px;--d:46s;--delay:-8s;--o:.4">
+      <span class="swimmer-inner" style="--bd:6.5s"><svg viewBox="0 0 100 50"><use href="#fish-shape"/></svg></span>
+    </span>
+    <span class="swimmer left" style="--t:46%;--w:58px;--d:58s;--delay:-30s;--o:.3">
+      <span class="swimmer-inner" style="--bd:8s"><svg viewBox="0 0 100 50"><use href="#fish-shape"/></svg></span>
+    </span>
+    <span class="swimmer" style="--t:72%;--w:96px;--d:66s;--delay:-52s;--o:.26">
+      <span class="swimmer-inner" style="--bd:9s"><svg viewBox="0 0 100 50"><use href="#fish-shape"/></svg></span>
+    </span>
+  </div>
+
+  <!-- near fish (darker silhouettes) -->
+  <div class="px" data-speed="0.24" data-kind="fish">
+    <span class="swimmer left" style="--t:88%;--w:150px;--d:74s;--delay:-16s;--o:.2">
+      <span class="swimmer-inner" style="--bd:7.5s"><svg viewBox="0 0 100 50" style="fill:rgba(6,34,50,.9)"><use href="#fish-shape"/></svg></span>
+    </span>
+    <span class="swimmer" style="--t:38%;--w:120px;--d:88s;--delay:-62s;--o:.18">
+      <span class="swimmer-inner" style="--bd:8.5s"><svg viewBox="0 0 100 50" style="fill:rgba(6,34,50,.85)"><use href="#fish-shape"/></svg></span>
+    </span>
+  </div>
+
+  <!-- jellyfish, appear as we descend -->
+  <div class="px" data-speed="0.09" data-kind="jelly">
+    <div class="jelly" style="--l:8%;--t:24%;--w:120px;--d:12s;--delay:-3s">
+      <svg viewBox="0 0 100 120"><use href="#jelly-shape"/></svg>
+    </div>
+    <div class="jelly" style="--l:72%;--t:70%;--w:88px;--d:9s;--delay:-6s">
+      <svg viewBox="0 0 100 120"><use href="#jelly-shape"/></svg>
+    </div>
+  </div>
+
+  <div class="px" data-speed="0.19" data-kind="jelly">
+    <div class="jelly" style="--l:84%;--t:18%;--w:160px;--d:14s;--delay:-2s;color:rgba(120,205,245,.75)">
+      <svg viewBox="0 0 100 120"><use href="#jelly-shape"/></svg>
+    </div>
+    <div class="jelly" style="--l:38%;--t:82%;--w:110px;--d:11s;--delay:-8s;color:rgba(120,205,245,.65)">
+      <svg viewBox="0 0 100 120"><use href="#jelly-shape"/></svg>
+    </div>
+  </div>
+
+  <!-- kelp forest, only near the surface -->
+  <div class="px" data-speed="0.3" data-kind="kelp">
+    <div class="kelp" style="--l:3%;--w:90px;--d:8s">
+      <svg viewBox="0 0 24 240"><use href="#kelp-shape"/></svg>
+    </div>
+    <div class="kelp" style="--l:14%;--w:60px;--d:11s;color:rgba(120,200,200,.4)">
+      <svg viewBox="0 0 24 240"><use href="#kelp-shape"/></svg>
+    </div>
+    <div class="kelp" style="--l:89%;--w:100px;--d:9.5s;color:rgba(120,200,200,.45)">
+      <svg viewBox="0 0 24 240"><use href="#kelp-shape"/></svg>
+    </div>
+    <div class="kelp" style="--l:78%;--w:64px;--d:12s;color:rgba(120,200,200,.35)">
+      <svg viewBox="0 0 24 240"><use href="#kelp-shape"/></svg>
+    </div>
+  </div>
+</div>
+
+<div id="parallax-front" aria-hidden="true">
+  <div class="front-jelly">
+    <svg viewBox="0 0 100 120"><use href="#jelly-shape"/></svg>
+  </div>
+</div>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<!-- ================= NAV ================= -->
+<header class="nav">
+  <a class="brand" href="#top">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".4"/>
+      <path d="M5 19.5c3.2-3.8 6.4-3.8 9.6 0s6.4 3.8 9.6 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      <path d="M5 13.5c3.2-3.8 6.4-3.8 9.6 0s6.4 3.8 9.6 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" opacity=".55"/>
+    </svg>
+    <span>Deep Blue Trust</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#mission">Mission</a>
+    <a href="#zones">Zones</a>
+    <a href="#work">Field work</a>
+    <a href="#act">Support</a>
+  </nav>
+  <a class="btn btn-primary nav-cta" href="#act">Donate</a>
+</header>
+
+<!-- ================= DEPTH METER ================= -->
+<aside class="meter" aria-hidden="true">
+  <div class="meter-rail">
+    <div class="meter-fill"></div>
+    <div class="meter-thumb">
+      <span class="meter-readout"><b class="js-depth">0</b> m</span>
+    </div>
+  </div>
+  <div class="meter-zone js-zone">Sunlight</div>
+  <div class="meter-pill">
+    <span class="dot"></span>
+    <span><b class="js-depth">0</b> m</span>
+    <span class="pill-zone js-zone">Sunlight</span>
+  </div>
+</aside>
+
+<!-- ================= CONTENT ================= -->
+<main id="top">
+
+  <!-- ---------- HERO ---------- -->
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <p class="hero-eyebrow">Marine conservation · Established 2009</p>
+      <h1 class="hero-title">
+        <span class="mask"><span>We protect the</span></span>
+        <span class="mask"><span><em>71%</em> that keeps</span></span>
+        <span class="mask"><span>the other <em>29%</em> alive.</span></span>
+      </h1>
+      <p class="hero-sub">Deep Blue Trust works with coastal communities, marine scientists and policy-makers to restore the ocean — from sunlit reefs to abyssal plains no one has ever seen.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#act">Support our work</a>
+        <a class="btn btn-ghost" href="#work">See field work <span class="arrow">→</span></a>
+      </div>
+    </div>
+    <div class="hero-foot">
+      <div class="wrap hero-foot-inner">
+        <span class="scroll-cue"><span class="cue-line"></span> Scroll to descend</span>
+        <span class="hero-meta">24 field sites · 11 countries · 4,300 members</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- MISSION ---------- -->
+  <section id="mission">
+    <div class="wrap">
+      <p class="eyebrow" data-r>01 — Why we exist</p>
+      <h2 class="h2" data-r>Every second breath you take is <em>borrowed from the sea.</em></h2>
+      <p class="lede" data-r>Marine phytoplankton produce roughly half of the oxygen in Earth's atmosphere. They also absorb carbon, feed the fish that feed a billion people, and help regulate the temperature of the entire planet. The ocean is not a backdrop to the climate crisis — it is the frontline.</p>
+      <p class="lede" data-r>Deep Blue Trust was founded in 2009 by four marine biologists and one very stubborn fisherwoman from Plymouth. Today we run 24 field sites across 11 countries, and not one of them is coastline-only.</p>
+
+      <div class="stats">
+        <div class="stat" data-r>
+          <span class="stat-num">50%</span>
+          <span class="stat-label">of the oxygen you breathe is produced in the ocean</span>
+        </div>
+        <div class="stat" data-r>
+          <span class="stat-num">1.5°C</span>
+          <span class="stat-label">of warming already locked into the upper ocean</span>
+        </div>
+        <div class="stat" data-r>
+          <span class="stat-num">8 Mt</span>
+          <span class="stat-label">of plastic entering the sea every single year</span>
+        </div>
+        <div class="stat" data-r>
+          <span class="stat-num">91%</span>
+          <span class="stat-label">of marine species remain undescribed by science</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- ZONES ---------- -->
+  <section id="zones">
+    <div class="wrap">
+      <p class="eyebrow" data-r>02 — Where we work</p>
+      <h2 class="h2" data-r>Four zones. One <em>continuous lifeline.</em></h2>
+      <p class="lede" data-r>The ocean is not one habitat. It is a stack of them, each with its own physics, its own species and its own rules. We work across all four.</p>
+
+      <div class="zones">
+        <article class="zone-card" data-r>
+          <span class="zone-idx">01</span>
+          <span class="zone-depth">0 – 200 m</span>
+          <h3 class="zone-name">The Sunlight Zone</h3>
+          <p class="zone-copy">Coral nurseries in Palau and the Florida Keys. 34,000 fragments replanted since 2019, with a 78% survival rate at twelve months.</p>
+        </article>
+        <article class="zone-card" data-r>
+          <span class="zone-idx">02</span>
+          <span class="zone-depth">200 – 1,000 m</span>
+          <h3 class="zone-name">The Twilight Zone</h3>
+          <p class="zone-copy">Acoustic monitoring of the deep scattering layer, where roughly 90% of ocean biomass migrates upward every night to feed.</p>
+        </article>
+        <article class="zone-card" data-r>
+          <span class="zone-idx">03</span>
+          <span class="zone-depth">1,000 – 4,000 m</span>
+          <h3 class="zone-name">The Midnight Zone</h3>
+          <p class="zone-copy">ROV surveys mapping cold-water coral gardens off the Azores — forests that took 8,000 years to grow and 20 minutes to damage.</p>
+        </article>
+        <article class="zone-card" data-r>
+          <span class="zone-idx">04</span>
+          <span class="zone-depth">4,000 – 6,000 m</span>
+          <h3 class="zone-name">The Abyss</h3>
+          <p class="zone-copy">A three-year campaign for a moratorium on deep-sea mining across 1.4 million km² of the Clarion-Clipperton Zone.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- FIELD WORK ---------- -->
+  <section id="work">
+    <div class="wrap">
+      <p class="eyebrow" data-r>03 — Field work</p>
+      <h2 class="h2" data-r>Science first. <em>Then noise.</em></h2>
+      <p class="lede" data-r>Every campaign begins with data and ends with a policy document. Here is what five years of descents actually produced.</p>
+
+      <div class="work-list">
+        <div class="work-row" data-r>
+          <span class="work-year">2019</span>
+          <span class="work-title">Kuril Trench ROV survey, Northwest Pacific</span>
+          <span class="work-result">11 species new to science</span>
+        </div>
+        <div class="work-row" data-r>
+          <span class="work-year">2021</span>
+          <span class="work-title">Seagrass restoration, Ria Formosa, Portugal</span>
+          <span class="work-result">12 hectares replanted · 4.3 kt CO₂/year</span>
+        </div>
+        <div class="work-row" data-r>
+          <span class="work-year">2022</span>
+          <span class="work-title">Blue shark acoustic tagging, Azores</span>
+          <span class="work-result">240 sharks tracked across 1.6M km²</span>
+        </div>
+        <div class="work-row" data-r>
+          <span class="work-year">2023</span>
+          <span class="work-title">Community ranger patrols, Cabo Delgado</span>
+          <span class="work-result">47 patrols · zero illegal longlines recorded</span>
+        </div>
+        <div class="work-row" data-r>
+          <span class="work-year">2024</span>
+          <span class="work-title">Deep-sea mining moratorium campaign</span>
+          <span class="work-result">14 governments signed the pledge</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- SUPPORT ---------- -->
+  <section id="act">
+    <div class="wrap">
+      <p class="eyebrow" data-r>04 — Join the descent</p>
+      <h2 class="h2" data-r>Fund the <em>next descent.</em></h2>
+      <p class="lede" data-r>We are 96% funded by individuals. No corporate sponsors, no fishing-industry money, no exceptions. Just people who would rather the ocean stayed strange.</p>
+
+      <div class="tiers">
+        <article class="tier" data-r>
+          <h3 class="tier-name">Buoy</h3>
+          <p class="tier-price">£12 / MONTH</p>
+          <p class="tier-copy">Funds one hour of ROV time — and the sample analysis that follows it. Small boats, big data.</p>
+          <a class="tier-btn" href="#act">Choose Buoy</a>
+        </article>
+        <article class="tier featured" data-r>
+          <h3 class="tier-name">Reef</h3>
+          <p class="tier-price">£30 / MONTH</p>
+          <p class="tier-copy">Underwrites a month of acoustic monitoring across three seamounts in the Mid-Atlantic Ridge network.</p>
+          <a class="tier-btn" href="#act">Choose Reef</a>
+        </article>
+        <article class="tier" data-r>
+          <h3 class="tier-name">Abyss</h3>
+          <p class="tier-price">£75 / MONTH</p>
+          <p class="tier-copy">Sponsors a full descent, including the fourteen hours of ship time it takes just to get there.</p>
+          <a class="tier-btn" href="#act">Choose Abyss</a>
+        </article>
+      </div>
+      <p class="support-note" data-r>96p in every pound goes directly to fieldwork · Gift Aid applied where eligible</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <div class="foot-brand">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".4"/>
+            <path d="M5 19.5c3.2-3.8 6.4-3.8 9.6 0s6.4 3.8 9.6 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M5 13.5c3.2-3.8 6.4-3.8 9.6 0s6.4 3.8 9.6 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" opacity=".55"/>
+          </svg>
+          <span>Deep Blue Trust</span>
+        </div>
+        <p class="foot-tagline">Marine conservation for the 71%. Registered in England &amp; Wales.</p>
+      </div>
+
+      <div class="foot-col">
+        <h4>Explore</h4>
+        <a href="#mission">Mission</a>
+        <a href="#zones">Zones</a>
+        <a href="#work">Field work</a>
+        <a href="#top">Journal</a>
+      </div>
+
+      <div class="foot-col">
+        <h4>Get involved</h4>
+        <a href="#act">Donate</a>
+        <a href="#act">Volunteer</a>
+        <a href="#act">Partner with us</a>
+        <a href="#act">Legacy giving</a>
+      </div>
+
+      <div class="foot-col">
+        <h4>Field notes</h4>
+        <p style="font-size:13px;line-height:1.6;color:rgba(206,232,242,.62);font-weight:300;margin:0 0 18px;">Four dispatches a year, written from the ship. No fundraising emails.</p>
+        <form class="newsletter" id="newsletterForm" novalidate>
+          <input type="email" placeholder="your@email.com" aria-label="Email address" required>
+          <button type="submit" aria-label="Subscribe">→</button>
+        </form>
+        <div class="newsletter-msg" id="newsletterMsg"></div>
+        <span style="margin-top:6px">hello@deepbluetrust.org</span>
+        <span>14 Harbour Row, Plymouth PL1 2LR</span>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <span>© 2025 Deep Blue Trust · Registered charity 1184023</span>
+      <a class="to-top" href="#top">Back to surface ↑</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) document.documentElement.classList.add('reduce');
+
+  var hasGSAP = !!(window.gsap && window.ScrollTrigger);
+  if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------------- smooth scroll ---------------- */
+  var lenis = null;
+  if (!reduce && hasGSAP && window.Lenis) {
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smoothWheel: true,
+      touchMultiplier: 1.6
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* ---------------- anchor links ---------------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var href = a.getAttribute('href');
+      if (!href || href.length < 2) return;
+      var target = document.querySelector(href);
+      if (!target) return;
+      e.preventDefault();
+      if (lenis) {
+        lenis.scrollTo(target, { offset: -30 });
+      } else {
+        var y = target.getBoundingClientRect().top + window.pageYOffset - 30;
+        window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+      }
+    });
+  });
+
+  /* ---------------- depth engine ---------------- */
+  var zoneLayers = Array.prototype.slice.call(document.querySelectorAll('.zone'));
+  var surfaceEl = document.getElementById('surface');
+  var frontJelly = document.querySelector('.front-jelly');
+  var thumbEl = document.querySelector('.meter-thumb');
+  var fillEl = document.querySelector('.meter-fill');
+  var depthEls = document.querySelectorAll('.js-depth');
+  var zoneTextEls = document.querySelectorAll('.js-zone');
+
+  var MAX_DEPTH = 6000;
+  var winH = window.innerHeight;
+
+  var pxLayers = [];
+  if (hasGSAP) {
+    pxLayers = Array.prototype.slice.call(document.querySelectorAll('.px')).map(function (el) {
+      return {
+        el: el,
+        kind: el.getAttribute('data-kind') || '',
+        speed: parseFloat(el.getAttribute('data-speed') || '0.1'),
+        setY: gsap.quickSetter(el, 'y', 'px')
+      };
+    });
+  }
+
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function smoothstep(p, a, b) {
+    var t = clamp01((p - a) / (b - a));
+    return t * t * (3 - 2 * t);
+  }
+  function fmtNum(n) {
+    n = Math.round(n);
+    return n >= 1000 ? Math.floor(n / 1000) + ',' + ('00' + (n % 1000)).slice(-3) : String(n);
+  }
+
+  var lastDepthShown = -1;
+  var lastZoneShown = '';
+  var fxIntensity = 0.1;
+
+  function render(p) {
+    p = clamp01(p);
+
+    var o1 = 1 - smoothstep(p, 0.10, 0.32);
+    var o2 = smoothstep(p, 0.10, 0.32) * (1 - smoothstep(p, 0.42, 0.60));
+    var o3 = smoothstep(p, 0.42, 0.60) * (1 - smoothstep(p, 0.70, 0.87));
+    var o4 = smoothstep(p, 0.70, 0.87);
+
+    if (zoneLayers[0]) zoneLayers[0].style.opacity = o1;
+    if (zoneLayers[1]) zoneLayers[1].style.opacity = o2;
+    if (zoneLayers[2]) zoneLayers[2].style.opacity = o3;
+    if (zoneLayers[3]) zoneLayers[3].style.opacity = o4;
+
+    if (surfaceEl) surfaceEl.style.opacity = 1 - smoothstep(p, 0, 0.13);
+
+    var q = Math.pow(p, 1.12);
+    var depth = q * MAX_DEPTH;
+
+    for (var i = 0; i < pxLayers.length; i++) {
+      var L = pxLayers[i];
+      L.setY(-p * L.speed * winH);
+      var o = 1;
+      if (L.kind === 'kelp') o = 1 - smoothstep(p, 0.08, 0.28);
+      else if (L.kind === 'fish') o = 1 - smoothstep(p, 0.40, 0.76) * 0.92;
+      else if (L.kind === 'jelly') o = 0.07 + smoothstep(p, 0.16, 0.55) * 0.93;
+      L.el.style.opacity = o;
+    }
+
+    if (frontJelly) frontJelly.style.opacity = smoothstep(p, 0.34, 0.82) * 0.45;
+
+    var pos = (q * 100).toFixed(2) + '%';
+    if (thumbEl) thumbEl.style.top = pos;
+    if (fillEl) fillEl.style.height = pos;
+
+    var d = Math.round(depth);
+    if (d !== lastDepthShown) {
+      lastDepthShown = d;
+      var txt = fmtNum(d);
+      for (var k = 0; k < depthEls.length; k++) depthEls[k].textContent = txt;
+    }
+
+    var z = 'Sunlight';
+    if (depth >= 4000) z = 'Abyss';
+    else if (depth >= 1000) z = 'Midnight';
+    else if (depth >= 200) z = 'Twilight';
+
+    if (z !== lastZoneShown) {
+      lastZoneShown = z;
+      for (var m = 0; m < zoneTextEls.length; m++) zoneTextEls[m].textContent = z;
+    }
+
+    fxIntensity = 0.1 + smoothstep(p, 0.38, 0.88) * 1.05;
+  }
+
+  if (hasGSAP) {
+    ScrollTrigger.create({
+      start: 0,
+      end: 'max',
+      onUpdate: function (self) { render(self.progress); },
+      onRefresh: function (self) { winH = window.innerHeight; render(self.progress); }
+    });
+    render(0);
+  } else {
+    render(0);
+  }
+
+  /* ---------------- intro animation ---------------- */
+  if (hasGSAP && !reduce) {
+    gsap.set('.nav', { y: -70, opacity: 0 });
+    gsap.set('.meter', { opacity: 0 });
+    gsap.set('.hero-foot', { opacity: 0 });
+    gsap.set('.hero-eyebrow, .hero-sub, .hero-cta', { opacity: 0, y: 22 });
+    gsap.set('.hero .mask > span', { yPercent: 118 });
+
+    var intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    intro
+      .to('.nav', { y: 0, opacity: 1, duration: 1.0 }, 0.05)
+      .to('.hero .mask > span', { yPercent: 0, duration: 1.25, ease: 'power4.out', stagger: 0.085 }, 0.18)
+      .to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.9 }, 0.45)
+      .to('.hero-sub', { opacity: 1, y: 0, duration: 0.9 }, 0.55)
+      .to('.hero-cta', { opacity: 1, y: 0, duration: 0.9 }, 0.65)
+      .to('.hero-foot', { opacity: 1, duration: 1.0 }, 0.85)
+      .to('.meter', { opacity: 1, duration: 1.0 }, 0.75);
+  }
+
+  /* ---------------- section reveals ---------------- */
+  if (hasGSAP && !reduce) {
+    gsap.utils.toArray('[data-r]').forEach(function (el, i) {
+      gsap.fromTo(el,
+        { opacity: 0, y: 34 },
+        {
+          opacity: 1, y: 0, duration: 1.05, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+        }
+      );
+    });
+  } else if (hasGSAP) {
+    gsap.set('[data-r]', { opacity: 1, y: 0 });
+  }
+
+  /* ---------------- newsletter ---------------- */
+  var nlForm = document.getElementById('newsletterForm');
+  var nlMsg = document.getElementById('newsletterMsg');
+  if (nlForm) {
+    nlForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var input = nlForm.querySelector('input');
+      var val = input.value.trim();
+      if (!val || val.indexOf('@') === -1) {
+        nlMsg.textContent = 'That address looks a little shallow.';
+        nlMsg.style.color = 'rgba(255,190,190,.85)';
+        return;
+      }
+      nlMsg.style.color = 'rgba(127,240,255,.9)';
+      nlMsg.textContent = 'Logged. First dispatch arrives with the next tide.';
+      input.value = '';
+    });
+  }
+
+  /* ---------------- bioluminescent particles ---------------- */
+  var canvas = document.getElementById('fx');
+  if (!canvas || reduce) return;
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  var W = 0, H = 0, DPR = 1;
+  var particles = [];
+  var pointer = { x: -999, y: -999, active: false, strength: 0 };
+  var sprites = [];
+
+  function makeSprite(rgb) {
+    var S = 64;
+    var c = document.createElement('canvas');
+    c.width = S; c.height = S;
+    var g2 = c.getContext('2d');
+    var grad = g2.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+    grad.addColorStop(0, 'rgba(' + rgb + ',1)');
+    grad.addColorStop(0.22, 'rgba(' + rgb + ',0.55)');
+    grad.addColorStop(0.55, 'rgba(' + rgb + ',0.14)');
+    grad.addColorStop(1, 'rgba(' + rgb + ',0)');
+    g2.fillStyle = grad;
+    g2.fillRect(0, 0, S, S);
+    return c;
+  }
+
+  function resizeCanvas() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    buildParticles();
+  }
+
+  function buildParticles() {
+    var small = W < 760;
+    var count = small ? 44 : 92;
+    particles = [];
+    for (var i = 0; i < count; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var sp = 0.04 + Math.random() * 0.16;
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp,
+        bx: Math.cos(a) * sp,
+        by: Math.sin(a) * sp - 0.06,
+        r: 1.1 + Math.random() * 2.6,
+        a: 0.22 + Math.random() * 0.55,
+        tw: Math.random() * Math.PI * 2,
+        tws: 0.008 + Math.random() * 0.022,
+        spr: Math.random() < 0.72 ? 0 : 1
+      });
+    }
+  }
+
+  sprites.push(makeSprite('170,250,255'));
+  sprites.push(makeSprite('150,235,205'));
+
+  resizeCanvas();
+
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeCanvas, 180);
+  });
+
+  window.addEventListener('pointermove', function (e) {
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+    pointer.active = true;
+  }, { passive: true });
+
+  window.addEventListener('pointerdown', function (e) {
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+    pointer.active = true;
+  }, { passive: true });
+
+  document.addEventListener('pointerleave', function () {
+    pointer.active = false;
+  });
+
+  var lastT = performance.now();
+  var rafId = null;
+
+  function loop(t) {
+    var dt = Math.min(48, t - lastT);
+    lastT = t;
+    var k = dt / 16.667;
+    if (k <= 0) k = 1;
+
+    ctx.clearRect(0, 0, W, H);
+
+    pointer.strength += ((pointer.active ? 1 : 0) - pointer.strength) * Math.min(1, 0.08 * k);
+
+    var inten = fxIntensity;
+    var R = 250, R2 = R * R;
+    var ps = particles;
+    var i, p;
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (i = 0; i < ps.length; i++) {
+      p = ps[i];
+
+      if (pointer.strength > 0.02) {
+        var dx = pointer.x - p.x;
+        var dy = pointer.y - p.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < R2 && d2 > 0.5) {
+          var d = Math.sqrt(d2);
+          var f = (1 - d / R);
+          f = f * f * 0.62 * pointer.strength;
+          var nx = dx / d, ny = dy / d;
+          p.vx += (nx * 0.85 - ny * 1.45) * f * k;
+          p.vy += (ny * 0.85 + nx * 1.45) * f * k;
+        }
+      }
+
+      // relax toward base drift
+      var relax = Math.min(1, 0.045 * k);
+      p.vx += (p.bx - p.vx) * relax;
+      p.vy += (p.by - p.vy) * relax;
+
+      p.x += p.vx * k;
+      p.y += p.vy * k;
+
+      // wrap
+      if (p.x < -60) p.x = W + 60;
+      else if (p.x > W + 60) p.x = -60;
+      if (p.y < -60) p.y = H + 60;
+      else if (p.y > H + 60) p.y = -60;
+
+      p.tw += p.tws * k;
+
+      var twinkle = 0.62 + 0.38 * Math.sin(p.tw);
+      var alpha = p.a * twinkle * inten;
+      if (alpha <= 0.005) continue;
+
+      var s = p.r * (4.6 + 1.6 * Math.sin(p.tw * 1.3));
+      ctx.globalAlpha = Math.min(1, alpha);
+      ctx.drawImage(sprites[p.spr], p.x - s, p.y - s, s * 2, s * 2);
+    }
+
+    // cursor bloom in the deep
+    if (pointer.strength > 0.02 && pointer.active) {
+      var bloom = inten * pointer.strength;
+      if (bloom > 0.05) {
+        var bs = 78 + 14 * Math.sin(t * 0.0016);
+        ctx.globalAlpha = Math.min(0.5, 0.16 * bloom);
+        ctx.drawImage(sprites[0], pointer.x - bs, pointer.y - bs, bs * 2, bs * 2);
+      }
+    }
+
+    ctx.globalAlpha = 1;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  rafId = requestAnimationFrame(loop);
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    } else if (!rafId) {
+      lastT = performance.now();
+      rafId = requestAnimationFrame(loop);
+    }
+  });
+})();
+</script>
+</body>
+</html>

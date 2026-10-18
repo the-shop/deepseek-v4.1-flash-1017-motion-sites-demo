@@ -1,0 +1,3 @@
+Type foundry 'Glyphworks' showcasing a variable font. Motion signature: variable font axes (weight/width) animated by cursor position and scroll, interactive type tester, letters that explode into particles and reassemble.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

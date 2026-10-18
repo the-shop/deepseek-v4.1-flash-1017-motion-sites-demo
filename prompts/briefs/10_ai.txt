@@ -1,0 +1,3 @@
+Launch page for 'Cortex', an AI research lab. Motion signature: an interactive neural network graph (canvas) whose nodes light up and propagate signals on hover/click, text that decodes from random glyphs (scramble effect), dark sci-fi minimal.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

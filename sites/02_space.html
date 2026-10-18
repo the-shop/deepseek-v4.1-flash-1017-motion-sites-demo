@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HELIOS-7 — A Private Mission to the Sun</title>
+<meta name="description" content="Helios-7 is the first privately funded spacecraft to enter the Sun's corona. Launch window: 08 April 2027, LC-39A." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05050a;
+    --bg-2:#0a0910;
+    --ink:#f4efe8;
+    --ink-dim:#aaa4ae;
+    --ink-mute:#726d7a;
+    --sun:#ff7a1a;
+    --sun-hi:#ffb765;
+    --sun-deep:#e03c00;
+    --line:rgba(244,239,232,.12);
+    --line-soft:rgba(244,239,232,.07);
+    --pad: clamp(20px, 5vw, 88px);
+    --ease: cubic-bezier(.22,1,.36,1);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    margin:0;
+    background:#05050a;
+    color:var(--ink);
+    font-family:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-weight:300;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  ::selection{ background:var(--sun); color:#0a0a0a; }
+
+  a{ color:inherit; text-decoration:none; }
+  button{ font:inherit; color:inherit; }
+  img,svg{ display:block; }
+  ul,ol{ list-style:none; margin:0; padding:0; }
+
+  /* ---------- LAYERS ---------- */
+  #gl{
+    position:fixed; inset:0; width:100%; height:100%;
+    display:block; z-index:0;
+  }
+  .vignette{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(130% 95% at 50% 42%, rgba(5,5,10,0) 38%, rgba(5,5,10,.62) 100%);
+  }
+  .grain{
+    position:fixed; inset:0; z-index:2; pointer-events:none;
+    opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .scrim{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:linear-gradient(180deg, rgba(5,5,10,.15) 0%, rgba(5,5,10,.55) 45%, rgba(5,5,10,.78) 100%);
+    opacity:0;
+  }
+
+  main, footer, header{ position:relative; z-index:3; }
+
+  /* ---------- TYPE HELPERS ---------- */
+  .mono{
+    font-family:'JetBrains Mono',ui-monospace,monospace;
+    font-size:10.5px;
+    font-weight:400;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-mute);
+  }
+  .wrap{
+    width:100%;
+    max-width:1560px;
+    margin-inline:auto;
+    padding-inline:var(--pad);
+  }
+  em{
+    font-family:'Instrument Serif',Georgia,serif;
+    font-style:italic;
+    font-weight:400;
+    letter-spacing:0;
+    color:var(--sun-hi);
+  }
+
+  /* ---------- PROGRESS ---------- */
+  .progress{
+    position:fixed; top:0; left:0; right:0; height:1px; z-index:60;
+    background:rgba(255,255,255,.06);
+  }
+  .progress i{
+    display:block; height:100%; width:100%;
+    background:linear-gradient(90deg, var(--sun-deep), var(--sun-hi));
+    transform:scaleX(0); transform-origin:0 50%;
+  }
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:55;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:24px;
+    padding:18px var(--pad);
+    transition:background .5s var(--ease), border-color .5s var(--ease), backdrop-filter .5s var(--ease);
+    border-bottom:1px solid transparent;
+  }
+  .nav.is-scrolled{
+    background:rgba(5,5,10,.55);
+    backdrop-filter:blur(14px) saturate(1.2);
+    -webkit-backdrop-filter:blur(14px) saturate(1.2);
+    border-bottom-color:var(--line-soft);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-weight:600; font-size:14px; letter-spacing:.06em;
+  }
+  .brand em{ color:var(--sun); font-style:normal; font-family:inherit; font-weight:400; }
+  .brand-mark{ width:18px; height:18px; }
+  .brand-mark circle{ fill:var(--sun); }
+  .brand-mark path{ stroke:var(--sun); stroke-width:1.2; }
+
+  .nav-links{ display:flex; gap:34px; }
+  .nav-links a{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-dim);
+    display:flex; align-items:baseline; gap:7px;
+    position:relative; padding-bottom:3px;
+  }
+  .nav-links a span{ color:var(--sun); font-size:9px; opacity:.7; }
+  .nav-links a::after{
+    content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
+    background:var(--sun); transform:scaleX(0); transform-origin:0 50%;
+    transition:transform .5s var(--ease);
+  }
+  .nav-links a:hover{ color:var(--ink); }
+  .nav-links a:hover::after{ transform:scaleX(1); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    gap:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+    padding:12px 20px;
+    border:1px solid rgba(255,140,50,.45);
+    border-radius:2px;
+    color:var(--ink);
+    background:rgba(255,122,26,.06);
+    position:relative; overflow:hidden;
+    transition:color .45s var(--ease), border-color .45s var(--ease);
+    cursor:pointer;
+  }
+  .btn::before{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(100deg,var(--sun-deep),var(--sun));
+    transform:translateY(101%);
+    transition:transform .55s var(--ease);
+    z-index:-1;
+  }
+  .btn:hover{ color:#0b0704; border-color:var(--sun); }
+  .btn:hover::before{ transform:translateY(0); }
+  .btn > span{ position:relative; z-index:1; }
+
+  /* ---------- LOADER ---------- */
+  .loader{
+    position:fixed; inset:0; z-index:100;
+    background:#05050a;
+    display:flex; align-items:center; justify-content:center;
+    will-change:transform;
+  }
+  .loader-inner{ width:min(420px, 74vw); }
+  .loader-mark{
+    font-size:clamp(20px,3.4vw,30px); font-weight:500; letter-spacing:-.02em;
+    margin-bottom:22px;
+  }
+  .loader-mark span{ color:var(--sun); }
+  .loader-bar{
+    height:1px; width:100%; background:rgba(255,255,255,.1);
+    overflow:hidden;
+  }
+  .loader-bar i{
+    display:block; height:100%; width:100%;
+    background:linear-gradient(90deg,var(--sun-deep),var(--sun-hi));
+    transform:scaleX(0); transform-origin:0 50%;
+  }
+  .loader-meta{
+    margin-top:14px; display:flex; justify-content:space-between;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh; min-height:100svh;
+    display:flex;
+  }
+  .hero-wrap{
+    width:100%;
+    display:grid;
+    grid-template-rows:auto 1fr auto auto auto;
+    padding-top:clamp(88px, 12vh, 132px);
+    padding-bottom:clamp(22px, 4vh, 44px);
+  }
+  .hero-top{
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+    flex-wrap:wrap;
+  }
+  .tag{ display:flex; align-items:center; gap:9px; }
+  .tag .dot{
+    width:5px; height:5px; border-radius:50%;
+    background:var(--sun);
+    box-shadow:0 0 10px 2px rgba(255,122,26,.7);
+    animation:pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:.35; transform:scale(.72); }
+  }
+
+  .hero-title{
+    margin:0;
+    font-size:clamp(3.1rem, 14.6vw, 14rem);
+    line-height:.82;
+    letter-spacing:-.055em;
+    font-weight:500;
+    align-self:end;
+    grid-row:3;
+  }
+  .ht-mask{
+    display:block; overflow:hidden;
+    padding-bottom:.1em; margin-bottom:-.1em;
+  }
+  .ht-line{ display:block; }
+  .ht-line .dash{ color:var(--sun); font-weight:300; }
+  .ht-line .seven{
+    font-family:'Instrument Serif',Georgia,serif;
+    font-style:italic; font-weight:400;
+    letter-spacing:-.02em;
+  }
+
+  .hero-low{
+    grid-row:4;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:clamp(24px, 5vw, 80px);
+    flex-wrap:wrap;
+    padding-top:clamp(22px, 4vh, 48px);
+  }
+  .hero-lede{
+    margin:0;
+    max-width:38ch;
+    font-size:clamp(14px, 1.15vw, 17px);
+    line-height:1.55;
+    color:var(--ink-dim);
+    text-shadow:0 2px 24px rgba(0,0,0,.85);
+  }
+  .hero-lede strong{ color:var(--ink); font-weight:400; }
+
+  .countdown{ display:flex; gap:clamp(12px, 2.2vw, 34px); }
+  .cd-group{ display:flex; flex-direction:column; gap:9px; }
+  .cd-digits{
+    display:flex;
+    font-weight:300;
+    font-size:clamp(1.7rem, 3.5vw, 3.1rem);
+    line-height:1;
+    letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums;
+  }
+  .d{ position:relative; width:.58em; height:1em; perspective:280px; }
+  .d-in{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    backface-visibility:hidden;
+    transform-origin:50% 50%;
+    will-change:transform;
+  }
+  .cd-label{ font-size:9px; letter-spacing:.22em; }
+
+  .hero-foot{
+    grid-row:5;
+    padding-top:clamp(20px, 3.4vh, 38px);
+    display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
+  }
+  .scroll-cue{ display:flex; align-items:center; gap:12px; }
+  .scroll-cue .rail{
+    display:block; width:1px; height:44px; background:rgba(255,255,255,.13);
+    position:relative; overflow:hidden;
+  }
+  .scroll-cue .rail::after{
+    content:''; position:absolute; left:0; top:0; width:1px; height:16px;
+    background:var(--sun-hi);
+    animation:railMove 2.4s cubic-bezier(.6,0,.35,1) infinite;
+  }
+  @keyframes railMove{
+    0%{ transform:translateY(-18px); }
+    60%,100%{ transform:translateY(46px); }
+  }
+  .coords{ color:var(--ink-mute); }
+
+  /* ---------- SECTIONS ---------- */
+  .sec{
+    position:relative;
+    padding-block:clamp(84px, 13vh, 190px);
+  }
+  .sec-num{
+    display:flex; align-items:center; gap:14px;
+    margin-bottom:clamp(26px, 4vh, 48px);
+  }
+  .sec-num::after{
+    content:''; height:1px; flex:1; max-width:120px;
+    background:linear-gradient(90deg,var(--line),transparent);
+  }
+  .sec-title{
+    margin:0 0 clamp(34px, 6vh, 76px);
+    font-size:clamp(1.85rem, 4.4vw, 3.9rem);
+    line-height:1.03;
+    letter-spacing:-.035em;
+    font-weight:400;
+    max-width:20ch;
+  }
+  .sec-title .line{
+    display:block; overflow:hidden;
+    padding-bottom:.09em; margin-bottom:-.09em;
+  }
+  .sec-title .ln{ display:block; }
+  .sec-title em{ font-size:1.06em; }
+
+  /* ---------- MISSION ---------- */
+  .mission-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+    gap:clamp(28px, 6vw, 110px);
+    align-items:start;
+    margin-bottom:clamp(52px, 9vh, 110px);
+  }
+  .mission-copy p{
+    margin:0 0 22px;
+    font-size:clamp(15px, 1.2vw, 17.5px);
+    line-height:1.68;
+    color:var(--ink-dim);
+    max-width:56ch;
+  }
+  .mission-copy p:last-child{ margin-bottom:0; }
+  .mission-copy strong{ color:var(--ink); font-weight:400; }
+
+  .quote{
+    border-left:1px solid rgba(255,140,50,.35);
+    padding-left:22px;
+    font-family:'Instrument Serif',Georgia,serif;
+    font-style:italic;
+    font-size:clamp(1.15rem, 1.8vw, 1.6rem);
+    line-height:1.35;
+    color:var(--ink);
+    margin:0 0 18px;
+  }
+  .quote-src{ color:var(--ink-mute); }
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:1px;
+    background:var(--line-soft);
+    border-top:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .stat{
+    background:rgba(5,5,10,.42);
+    padding:clamp(18px, 3vw, 34px) clamp(12px, 2vw, 26px);
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .stat-num{
+    display:flex; align-items:baseline; gap:6px;
+    font-size:clamp(1.5rem, 2.9vw, 2.5rem);
+    font-weight:300; letter-spacing:-.03em; line-height:1;
+    font-variant-numeric:tabular-nums;
+    color:var(--ink);
+  }
+  .stat-num i{
+    font-style:normal;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:.1em;
+    color:var(--sun);
+  }
+
+  /* ---------- VEHICLE ---------- */
+  .vehicle-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+    gap:clamp(30px, 6vw, 90px);
+    align-items:center;
+  }
+  .craft-wrap{
+    position:relative;
+    border:1px solid var(--line-soft);
+    background:
+      radial-gradient(80% 80% at 20% 40%, rgba(255,122,26,.07), transparent 70%),
+      rgba(8,8,14,.35);
+    padding:clamp(10px,2vw,26px);
+  }
+  .craft{ width:100%; height:auto; overflow:visible; }
+  .craft text{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    fill:var(--sun-hi);
+    letter-spacing:.02em;
+  }
+  .craft-marker circle{
+    fill:rgba(5,5,10,.9);
+    stroke:rgba(255,140,50,.8);
+    stroke-width:1;
+  }
+
+  .spec-list li{
+    display:grid;
+    grid-template-columns:36px 1fr;
+    gap:18px;
+    padding:22px 0;
+    border-top:1px solid var(--line-soft);
+    align-items:start;
+  }
+  .spec-list li:last-child{ border-bottom:1px solid var(--line-soft); }
+  .spec-list .num{
+    color:var(--sun);
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px; letter-spacing:.14em;
+    padding-top:4px;
+  }
+  .spec-list h4{
+    margin:0 0 7px;
+    font-size:15px; font-weight:500; letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .spec-list p{
+    margin:0;
+    font-size:13.5px; line-height:1.6; color:var(--ink-mute);
+    max-width:46ch;
+  }
+
+  /* ---------- TRAJECTORY ---------- */
+  .timeline{ position:relative; --tlx:159px; }
+  .timeline::before{
+    content:''; position:absolute; top:0; bottom:0; left:var(--tlx);
+    width:1px; background:rgba(244,239,232,.09);
+  }
+  .tl-fill{
+    position:absolute; top:0; left:var(--tlx); width:1px;
+    height:100%;
+    background:linear-gradient(180deg,var(--sun-deep),var(--sun-hi));
+    transform:scaleY(0); transform-origin:50% 0;
+    box-shadow:0 0 14px rgba(255,140,50,.55);
+  }
+  .tl-item{
+    position:relative;
+    display:grid;
+    grid-template-columns:160px minmax(0,1fr);
+    gap:0 clamp(24px, 5vw, 76px);
+    padding:clamp(20px,3vh,32px) 0;
+    border-top:1px solid var(--line-soft);
+  }
+  .tl-item:first-child{ border-top:0; }
+  .tl-item::after{
+    content:''; position:absolute; top:calc(clamp(20px,3vh,32px) + 5px); left:var(--tlx);
+    width:7px; height:7px; border-radius:50%;
+    background:var(--bg); border:1px solid rgba(255,140,50,.7);
+    transform:translateX(-50%);
+    transition:background .4s var(--ease), box-shadow .4s var(--ease);
+  }
+  .tl-item:hover::after{
+    background:var(--sun); box-shadow:0 0 14px 2px rgba(255,122,26,.6);
+  }
+  .tl-date{
+    display:flex; flex-direction:column; gap:6px;
+    color:var(--ink-dim);
+    padding-right:8px;
+  }
+  .tl-date span{ color:var(--ink-mute); font-size:9.5px; }
+  .tl-body h3{
+    margin:0 0 9px;
+    font-size:clamp(1.05rem,1.5vw,1.35rem);
+    font-weight:500; letter-spacing:-.02em;
+    transition:color .4s var(--ease);
+  }
+  .tl-item:hover .tl-body h3{ color:var(--sun-hi); }
+  .tl-body p{
+    margin:0; font-size:14px; line-height:1.62; color:var(--ink-mute);
+    max-width:62ch;
+  }
+
+  /* ---------- CREW ---------- */
+  .crew-list{ border-top:1px solid var(--line-soft); }
+  .crew-row{
+    display:grid;
+    grid-template-columns:52px minmax(0,1.05fr) minmax(0,1.35fr) 150px;
+    gap:clamp(12px,2.4vw,34px);
+    align-items:center;
+    padding:clamp(16px,2.4vh,24px) clamp(8px,1.4vw,18px);
+    border-bottom:1px solid var(--line-soft);
+    position:relative;
+    transition:background .45s var(--ease), padding-left .45s var(--ease);
+  }
+  .crew-row::before{
+    content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
+    background:var(--sun); transform:scaleY(0); transform-origin:50% 50%;
+    transition:transform .45s var(--ease);
+  }
+  .crew-row:hover{ background:rgba(255,255,255,.028); }
+  .crew-row:hover::before{ transform:scaleY(1); }
+  .crew-idx{ color:var(--sun); font-size:10px; letter-spacing:.14em; }
+  .crew-name{
+    font-size:clamp(15px,1.45vw,19px); font-weight:400; letter-spacing:-.015em;
+    transition:transform .45s var(--ease);
+  }
+  .crew-row:hover .crew-name{ transform:translateX(6px); }
+  .crew-role{ font-size:13px; color:var(--ink-mute); line-height:1.45; }
+  .crew-loc{ text-align:right; font-size:9.5px; }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    position:relative;
+    padding-top:clamp(70px,12vh,150px);
+    border-top:1px solid var(--line-soft);
+    background:linear-gradient(180deg, rgba(5,5,10,0) 0%, rgba(5,5,10,.55) 100%);
+    overflow:hidden;
+  }
+  .foot-top{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    gap:clamp(28px,5vw,80px); flex-wrap:wrap;
+    margin-bottom:clamp(48px,8vh,90px);
+  }
+  .foot-title{
+    margin:0;
+    font-size:clamp(1.7rem,3.6vw,3.1rem);
+    line-height:1.06; letter-spacing:-.035em; font-weight:400;
+    max-width:16ch;
+  }
+  .signup{
+    display:flex; align-items:stretch; gap:0;
+    border-bottom:1px solid rgba(255,255,255,.2);
+    min-width:min(430px, 100%);
+    padding-bottom:10px;
+  }
+  .signup input{
+    flex:1; min-width:0;
+    background:transparent; border:0; outline:none;
+    color:var(--ink);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px; letter-spacing:.08em;
+    padding:12px 0;
+  }
+  .signup input::placeholder{ color:var(--ink-mute); }
+  .signup button{
+    background:transparent; border:0; cursor:pointer;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--sun-hi);
+    padding:12px 0 12px 20px;
+    display:flex; align-items:center; gap:9px;
+    transition:color .4s var(--ease), gap .4s var(--ease);
+  }
+  .signup button:hover{ color:var(--ink); gap:14px; }
+
+  .foot-cd{
+    display:flex; align-items:center; gap:clamp(18px,3vw,44px);
+    flex-wrap:wrap;
+    padding-bottom:clamp(38px,7vh,80px);
+  }
+  .foot-cd .countdown{ gap:clamp(12px,1.8vw,26px); }
+  .foot-cd .cd-digits{ font-size:clamp(1.1rem,1.9vw,1.5rem); }
+  .foot-cd .cd-label{ font-size:8.5px; }
+
+  .foot-mark{
+    font-size:clamp(3.6rem, 20vw, 17rem);
+    line-height:.78;
+    letter-spacing:-.055em;
+    font-weight:500;
+    white-space:nowrap;
+    background:linear-gradient(180deg, rgba(255,183,101,.9) 0%, rgba(255,122,26,.35) 55%, rgba(255,122,26,0) 100%);
+    -webkit-background-clip:text; background-clip:text;
+    color:transparent;
+    user-select:none;
+    margin-bottom:clamp(24px,4vh,46px);
+  }
+  .foot-bottom{
+    display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap;
+    padding:24px 0 34px;
+    border-top:1px solid var(--line-soft);
+  }
+
+  /* ---------- CUSTOM CURSOR ---------- */
+  .cursor{
+    position:fixed; top:0; left:0; width:9px; height:9px; border-radius:50%;
+    background:var(--sun-hi); z-index:70; pointer-events:none;
+    transform:translate(-50%,-50%);
+    mix-blend-mode:screen;
+    transition:width .35s var(--ease), height .35s var(--ease), opacity .3s var(--ease);
+    opacity:0;
+  }
+  .cursor.is-hover{ width:38px; height:38px; background:rgba(255,122,26,.35); }
+  @media (pointer:fine){ .cursor{ opacity:1; } }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 1000px){
+    .mission-grid{ grid-template-columns:1fr; }
+    .vehicle-grid{ grid-template-columns:1fr; }
+    .crew-row{ grid-template-columns:38px minmax(0,1fr) 120px; row-gap:6px; }
+    .crew-role{ grid-column:2 / 3; }
+    .crew-loc{ grid-column:3 / 4; grid-row:2; align-self:start; }
+  }
+  @media (max-width: 860px){
+    .nav-links{ display:none; }
+    .stats{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+    .hero-low{ align-items:flex-start; }
+    .hero-lede{ max-width:44ch; }
+  }
+  @media (max-width: 720px){
+    .timeline{ --tlx:14px; }
+    .tl-item{ grid-template-columns:1fr; padding-left:34px; gap:10px; }
+    .tl-item::after{ top:calc(clamp(20px,3vh,32px) + 4px); }
+    .crew-row{ grid-template-columns:30px minmax(0,1fr); }
+    .crew-role{ grid-column:2 / 3; }
+    .crew-loc{ grid-column:2 / 3; grid-row:3; text-align:left; }
+    .foot-cd{ flex-direction:column; align-items:flex-start; gap:16px; }
+    .signup{ min-width:100%; }
+    .hero-foot{ flex-direction:column; align-items:flex-start; gap:22px; }
+  }
+  @media (max-width: 480px){
+    .stats{ grid-template-columns:1fr; }
+    .countdown{ gap:14px; }
+    .hero-top{ gap:10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
+    .scroll-cue .rail::after{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="scrim" id="scrim" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+
+<div class="loader" id="loader">
+  <div class="loader-inner">
+    <div class="loader-mark">HELIOS<span>—</span>7</div>
+    <div class="loader-bar"><i id="loadBar"></i></div>
+    <div class="loader-meta mono">
+      <span>Initialising telemetry</span>
+      <span id="loadPct">00</span>
+    </div>
+  </div>
+</div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="Helios-7 home">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.4"/>
+      <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1"/>
+    </svg>
+    <span>HELIOS<em>—</em>7</span>
+  </a>
+  <nav class="nav-links" aria-label="Sections">
+    <a href="#mission"><span>01</span>Mission</a>
+    <a href="#vehicle"><span>02</span>Vehicle</a>
+    <a href="#trajectory"><span>03</span>Trajectory</a>
+    <a href="#crew"><span>04</span>Control</a>
+  </nav>
+  <a class="btn" href="#manifest"><span>Manifest</span></a>
+</header>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top">
+    <div class="wrap hero-wrap">
+      <div class="hero-top">
+        <div class="mono tag"><span class="dot"></span>Helios Aerospace · Mission 07</div>
+        <div class="mono tag">Launch window · <span data-launch-label>08 APR 2027 · 13:24 UTC</span></div>
+      </div>
+
+      <h1 class="hero-title">
+        <span class="ht-mask"><span class="ht-line">HELIOS<span class="dash">—</span><span class="seven">7</span></span></span>
+      </h1>
+
+      <div class="hero-low">
+        <p class="hero-lede">
+          The first privately funded spacecraft to fly <strong>inside</strong> the Sun's corona.
+          Ninety seconds at 6.2 million kilometres from the photosphere — close enough to
+          watch a solar storm being born.
+        </p>
+        <div class="countdown" data-countdown aria-label="Time until launch"></div>
+      </div>
+
+      <div class="hero-foot">
+        <div class="scroll-cue">
+          <span class="rail" aria-hidden="true"></span>
+          <span class="mono">Scroll to trace the trajectory</span>
+        </div>
+        <div class="mono coords">28.6084° N · 80.6043° W — LC-39A</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 MISSION ============ -->
+  <section class="sec" id="mission">
+    <div class="wrap">
+      <div class="mono sec-num" data-reveal>01 — The Mission</div>
+
+      <h2 class="sec-title">
+        <span class="line"><span class="ln">Eighteen minutes</span></span>
+        <span class="line"><span class="ln">of warning is <em>not a forecast.</em></span></span>
+      </h2>
+
+      <div class="mission-grid">
+        <div class="mission-copy">
+          <p data-reveal>
+            Every satellite, every power grid, every polar flight path on Earth sits inside the
+            Sun's weather. We can name a hurricane nine days before it lands. For a coronal mass
+            ejection we get eighteen minutes — and that number has not moved in forty years.
+          </p>
+          <p data-reveal>
+            On 4 November 2015 a moderate solar flare blanked out high-frequency radar over the
+            North Atlantic for eleven minutes. Nobody was hurt. A Carrington-class event would
+            find the grid without a spare transformer and the sky without a spare satellite.
+          </p>
+          <p data-reveal>
+            <strong>Helios-7 flies into the corona instead of around it.</strong> For ninety
+            seconds at perihelion it samples the plasma that becomes space weather three days
+            later — at 1 AU, where we live.
+          </p>
+        </div>
+
+        <aside class="mission-aside" data-reveal>
+          <p class="quote">
+            "We are not predicting the Sun. We are learning which parts of it to watch."
+          </p>
+          <p class="mono quote-src">Dr. Amara Okonkwo — Principal Investigator</p>
+        </aside>
+      </div>
+
+      <div class="stats">
+        <div class="stat" data-reveal>
+          <div class="stat-num"><span data-count="6.2" data-dec="1">0</span><i>M km</i></div>
+          <div class="mono">Closest approach</div>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="stat-num"><span data-count="430">0</span><i>K km/h</i></div>
+          <div class="mono">Peak velocity at perihelion</div>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="stat-num"><span data-count="1377">0</span><i>°C</i></div>
+          <div class="mono">Shield face temperature</div>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="stat-num"><span data-count="21">0</span><i>inst.</i></div>
+          <div class="mono">Instruments on the deck</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 VEHICLE ============ -->
+  <section class="sec" id="vehicle">
+    <div class="wrap">
+      <div class="mono sec-num" data-reveal>02 — The Vehicle</div>
+
+      <h2 class="sec-title">
+        <span class="line"><span class="ln">Aurora-class</span></span>
+        <span class="line"><span class="ln"><em>corona probe</em></span></span>
+      </h2>
+
+      <div class="vehicle-grid">
+        <div class="craft-wrap" data-reveal>
+          <svg class="craft" viewBox="0 0 760 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Technical diagram of the Helios-7 spacecraft">
+            <g stroke="rgba(244,239,232,.5)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <!-- solar flux -->
+              <g stroke="rgba(255,140,50,.55)">
+                <path data-draw d="M38 150 H84"/><path data-draw d="M72 143 L84 150 L72 157"/>
+                <path data-draw d="M38 260 H84"/><path data-draw d="M72 253 L84 260 L72 267"/>
+                <path data-draw d="M38 370 H84"/><path data-draw d="M72 363 L84 370 L72 377"/>
+              </g>
+              <!-- shield -->
+              <path data-draw d="M168 88 Q118 260 168 432" stroke-width="2.4" stroke="rgba(255,170,90,.85)"/>
+              <path data-draw d="M196 102 Q154 260 196 418" stroke="rgba(255,170,90,.55)"/>
+              <path data-draw d="M168 88 L196 102"/>
+              <path data-draw d="M168 432 L196 418"/>
+              <!-- body -->
+              <rect data-draw x="196" y="196" width="250" height="140" rx="12"/>
+              <path data-draw d="M196 232 H446"/>
+              <path data-draw d="M196 302 H446"/>
+              <!-- panels -->
+              <rect data-draw x="252" y="126" width="176" height="16" rx="8"/>
+              <rect data-draw x="252" y="388" width="176" height="16" rx="8"/>
+              <path data-draw d="M300 142 V196"/>
+              <path data-draw d="M380 142 V196"/>
+              <path data-draw d="M300 372 V388"/>
+              <path data-draw d="M380 372 V388"/>
+              <!-- high gain antenna -->
+              <path data-draw d="M446 266 H472"/>
+              <circle data-draw cx="516" cy="266" r="42"/>
+              <ellipse data-draw cx="516" cy="266" rx="15" ry="42"/>
+              <!-- boom -->
+              <path data-draw d="M446 316 L596 382"/>
+              <circle data-draw cx="600" cy="384" r="6"/>
+            </g>
+
+            <g class="craft-marker">
+              <circle cx="166" cy="174" r="13"/>
+              <text x="166" y="174" text-anchor="middle" dominant-baseline="central">1</text>
+              <circle cx="322" cy="266" r="13"/>
+              <text x="322" y="266" text-anchor="middle" dominant-baseline="central">2</text>
+              <circle cx="340" cy="134" r="13"/>
+              <text x="340" y="134" text-anchor="middle" dominant-baseline="central">3</text>
+              <circle cx="600" cy="384" r="13"/>
+              <text x="600" y="384" text-anchor="middle" dominant-baseline="central">4</text>
+            </g>
+            <text x="38" y="112" fill="#726d7a">SOLAR FLUX</text>
+          </svg>
+        </div>
+
+        <div class="specs" data-reveal>
+          <ol class="spec-list">
+            <li>
+              <span class="num">01</span>
+              <div>
+                <h4>Carbon–carbon thermal shield</h4>
+                <p>11.4 cm of woven composite, 2.7 m across. The face runs at 1,377 °C at
+                perihelion; the deck eleven centimetres behind it holds at 28 °C.</p>
+              </div>
+            </li>
+            <li>
+              <span class="num">02</span>
+              <div>
+                <h4>Science deck</h4>
+                <p>Twenty-one instruments on a single optical bench — a wide-field EUV imager,
+                a vector magnetograph, a plasma spectrometer, and the corona camera this
+                mission is named for.</p>
+              </div>
+            </li>
+            <li>
+              <span class="num">03</span>
+              <div>
+                <h4>GaAs solar arrays</h4>
+                <p>Two 4.2 m² wings producing 1.9 kW at 1 AU. Retracted inside twelve solar
+                radii — at that distance the flux would cook them in under a minute.</p>
+              </div>
+            </li>
+            <li>
+              <span class="num">04</span>
+              <div>
+                <h4>Magnetometer boom</h4>
+                <p>4.6 m of titanium–zirconium, held rigid to 0.01° and mounted far enough out
+                to escape the spacecraft's own field.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 TRAJECTORY ============ -->
+  <section class="sec" id="trajectory">
+    <div class="wrap">
+      <div class="mono sec-num" data-reveal>03 — Flight Plan</div>
+
+      <h2 class="sec-title">
+        <span class="line"><span class="ln">Three years.</span></span>
+        <span class="line"><span class="ln">Four orbits. <em>One dive.</em></span></span>
+      </h2>
+
+      <div class="timeline" id="timeline">
+        <i class="tl-fill" id="tlFill" aria-hidden="true"></i>
+
+        <div class="tl-item" data-reveal>
+          <div class="tl-date mono">08 Apr 2027<span>T–00:00:00</span></div>
+          <div class="tl-body">
+            <h3>Launch</h3>
+            <p>Falcon Heavy, pad LC-39A. Helios-7 departs Cape Canaveral on a hyperbolic escape
+            trajectory at 11.2 km/s, carrying 1,847 kg of spacecraft and a very small mirror.</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal>
+          <div class="tl-date mono">14 Sep 2027<span>T+ 159 days</span></div>
+          <div class="tl-body">
+            <h3>Venus flyby I</h3>
+            <p>A 3,000 km pass over Aphrodite Terra sheds 7.4 km/s of heliocentric velocity and
+            tilts the orbital plane by nine degrees. The probe does not photograph Venus. It
+            borrows it.</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal>
+          <div class="tl-date mono">22 Jan 2028<span>T+ 289 days</span></div>
+          <div class="tl-body">
+            <h3>First perihelion · 18.4 R☉</h3>
+            <p>The probe crosses inside Mercury's orbit for the first time. Six of twenty-one
+            instruments are powered; the rest stay cold until the shield has proven itself.</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal>
+          <div class="tl-date mono">11 Aug 2029<span>T+ 856 days</span></div>
+          <div class="tl-body">
+            <h3>Shield qualification · 9.8 R☉</h3>
+            <p>Peak heating: 1,377 °C on the shield face, 28 °C behind it. The telemetry packet
+            takes nineteen minutes to reach the Deep Space Network dish in Madrid.</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal>
+          <div class="tl-date mono">03 Mar 2030<span>T+ 1,060 days</span></div>
+          <div class="tl-body">
+            <h3>Corona transit · 6.2 million km</h3>
+            <p>Ninety seconds inside the corona at 430,000 km/h. The camera records 4,800 frames
+            of a magnetic reconnection event at 0.4 arcseconds per pixel — the best images of a
+            solar storm ever taken.</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal>
+          <div class="tl-date mono">2030 – 2033<span>Downlink</span></div>
+          <div class="tl-body">
+            <h3>Data return</h3>
+            <p>At 4.6 kbps from perihelion, the full archive takes fourteen months to deliver.
+            The first three papers land in 2031. The dataset stays open, permanently.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 MISSION CONTROL ============ -->
+  <section class="sec" id="crew">
+    <div class="wrap">
+      <div class="mono sec-num" data-reveal>04 — Mission Control</div>
+
+      <h2 class="sec-title">
+        <span class="line"><span class="ln">Seven people who</span></span>
+        <span class="line"><span class="ln"><em>do not blink.</em></span></span>
+      </h2>
+
+      <div class="crew-list">
+        <div class="crew-row" data-reveal>
+          <span class="crew-idx mono">01</span>
+          <span class="crew-name">Dr. Amara Okonkwo</span>
+          <span class="crew-role">Principal Investigator, Coronal Imaging</span>
+          <span class="crew-loc mono">Boulder, CO</span>
+        </div>
+        <div class="crew-row" data-reveal>
+          <span class="crew-idx mono">02</span>
+          <span class="crew-name">Yuki Tanaka</span>
+          <span class="crew-role">Flight Dynamics Lead</span>
+          <span class="crew-loc mono">Sagamihara, JP</span>
+        </div>
+        <div class="crew-row" data-reveal>
+          <span class="crew-idx mono">03</span>
+          <span class="crew-name">Rafael Mendes</span>
+          <span class="crew-role">Thermal Systems Engineer</span>
+          <span class="crew-loc mono">Lisbon, PT</span>
+        </div>
+        <div class="crew-row" data-reveal>
+          <span class="crew-idx mono">04</span>
+          <span class="crew-name">Ingrid Solberg</span>
+          <span class="crew-role">Spacecraft Operations</span>
+          <span class="crew-loc mono">Trondheim, NO</span>
+        </div>
+        <div class="crew-row" data-reveal>
+          <span class="crew-idx mono">05</span>
+          <span class="crew-name">Dmitri Volkov</span>
+          <span class="crew-role">Heat Shield Materials</span>
+          <span class="crew-loc mono">Kharkiv, UA</span>
+        </div>
+        <div class="crew-row" data-reveal>
+          <span class="crew-idx mono">06</span>
+          <span class="crew-name">Nia Mwangi</span>
+          <span class="crew-role">Communications &amp; DSN Liaison</span>
+          <span class="crew-loc mono">Nairobi, KE</span>
+        </div>
+        <div class="crew-row" data-reveal>
+          <span class="crew-idx mono">07</span>
+          <span class="crew-name">Elias Hart</span>
+          <span class="crew-role">Mission Director</span>
+          <span class="crew-loc mono">Cape Canaveral, US</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="manifest">
+  <div class="wrap">
+    <div class="foot-top">
+      <h2 class="foot-title">Follow the mission <em>in real time.</em></h2>
+      <form class="signup" onsubmit="return false;">
+        <input type="email" placeholder="your@email.com" aria-label="Email address" autocomplete="email" />
+        <button type="submit"><span>Join the manifest</span><span aria-hidden="true">→</span></button>
+      </form>
+    </div>
+
+    <div class="foot-cd">
+      <div class="mono">Launch window closes in</div>
+      <div class="countdown" data-countdown aria-label="Time until launch"></div>
+    </div>
+
+    <div class="foot-mark" aria-hidden="true">HELIOS—7</div>
+
+    <div class="foot-bottom">
+      <span class="mono">© 2027 Helios Aerospace</span>
+      <span class="mono">A fictional mission, built for demonstration</span>
+      <span class="mono">Cape Canaveral · 28.6084° N</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasGSAP = !!window.gsap;
+  var hasST = !!(window.gsap && window.ScrollTrigger);
+
+  if (hasST) gsap.registerPlugin(ScrollTrigger);
+
+  /* =========================================================
+     LAUNCH DATE
+     ========================================================= */
+  var MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var LAUNCH = new Date(Date.UTC(2027, 3, 8, 13, 24, 0));
+  var guard = 0;
+  while (LAUNCH.getTime() - Date.now() < 0 && guard < 12) {
+    LAUNCH.setUTCFullYear(LAUNCH.getUTCFullYear() + 1);
+    guard++;
+  }
+  function pad2(n){ return String(n).padStart(2, '0'); }
+  function fmtDate(d){
+    return pad2(d.getUTCDate()) + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear() +
+           ' · ' + pad2(d.getUTCHours()) + ':' + pad2(d.getUTCMinutes()) + ' UTC';
+  }
+  document.querySelectorAll('[data-launch-label]').forEach(function(el){
+    el.textContent = fmtDate(LAUNCH);
+  });
+
+  /* =========================================================
+     COUNTDOWN — flip digits
+     ========================================================= */
+  var UNITS = [
+    { key:'days',  label:'Days',    n:3 },
+    { key:'hours', label:'Hours',   n:2 },
+    { key:'mins',  label:'Minutes', n:2 },
+    { key:'secs',  label:'Seconds', n:2 }
+  ];
+  var stores = [];
+
+  function buildCountdown(root){
+    var store = {};
+    UNITS.forEach(function(u){
+      var g = document.createElement('div');
+      g.className = 'cd-group';
+      var row = document.createElement('div');
+      row.className = 'cd-digits';
+      var arr = [];
+      for (var i = 0; i < u.n; i++){
+        var d = document.createElement('span');
+        d.className = 'd';
+        d.dataset.v = '0';
+        var inner = document.createElement('span');
+        inner.className = 'd-in';
+        inner.textContent = '0';
+        d.appendChild(inner);
+        row.appendChild(d);
+        arr.push(d);
+      }
+      var lab = document.createElement('div');
+      lab.className = 'cd-label mono';
+      lab.textContent = u.label;
+      g.appendChild(row);
+      g.appendChild(lab);
+      root.appendChild(g);
+      store[u.key] = arr;
+    });
+    return store;
+  }
+
+  function setDigits(arr, value, silent){
+    var str = String(Math.max(0, value)).padStart(arr.length, '0');
+    for (var i = 0; i < arr.length; i++){
+      var el = arr[i];
+      if (el.dataset.v === str[i]) continue;
+      el.dataset.v = str[i];
+      var inner = el.firstElementChild;
+      if (silent || RM || !hasGSAP){
+        inner.textContent = str[i];
+        continue;
+      }
+      gsap.killTweensOf(inner);
+      gsap.timeline()
+        .to(inner, { rotateX: -90, duration: 0.14, ease: 'power2.in' })
+        .set(inner, { rotateX: 90 })
+        .call(function(){ inner.textContent = str[i]; })
+        .to(inner, { rotateX: 0, duration: 0.38, ease: 'power3.out' });
+    }
+  }
+
+  document.querySelectorAll('[data-countdown]').forEach(function(root){
+    stores.push(buildCountdown(root));
+  });
+
+  function tickCountdown(silent){
+    var diff = Math.max(0, LAUNCH.getTime() - Date.now());
+    var days  = Math.floor(diff / 86400000);
+    var hours = Math.floor(diff / 3600000) % 24;
+    var mins  = Math.floor(diff / 60000) % 60;
+    var secs  = Math.floor(diff / 1000) % 60;
+    stores.forEach(function(s){
+      setDigits(s.days, days, silent);
+      setDigits(s.hours, hours, silent);
+      setDigits(s.mins, mins, silent);
+      setDigits(s.secs, secs, silent);
+    });
+  }
+  tickCountdown(true);
+  setInterval(function(){ tickCountdown(false); }, 250);
+
+  /* =========================================================
+     SMOOTH SCROLL (Lenis, optional)
+     ========================================================= */
+  var lenis = null;
+  if (window.Lenis && !RM && hasGSAP){
+    try {
+      lenis = new Lenis({
+        duration: 1.15,
+        easing: function(t){ return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        smoothWheel: true,
+        touchMultiplier: 1.6
+      });
+      if (hasST) lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
+      gsap.ticker.lagSmoothing(0);
+    } catch (e) { lenis = null; }
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href');
+      if (id === '#' || id.length < 2) return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(target, { offset: -20, duration: 1.4 });
+      else target.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
+
+  /* =========================================================
+     CUSTOM CURSOR
+     ========================================================= */
+  (function cursor(){
+    if (!window.matchMedia('(pointer:fine)').matches || RM) return;
+    var el = document.getElementById('cursor');
+    if (!el) return;
+    var cx = window.innerWidth / 2, cy = window.innerHeight / 2, tx = cx, ty = cy;
+    window.addEventListener('mousemove', function(e){ tx = e.clientX; ty = e.clientY; }, { passive:true });
+    (function loop(){
+      cx += (tx - cx) * 0.22;
+      cy += (ty - cy) * 0.22;
+      el.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%)';
+      requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll('a, button, input, .crew-row, .tl-item').forEach(function(node){
+      node.addEventListener('mouseenter', function(){ el.classList.add('is-hover'); });
+      node.addEventListener('mouseleave', function(){ el.classList.remove('is-hover'); });
+    });
+  })();
+
+  /* =========================================================
+     THREE.JS — starfield, sun, corona, scroll camera
+     ========================================================= */
+  var canvas = document.getElementById('gl');
+  var scrollTarget = 0;
+  var scrollSmooth = 0;
+  var docH = 1;
+  var started = false;
+
+  function measure(){
+    docH = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  }
+
+  function readScroll(){
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    scrollTarget = Math.min(1, Math.max(0, y / docH));
+  }
+
+  window.addEventListener('scroll', readScroll, { passive: true });
+
+  if (window.THREE) initGL();
+  else canvas.style.display = 'none';
+
+  function initGL(){
+    var renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      antialias: true,
+      alpha: false,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    renderer.setClearColor(0x05050a, 1);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 14000);
+
+    /* ---------- STARFIELD ---------- */
+    var STAR_COUNT = 6500;
+    var positions = new Float32Array(STAR_COUNT * 3);
+    var colors    = new Float32Array(STAR_COUNT * 3);
+    var sizes     = new Float32Array(STAR_COUNT);
+    var seeds     = new Float32Array(STAR_COUNT);
+    var tmpColor  = new THREE.Color();
+
+    for (var i = 0; i < STAR_COUNT; i++){
+      var r = 1400 + Math.random() * 4200;
+      var u = Math.random() * 2 - 1;
+      var theta = Math.random() * Math.PI * 2;
+      var s = Math.sqrt(1 - u * u);
+
+      positions[i * 3]     = r * s * Math.cos(theta);
+      positions[i * 3 + 1] = r * u;
+      positions[i * 3 + 2] = r * s * Math.sin(theta);
+
+      var t = Math.random();
+      if (t > 0.86)      tmpColor.setRGB(1.0, 0.82, 0.62);
+      else if (t > 0.62) tmpColor.setRGB(0.78, 0.86, 1.0);
+      else               tmpColor.setRGB(1.0, 1.0, 1.0);
+
+      var b = 0.45 + Math.random() * 0.55;
+      colors[i * 3]     = tmpColor.r * b;
+      colors[i * 3 + 1] = tmpColor.g * b;
+      colors[i * 3 + 2] = tmpColor.b * b;
+
+      sizes[i] = Math.random() < 0.965 ? (0.7 + Math.random() * 1.4) : (2.6 + Math.random() * 3.4);
+      seeds[i] = Math.random();
+    }
+
+    var starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    starGeo.setAttribute('aColor',   new THREE.BufferAttribute(colors, 3));
+    starGeo.setAttribute('aSize',    new THREE.BufferAttribute(sizes, 1));
+    starGeo.setAttribute('aSeed',    new THREE.BufferAttribute(seeds, 1));
+
+    var starMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime:  { value: 0 },
+        uPR:    { value: renderer.getPixelRatio() }
+      },
+      vertexShader: [
+        'attribute float aSize;',
+        'attribute float aSeed;',
+        'attribute vec3 aColor;',
+        'uniform float uTime;',
+        'uniform float uPR;',
+        'varying vec3 vCol;',
+        'varying float vA;',
+        'void main(){',
+        '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
+        '  gl_Position = projectionMatrix * mv;',
+        '  float tw = 0.62 + 0.38 * sin(uTime * 1.5 + aSeed * 6.2831);',
+        '  float dist = max(-mv.z, 1.0);',
+        '  gl_PointSize = clamp(aSize * uPR * (760.0 / dist) * (0.7 + 0.5 * tw), 0.5, 26.0);',
+        '  vA = tw;',
+        '  vCol = aColor;',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'varying vec3 vCol;',
+        'varying float vA;',
+        'void main(){',
+        '  vec2 c = gl_PointCoord - 0.5;',
+        '  float d = length(c);',
+        '  if (d > 0.5) discard;',
+        '  float a = smoothstep(0.5, 0.0, d);',
+        '  a = pow(a, 2.0);',
+        '  gl_FragColor = vec4(vCol, a * vA);',
+        '}'
+      ].join('\n'),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+
+    var stars = new THREE.Points(starGeo, starMat);
+    scene.add(stars);
+
+    /* ---------- SUN ---------- */
+    var SUN_R = 380;
+    var uTimeSun = { value: 0 };
+    var uTimeCorona = { value: 0 };
+
+    var sunMat = new THREE.ShaderMaterial({
+      uniforms: { uTime: uTimeSun },
+      vertexShader: [
+        'varying vec3 vN;',
+        'varying vec3 vV;',
+        'varying vec3 vP;',
+        'void main(){',
+        '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
+        '  vN = normalize(normalMatrix * normal);',
+        '  vV = normalize(-mv.xyz);',
+        '  vP = position;',
+        '  gl_Position = projectionMatrix * mv;',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform float uTime;',
+        'varying vec3 vN;',
+        'varying vec3 vV;',
+        'varying vec3 vP;',
+
+        'float hash(vec3 p){',
+        '  return fract(sin(dot(p, vec3(12.9898, 78.233, 45.164))) * 43758.5453);',
+        '}',
+        'float noise(vec3 p){',
+        '  vec3 i = floor(p);',
+        '  vec3 f = fract(p);',
+        '  f = f * f * (3.0 - 2.0 * f);',
+        '  float n000 = hash(i);',
+        '  float n100 = hash(i + vec3(1.0, 0.0, 0.0));',
+        '  float n010 = hash(i + vec3(0.0, 1.0, 0.0));',
+        '  float n110 = hash(i + vec3(1.0, 1.0, 0.0));',
+        '  float n001 = hash(i + vec3(0.0, 0.0, 1.0));',
+        '  float n101 = hash(i + vec3(1.0, 0.0, 1.0));',
+        '  float n011 = hash(i + vec3(0.0, 1.0, 1.0));',
+        '  float n111 = hash(i + vec3(1.0, 1.0, 1.0));',
+        '  return mix(mix(mix(n000, n100, f.x), mix(n010, n110, f.x), f.y),',
+        '             mix(mix(n001, n101, f.x), mix(n011, n111, f.x), f.y), f.z);',
+        '}',
+        'float fbm(vec3 p){',
+        '  float a = 0.5;',
+        '  float s = 0.0;',
+        '  for (int k = 0; k < 4; k++){',
+        '    s += a * noise(p);',
+        '    p *= 2.03;',
+        '    a *= 0.5;',
+        '  }',
+        '  return s;',
+        '}',
+
+        'void main(){',
+        '  vec3 p = normalize(vP);',
+        '  float t = uTime * 0.085;',
+        '  float n1 = fbm(p * 3.0 + vec3(t, 0.0, -t * 0.7));',
+        '  float n2 = fbm(p * 9.0 - vec3(t * 1.7, t, 0.0));',
+        '  float cell = fbm(p * 24.0 + vec3(t * 2.4, -t, t));',
+
+        '  vec3 deep  = vec3(0.55, 0.08, 0.01);',
+        '  vec3 mid   = vec3(1.00, 0.40, 0.05);',
+        '  vec3 hot   = vec3(1.00, 0.81, 0.42);',
+        '  vec3 white = vec3(1.00, 0.97, 0.86);',
+
+        '  float m = smoothstep(0.28, 0.80, n1 * 0.65 + n2 * 0.35);',
+        '  vec3 col = mix(deep, mid, m);',
+        '  col = mix(col, hot, smoothstep(0.55, 0.96, n2 * 0.62 + cell * 0.38));',
+        '  col = mix(col, white, smoothstep(0.84, 1.0, cell) * 0.55);',
+
+        '  float fres = 1.0 - max(dot(normalize(vN), normalize(vV)), 0.0);',
+        '  col *= mix(1.0, 0.60, pow(fres, 1.9));',
+        '  col += vec3(1.0, 0.46, 0.10) * pow(fres, 3.2) * 1.15;',
+
+        '  gl_FragColor = vec4(col, 1.0);',
+        '}'
+      ].join('\n')
+    });
+
+    var sun = new THREE.Mesh(new THREE.SphereGeometry(SUN_R, 84, 84), sunMat);
+    scene.add(sun);
+
+    /* ---------- CORONA ---------- */
+    var CORONA_SIZE = SUN_R * 8;
+    var coronaMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime:   uTimeCorona,
+        uLimb:   { value: SUN_R / (CORONA_SIZE * 0.5) }
+      },
+      vertexShader: [
+        'varying vec2 vUv;',
+        'void main(){',
+        '  vUv = uv;',
+        '  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform float uTime;',
+        'uniform float uLimb;',
+        'varying vec2 vUv;',
+
+        'float hash(vec2 p){',
+        '  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);',
+        '}',
+        'float noise(vec2 p){',
+        '  vec2 i = floor(p);',
+        '  vec2 f = fract(p);',
+        '  f = f * f * (3.0 - 2.0 * f);',
+        '  float a = hash(i);',
+        '  float b = hash(i + vec2(1.0, 0.0));',
+        '  float c = hash(i + vec2(0.0, 1.0));',
+        '  float d = hash(i + vec2(1.0, 1.0));',
+        '  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);',
+        '}',
+        'float fbm(vec2 p){',
+        '  float a = 0.5;',
+        '  float s = 0.0;',
+        '  for (int k = 0; k < 5; k++){',
+        '    s += a * noise(p);',
+        '    p *= 2.02;',
+        '    a *= 0.5;',
+        '  }',
+        '  return s;',
+        '}',
+
+        'void main(){',
+        '  vec2 p = vUv - 0.5;',
+        '  float r = length(p) * 2.0;',
+        '  float ang = atan(p.y, p.x);',
+        '  float d = clamp((r - uLimb) / (1.0 - uLimb), 0.0, 1.0);',
+
+        '  float n  = fbm(vec2(ang * 3.0, r * 5.0 - uTime * 0.22));',
+        '  float n2 = fbm(vec2(ang * 9.0 + 4.0, r * 9.0 + uTime * 0.13));',
+        '  float rays = smoothstep(0.34, 0.92, n * 0.62 + n2 * 0.38);',
+
+        '  float falloff = exp(-d * 2.9);',
+        '  float a = falloff * (0.42 + 0.95 * rays);',
+        '  a += exp(-d * 22.0) * 0.95;',
+
+        '  float core = 1.0 - smoothstep(0.0, 0.35, d);',
+        '  vec3 col = mix(vec3(1.0, 0.33, 0.04), vec3(1.0, 0.88, 0.68), core);',
+        '  col += vec3(1.0, 0.72, 0.35) * rays * 0.35;',
+
+        '  gl_FragColor = vec4(col, clamp(a, 0.0, 1.0));',
+        '}'
+      ].join('\n'),
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide
+    });
+
+    var corona = new THREE.Mesh(new THREE.PlaneGeometry(CORONA_SIZE, CORONA_SIZE), coronaMat);
+    scene.add(corona);
+
+    /* ---------- CAMERA PATH ---------- */
+    var curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(   0,    0, 1500),
+      new THREE.Vector3(-270,  155, 1290),
+      new THREE.Vector3( 300, -135, 1080),
+      new THREE.Vector3(-200,  195,  930),
+      new THREE.Vector3( 120,  -70,  820)
+    ], false, 'catmullrom', 0.5);
+
+    var lookKeys = [
+      { t: 0.00, x: -0.52, y: -0.40 },
+      { t: 0.32, x:  0.46, y:  0.14 },
+      { t: 0.66, x: -0.44, y:  0.32 },
+      { t: 1.00, x:  0.12, y: -0.26 }
+    ];
+
+    function sampleLook(t){
+      for (var i = 0; i < lookKeys.length - 1; i++){
+        var a = lookKeys[i], b = lookKeys[i + 1];
+        if (t >= a.t && t <= b.t){
+          var k = (t - a.t) / (b.t - a.t);
+          var e = k * k * (3 - 2 * k);
+          return { x: a.x + (b.x - a.x) * e, y: a.y + (b.y - a.y) * e };
+        }
+      }
+      return { x: lookKeys[3].x, y: lookKeys[3].y };
+    }
+
+    var distScale = RM ? 1 : 2.15;
+    var zoomBase = 1;
+    var introT = RM ? 1 : 0;
+    var introStart = performance.now();
+
+    function layout(){
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.fov = (w / h) < 0.85 ? 66 : 55;
+      camera.updateProjectionMatrix();
+      starMat.uniforms.uPR.value = renderer.getPixelRatio();
+      zoomBase = (w / h) < 0.85 ? 1.35 : 1.0;
+      measure();
+      readScroll();
+    }
+
+    window.addEventListener('resize', layout);
+    layout();
+
+    var camVec = new THREE.Vector3();
+
+    function updateCamera(t, now){
+      if (!RM){
+        var e = Math.min(1, (now - introStart) / 2600);
+        var ie = 1 - Math.pow(1 - e, 4);
+        distScale = 2.15 - 1.15 * ie;
+      } else {
+        distScale = 1;
+      }
+
+      var tt = Math.min(1, Math.max(0, t));
+      curve.getPointAt(tt, camVec).multiplyScalar(zoomBase * distScale);
+      camera.position.copy(camVec);
+
+      var dist = camVec.length();
+      var halfH = dist * Math.tan(camera.fov * Math.PI / 360);
+      var halfW = halfH * camera.aspect;
+      var lk = sampleLook(tt);
+      var sx = Math.min(1, camera.aspect * 0.92);
+
+      camera.lookAt(lk.x * halfW * sx, lk.y * halfH, 0);
+      camera.rotateZ(Math.sin(tt * Math.PI) * 0.055);
+    }
+
+    function render(now){
+      requestAnimationFrame(render);
+
+      if (scrollSmooth !== scrollTarget){
+        scrollSmooth += (scrollTarget - scrollSmooth) * 0.085;
+        if (Math.abs(scrollTarget - scrollSmooth) < 0.00015) scrollSmooth = scrollTarget;
+      }
+
+      var t = now * 0.001;
+      if (!RM){
+        uTimeSun.value = t;
+        uTimeCorona.value = t;
+      }
+
+      updateCamera(scrollSmooth, now);
+
+      corona.quaternion.copy(camera.quaternion);
+      sun.rotation.y += RM ? 0 : 0.0006;
+      stars.rotation.y += RM ? 0 : 0.00004;
+
+      renderer.render(scene, camera);
+    }
+
+    requestAnimationFrame(render);
+    started = true;
+  }
+
+  /* =========================================================
+     SCROLL-DRIVEN UI
+     ========================================================= */
+  var nav = document.getElementById('nav');
+  var scrim = document.getElementById('scrim');
+  var bar = document.getElementById('progressBar');
+
+  function smoothstep(a, b, x){
+    var t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+  }
+
+  function updateUI(){
+    var p = scrollSmooth;
+    if (bar) bar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+    if (nav) nav.classList.toggle('is-scrolled', (window.pageYOffset || 0) > 40);
+    if (scrim) scrim.style.opacity = (smoothstep(0.035, 0.2, p) * 0.82).toFixed(3);
+    requestAnimationFrame(updateUI);
+  }
+  requestAnimationFrame(updateUI);
+
+  /* =========================================================
+     GSAP REVEALS
+     ========================================================= */
+  if (hasST && !RM){
+    document.querySelectorAll('.sec-title .ln').forEach(function(el){
+      gsap.set(el, { yPercent: 112 });
+    });
+    document.querySelectorAll('.sec-title').forEach(function(title){
+      gsap.to(title.querySelectorAll('.ln'), {
+        yPercent: 0,
+        duration: 1.25,
+        ease: 'expo.out',
+        stagger: 0.09,
+        scrollTrigger: { trigger: title, start: 'top 86%', once: true }
+      });
+    });
+
+    gsap.utils.toArray('[data-reveal]').forEach(function(el){
+      gsap.from(el, {
+        y: 30,
+        opacity: 0,
+        duration: 1.05,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+      });
+    });
+
+    /* counters */
+    document.querySelectorAll('[data-count]').forEach(function(el){
+      var target = parseFloat(el.getAttribute('data-count'));
+      var dec = parseInt(el.getAttribute('data-dec') || '0', 10);
+      var obj = { v: 0 };
+      gsap.to(obj, {
+        v: target,
+        duration: 1.8,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 92%', once: true },
+        onUpdate: function(){
+          var val = obj.v;
+          if (dec > 0) el.textContent = val.toFixed(dec);
+          else el.textContent = Math.round(val).toLocaleString('en-US');
+        }
+      });
+    });
+
+    /* timeline fill */
+    var tlFill = document.getElementById('tlFill');
+    var tl = document.getElementById('timeline');
+    if (tlFill && tl){
+      gsap.to(tlFill, {
+        scaleY: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: tl,
+          start: 'top 72%',
+          end: 'bottom 72%',
+          scrub: 0.6
+        }
+      });
+    }
+
+    /* spacecraft line drawing */
+    var drawEls = document.querySelectorAll('.craft [data-draw]');
+    if (drawEls.length){
+      drawEls.forEach(function(el){
+        var len = 600;
+        try { if (el.getTotalLength) len = el.getTotalLength(); } catch (e) {}
+        el.style.strokeDasharray = len;
+        el.style.strokeDashoffset = len;
+      });
+      gsap.to(drawEls, {
+        strokeDashoffset: 0,
+        duration: 1.6,
+        ease: 'power2.inOut',
+        stagger: 0.045,
+        scrollTrigger: {
+          trigger: '.craft-wrap',
+          start: 'top 78%',
+          once: true
+        }
+      });
+    }
+  } else if (hasGSAP) {
+    gsap.set('[data-reveal]', { clearProps: 'all' });
+  }
+
+  /* =========================================================
+     LOADER + HERO INTRO
+     ========================================================= */
+  var loader = document.getElementById('loader');
+  var loadBar = document.getElementById('loadBar');
+  var loadPct = document.getElementById('loadPct');
+
+  function heroReveal(){
+    if (!hasGSAP || RM) return;
+    gsap.timeline({ defaults: { ease: 'expo.out' } })
+      .from('.hero-title .ht-line', { yPercent: 118, duration: 1.35 }, 0)
+      .from('.hero-top .tag', { y: 14, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'power2.out' }, 0.1)
+      .from('.hero-lede', { y: 22, opacity: 0, duration: 1.0, ease: 'power2.out' }, 0.34)
+      .from('.hero-low .cd-group', { y: 22, opacity: 0, duration: 0.9, stagger: 0.07, ease: 'power2.out' }, 0.42)
+      .from('.hero-foot > *', { opacity: 0, y: 12, duration: 0.8, stagger: 0.09, ease: 'power2.out' }, 0.62)
+      .from('.nav', { y: -28, opacity: 0, duration: 1.1, ease: 'power2.out' }, 0.2);
+  }
+
+  function boot(){
+    measure();
+    readScroll();
+    scrollSmooth = scrollTarget;
+
+    if (!hasGSAP || RM){
+      if (loader) loader.style.display = 'none';
+      heroReveal();
+      if (hasST) ScrollTrigger.refresh();
+      return;
+    }
+
+    var proxy = { v: 0 };
+    var tl = gsap.timeline();
+
+    tl.to(proxy, {
+      v: 100,
+      duration: 1.0,
+      ease: 'power2.inOut',
+      onUpdate: function(){
+        var n = Math.round(proxy.v);
+        if (loadBar) loadBar.style.transform = 'scaleX(' + (proxy.v / 100).toFixed(4) + ')';
+        if (loadPct) loadPct.textContent = String(n).padStart(2, '0');
+      }
+    }, 0);
+
+    tl.to('.loader-inner', { opacity: 0, y: -18, duration: 0.5, ease: 'power2.in' }, 1.02)
+      .to(loader, {
+        yPercent: -100,
+        duration: 0.95,
+        ease: 'expo.inOut',
+        onComplete: function(){
+          if (loader) loader.style.display = 'none';
+        }
+      }, 1.12)
+      .add(heroReveal, 1.22);
+  }
+
+  if (document.readyState === 'complete') boot();
+  else window.addEventListener('load', boot);
+
+  window.addEventListener('resize', function(){
+    measure();
+    readScroll();
+  });
+
+  if (document.fonts && document.fonts.ready){
+    document.fonts.ready.then(function(){
+      measure();
+      if (hasST) ScrollTrigger.refresh();
+    });
+  }
+  setTimeout(function(){
+    measure();
+    readScroll();
+    if (hasST) ScrollTrigger.refresh();
+  }, 1200);
+})();
+</script>
+</body>
+</html>

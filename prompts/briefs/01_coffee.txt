@@ -1,0 +1,3 @@
+Landing page for 'Ember & Oak', a specialty coffee roastery. Motion signature: steam rising from a cup built in SVG that reacts to the cursor, scroll-driven pour animation that fills sections with coffee color, kinetic serif typography.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

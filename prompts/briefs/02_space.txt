@@ -1,0 +1,3 @@
+Launch page for 'Helios-7', a fictional private mission to the Sun. Motion signature: three.js starfield and glowing sun with corona shader, scroll moves the camera along the mission trajectory, countdown with flip-digit animation.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

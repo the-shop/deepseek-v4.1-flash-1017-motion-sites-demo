@@ -1,0 +1,3 @@
+Motion design agency 'Kinetik' own showcase. Motion signature: a cursor that morphs into context labels, fullscreen menu with staggered reveal, case-study cards with WebGL-like distortion on hover (use canvas or SVG displacement filter), page-section transitions with masks.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

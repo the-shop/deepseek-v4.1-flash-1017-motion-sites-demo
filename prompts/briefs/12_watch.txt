@@ -1,0 +1,3 @@
+Luxury watch 'Meridian Chronograph'. Motion signature: a fully working analog watch face in SVG with real time and sweeping second hand, scroll-driven exploded view of watch layers separating in 3D (CSS 3D transforms), gold on black.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

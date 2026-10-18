@@ -1,0 +1,3 @@
+Skateboard brand 'Gravel & Grit'. Motion signature: a 3D skateboard (three.js) that spins and flips with scroll and can be dragged to rotate, gritty zine-style collage layout, stamp/spray reveals, rough type.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

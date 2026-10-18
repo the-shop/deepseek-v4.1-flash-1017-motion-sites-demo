@@ -1,0 +1,3 @@
+Portfolio of 'Studio Vael', a minimalist architecture firm. Motion signature: isometric building assembled line-by-line with SVG stroke animation on scroll, ultra-precise grid, restrained monochrome with one accent color, slow luxurious easing.
+
+Make it a single long one-page website (hero + at least 4 sections + footer). It must be stunning to look at and delightful to use.

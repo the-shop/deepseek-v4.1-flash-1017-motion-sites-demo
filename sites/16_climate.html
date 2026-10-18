@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Degree — A Climate Data Story</title>
+<script>
+  (function(){
+    var d = document.documentElement;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('reduced');
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#07080A;
+  --ink2:#0C0F13;
+  --paper:#F2EEE6;
+  --muted:#8B9199;
+  --line:rgba(242,238,230,.10);
+  --hot:#D6452F;
+  --amber:#E8A03C;
+  --cool:#4E8CBF;
+  --pad:clamp(20px,5vw,72px);
+  --max:1380px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:16px;
+  line-height:1.55;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+img,svg,canvas{display:block;max-width:100%}
+h1,h2,h3,h4,p,ul{margin:0;padding:0}
+ul{list-style:none}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--hot);color:#fff}
+
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+
+.wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 var(--pad)}
+
+/* ---------- chrome ---------- */
+.progress{
+  position:fixed;top:0;left:0;right:0;height:2px;z-index:1000;
+  background:rgba(242,238,230,.06);
+}
+.progress span{
+  display:block;height:100%;width:100%;
+  transform-origin:0 50%;transform:scaleX(0);
+  background:linear-gradient(90deg,var(--cool),var(--amber) 55%,var(--hot));
+}
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.055;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px var(--pad);
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  mix-blend-mode:difference;
+}
+.brand{display:flex;align-items:center;gap:9px;font-weight:500}
+.brand-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--hot);
+  box-shadow:0 0 0 0 rgba(214,69,47,.7);
+  animation:pulse 2.6s ease-out infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(214,69,47,.65)}
+  70%{box-shadow:0 0 0 11px rgba(214,69,47,0)}
+  100%{box-shadow:0 0 0 0 rgba(214,69,47,0)}
+}
+.nav-meta{display:flex;align-items:center;gap:12px;color:#cfcabf}
+.nav-meta b{color:#fff;font-weight:500}
+
+/* ---------- typography ---------- */
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:14px;margin-bottom:clamp(22px,4vh,40px);
+}
+.eyebrow::before{content:'';width:28px;height:1px;background:var(--hot);flex:0 0 auto}
+.section-title{
+  font-family:'Instrument Serif',Georgia,serif;font-weight:400;
+  font-size:clamp(2.5rem,6vw,5.2rem);line-height:.98;letter-spacing:-.025em;
+}
+.section-title em{font-style:italic;color:var(--amber)}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative;min-height:100svh;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.hero-stripes{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.hero-veil{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(80% 60% at 50% 42%,rgba(7,8,10,0) 0%,rgba(7,8,10,.55) 58%,rgba(7,8,10,.94) 100%),
+    linear-gradient(180deg,rgba(7,8,10,.82) 0%,rgba(7,8,10,.28) 26%,rgba(7,8,10,.55) 62%,rgba(7,8,10,.98) 100%);
+}
+.hero-inner{
+  position:relative;z-index:2;width:100%;max-width:var(--max);margin:0 auto;
+  padding:clamp(90px,14vh,140px) var(--pad) clamp(26px,5vh,52px);
+  min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;gap:40px;
+}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#cfcabf}
+.hero-top .r{text-align:right;color:var(--muted)}
+.hero-title{
+  font-family:'Instrument Serif',Georgia,serif;font-weight:400;
+  font-size:clamp(3.6rem,13vw,12rem);line-height:.82;letter-spacing:-.035em;
+  margin:0 0 clamp(20px,3vh,34px);
+}
+.hero-title .line{display:block;overflow:hidden;padding-bottom:.06em}
+.hero-title .line>span{display:block;transform:translateY(112%)}
+.hero-title em{font-style:italic}
+.hero-row{display:flex;align-items:flex-end;justify-content:space-between;gap:clamp(24px,5vw,64px);flex-wrap:wrap}
+.hero-sub{max-width:470px;font-size:clamp(14.5px,1.35vw,17.5px);line-height:1.6;color:#cfcabf}
+.hero-stat{display:flex;align-items:flex-end;gap:16px;flex:0 0 auto}
+.hero-stat .num{
+  font-family:'IBM Plex Mono',monospace;font-size:clamp(2.6rem,5.4vw,4.4rem);
+  line-height:.86;letter-spacing:-.04em;color:#fff;
+}
+.hero-stat .num i{font-style:normal;font-size:.4em;color:var(--hot);margin-left:4px;vertical-align:top}
+.hero-stat .lbl{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;line-height:1.7;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);max-width:170px;padding-bottom:6px;
+}
+.scroll-cue{
+  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);
+}
+.scroll-cue i{display:block;width:1px;height:38px;background:linear-gradient(180deg,rgba(242,238,230,.5),rgba(242,238,230,0));position:relative;overflow:hidden}
+.scroll-cue i::after{content:'';position:absolute;top:-100%;left:0;width:100%;height:100%;background:var(--paper);animation:cue 2.2s cubic-bezier(.7,0,.3,1) infinite}
+@keyframes cue{0%{transform:translateY(0)}70%,100%{transform:translateY(200%)}}
+
+/* ---------- manifesto ---------- */
+.manifesto{padding:clamp(80px,14vh,160px) 0 clamp(60px,10vh,110px);position:relative}
+.manifesto::before{
+  content:'';position:absolute;top:0;left:var(--pad);right:var(--pad);height:1px;
+  background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent);
+}
+.big-statement{
+  font-family:'Instrument Serif',Georgia,serif;font-weight:400;
+  font-size:clamp(2rem,4.6vw,4.1rem);line-height:1.06;letter-spacing:-.02em;
+  max-width:17ch;margin-bottom:clamp(36px,6vh,64px);
+}
+.big-statement em{font-style:italic;color:var(--amber)}
+.manifesto-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,4vw,56px);
+  max-width:900px;color:#b9b4aa;font-size:clamp(14.5px,1.25vw,16.5px);line-height:1.68;
+  margin-bottom:clamp(44px,8vh,80px);
+}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,3vw,40px);border-top:1px solid var(--line);padding-top:clamp(22px,4vh,38px)}
+.stat b{
+  display:block;font-family:'IBM Plex Mono',monospace;font-weight:500;
+  font-size:clamp(1.9rem,3.6vw,3.1rem);line-height:1;letter-spacing:-.04em;color:#fff;
+  margin-bottom:10px;
+}
+.stat span{
+  display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.7;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);max-width:24ch;
+}
+
+/* ---------- scrolly ---------- */
+.scrolly{padding:clamp(60px,10vh,120px) 0 clamp(40px,8vh,80px);position:relative}
+.scrolly-head{max-width:var(--max);margin:0 auto;padding:0 var(--pad) clamp(36px,7vh,80px)}
+.scrolly-grid{
+  display:grid;grid-template-columns:1fr 1.05fr;
+  gap:clamp(24px,4vw,72px);
+  max-width:var(--max);margin:0 auto;padding:0 var(--pad);
+}
+.viz-col{grid-column:2;grid-row:1;position:relative}
+.viz-sticky{
+  position:sticky;top:0;height:100vh;height:100svh;
+  display:flex;align-items:center;justify-content:center;
+}
+.steps{grid-column:1;grid-row:1}
+
+.step{
+  min-height:86vh;display:flex;flex-direction:column;justify-content:center;
+  max-width:470px;opacity:.22;transition:opacity .55s ease;
+}
+.step.is-active{opacity:1}
+.step-idx{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.22em;
+  color:var(--hot);margin-bottom:16px;
+}
+.step h3{
+  font-family:'Instrument Serif',Georgia,serif;font-weight:400;
+  font-size:clamp(1.8rem,3.2vw,2.7rem);line-height:1.06;letter-spacing:-.02em;
+  margin-bottom:16px;
+}
+.step p{color:#a9a49a;font-size:clamp(14px,1.15vw,15.5px);line-height:1.7;max-width:44ch}
+.step p b{color:var(--paper);font-weight:500}
+
+/* panel */
+.panel{
+  width:100%;max-width:600px;
+  background:linear-gradient(165deg,#11151A 0%,#0A0C10 55%,#08090C 100%);
+  border:1px solid rgba(242,238,230,.09);
+  border-radius:20px;
+  padding:clamp(16px,2vw,24px);
+  box-shadow:0 46px 90px -46px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.045);
+}
+.panel-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  padding-bottom:clamp(12px,2vh,18px);margin-bottom:clamp(12px,2vh,18px);
+  border-bottom:1px solid rgba(242,238,230,.08);
+}
+.panel-label{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--muted);line-height:1.8;padding-top:4px;
+}
+.panel-num{
+  font-family:'IBM Plex Mono',monospace;font-weight:500;
+  font-size:clamp(1.9rem,3.4vw,2.9rem);line-height:.9;letter-spacing:-.045em;
+  white-space:nowrap;color:#fff;
+}
+.panel-num .sign{color:var(--hot);margin-right:1px}
+.panel-num i{font-style:normal;font-size:.36em;color:var(--muted);margin-left:4px;vertical-align:top;letter-spacing:0}
+.panel-body{
+  display:flex;gap:clamp(10px,2vw,20px);
+  height:clamp(170px,25vh,262px);
+  transition:opacity .6s ease;
+}
+.thermo-wrap{
+  flex:0 0 auto;width:clamp(74px,9vw,116px);height:100%;
+  transition:opacity .6s ease;
+}
+.thermo-wrap canvas{width:100%;height:100%}
+.map-wrap{flex:1;min-width:0;height:100%;display:flex;align-items:center;transition:opacity .6s ease}
+.map-wrap svg{width:100%;height:100%;overflow:visible}
+.region{transition:fill .12s linear;stroke:rgba(242,238,230,.14);stroke-width:.9}
+.graticule{stroke:rgba(242,238,230,.11);stroke-width:.7;stroke-dasharray:2 5;fill:none}
+.glabel{font-family:'IBM Plex Mono',monospace;font-size:6.5px;fill:rgba(242,238,230,.3);letter-spacing:.1em}
+.rlabel{
+  font-family:'IBM Plex Mono',monospace;font-size:7px;font-weight:500;
+  fill:#0b0d10;letter-spacing:-.02em;pointer-events:none;opacity:0;
+}
+.panel[data-focus="stripes"] .panel-body{opacity:.38}
+.panel[data-focus="number"] .panel-body{opacity:.62}
+.panel[data-focus="thermo"] .map-wrap{opacity:.3}
+.panel[data-focus="map"] .thermo-wrap{opacity:.3}
+.panel[data-focus="finale"] .panel-body{opacity:1}
+.panel-foot{margin-top:clamp(12px,2vh,18px)}
+.panel-foot canvas{width:100%;height:clamp(30px,4.2vh,46px);border-radius:4px;overflow:hidden}
+.stripes-axis{
+  display:flex;justify-content:space-between;margin-top:7px;
+  font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.12em;color:rgba(139,145,153,.8);
+}
+
+/* ---------- impacts ---------- */
+.impacts{padding:clamp(80px,14vh,150px) 0 clamp(60px,10vh,110px);position:relative}
+.impacts::before{
+  content:'';position:absolute;top:0;left:var(--pad);right:var(--pad);height:1px;
+  background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent);
+}
+.impacts .section-title{margin-bottom:clamp(40px,7vh,72px)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2vw,22px)}
+.card{
+  position:relative;overflow:hidden;
+  padding:clamp(22px,3vw,36px);
+  border:1px solid rgba(242,238,230,.09);border-radius:16px;
+  background:linear-gradient(160deg,rgba(255,255,255,.032),rgba(255,255,255,.008));
+  transition:transform .5s cubic-bezier(.2,.7,.2,1),border-color .5s ease,background .5s ease;
+}
+.card::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(340px 200px at 20% 0%,rgba(232,160,60,.13),transparent 70%);
+  opacity:0;transition:opacity .6s ease;
+}
+.card:hover{transform:translateY(-5px);border-color:rgba(232,160,60,.34)}
+.card:hover::after{opacity:1}
+.card-num{
+  font-family:'IBM Plex Mono',monospace;font-weight:500;
+  font-size:clamp(1.9rem,4vw,3.2rem);line-height:1;letter-spacing:-.05em;color:#fff;
+  margin-bottom:14px;
+}
+.card-num span{font-size:.5em;color:var(--hot);margin-left:2px;letter-spacing:0}
+.card h3{
+  font-family:'Inter',sans-serif;font-weight:500;font-size:clamp(13.5px,1.2vw,15.5px);
+  line-height:1.45;color:var(--paper);margin-bottom:10px;letter-spacing:-.005em;
+}
+.card p{color:#94908a;font-size:clamp(13px,1.1vw,14.5px);line-height:1.65;margin-bottom:18px}
+.card-src{
+  font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;
+  text-transform:uppercase;color:rgba(139,145,153,.75);
+}
+
+/* ---------- budget ---------- */
+.budget{padding:clamp(80px,14vh,150px) 0 clamp(70px,12vh,120px);position:relative}
+.budget::before{
+  content:'';position:absolute;top:0;left:var(--pad);right:var(--pad);height:1px;
+  background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent);
+}
+.budget .section-title{margin-bottom:clamp(24px,4vh,36px)}
+.lede{max-width:600px;color:#a9a49a;font-size:clamp(14.5px,1.3vw,17px);line-height:1.7;margin-bottom:clamp(36px,6vh,60px)}
+.lede b{color:var(--paper);font-weight:500}
+.budget-viz{margin-bottom:clamp(36px,6vh,60px)}
+.budget-track{
+  position:relative;height:clamp(44px,6vh,60px);border-radius:10px;overflow:hidden;
+  background:linear-gradient(90deg,rgba(214,69,47,.16),rgba(232,160,60,.34));
+  border:1px solid rgba(242,238,230,.1);
+}
+.budget-fill{
+  position:absolute;top:0;left:0;height:100%;width:100%;
+  background:linear-gradient(90deg,#14181D,#1B2026 70%,#242A31);
+  box-shadow:6px 0 26px rgba(232,160,60,.45);
+  border-right:1px solid rgba(232,160,60,.85);
+  transform-origin:0 50%;transform:scaleX(0);
+}
+.budget-labels{
+  display:flex;justify-content:space-between;margin-top:12px;
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);gap:12px;
+}
+.budget-labels .last{color:var(--amber)}
+.budget-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,3vw,40px);border-top:1px solid var(--line);padding-top:clamp(22px,4vh,38px)}
+
+/* ---------- footer ---------- */
+footer{
+  padding:clamp(60px,10vh,110px) 0 40px;
+  border-top:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.012),transparent);
+}
+.foot-top{display:flex;justify-content:space-between;align-items:flex-end;gap:clamp(24px,5vw,64px);flex-wrap:wrap;margin-bottom:clamp(40px,7vh,72px)}
+.foot-mark{
+  font-family:'Instrument Serif',Georgia,serif;font-size:clamp(2.6rem,7vw,6rem);
+  line-height:.86;letter-spacing:-.035em;
+}
+.foot-mark em{font-style:italic;color:var(--amber)}
+.foot-note{max-width:320px;color:#8f8a81;font-size:14px;line-height:1.65}
+.foot-sources{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:clamp(14px,2.4vw,32px);
+  padding-top:clamp(24px,4vh,40px);border-top:1px solid var(--line);margin-bottom:clamp(40px,7vh,64px);
+}
+.foot-sources h4{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:400;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:14px;
+}
+.foot-sources li{
+  font-size:12.5px;line-height:1.9;color:#a9a49a;
+  border-bottom:1px solid rgba(242,238,230,.055);padding:5px 0;
+}
+.foot-bottom{
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:rgba(139,145,153,.7);
+}
+
+/* ---------- reduced motion ---------- */
+.reduced .hero-title .line>span{transform:none}
+.reduced .scroll-cue i::after{animation:none}
+.reduced .brand-dot{animation:none}
+.reduced .scrolly-grid{display:block}
+.reduced .viz-col{position:static;padding:0}
+.reduced .viz-sticky{position:static;height:auto;display:block}
+.reduced .step{min-height:auto;opacity:1;margin-bottom:64px;max-width:none}
+.reduced .panel{transition:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .hero-stat .num{font-size:clamp(2.2rem,7vw,3.2rem)}
+}
+@media (max-width:900px){
+  .scrolly-grid{display:block;padding:0 var(--pad)}
+  .viz-col{
+    position:sticky;top:0;z-index:60;
+    padding:8px 0 12px;
+    background:linear-gradient(180deg,var(--ink) 0%,var(--ink) 84%,rgba(7,8,10,0) 100%);
+  }
+  .viz-sticky{position:static;height:auto;display:block}
+  .panel{max-width:none;border-radius:16px;padding:13px}
+  .panel-head{padding-bottom:10px;margin-bottom:10px}
+  .panel-body{height:clamp(130px,21vh,180px);gap:10px}
+  .thermo-wrap{width:clamp(58px,15vw,80px)}
+  .panel-foot{margin-top:10px}
+  .panel-foot canvas{height:26px}
+  .stripes-axis{font-size:7.5px;margin-top:5px}
+  .step{min-height:74vh;max-width:none;padding-top:10px}
+  .step h3{font-size:clamp(1.6rem,6vw,2.2rem)}
+  .step p{font-size:14.5px}
+  .manifesto-grid{grid-template-columns:1fr}
+  .stat-row{grid-template-columns:1fr;gap:22px}
+  .budget-stats{grid-template-columns:1fr;gap:22px}
+  .cards{grid-template-columns:1fr}
+  .hero-row{flex-direction:column;align-items:flex-start}
+  .hero-stat{gap:12px}
+  .hero-stat .lbl{max-width:150px}
+  .nav{padding:14px var(--pad)}
+  .nav-meta span{display:none}
+  .foot-top{flex-direction:column;align-items:flex-start}
+  .scroll-cue{display:none}
+}
+@media (max-width:420px){
+  .hero-title{font-size:clamp(3.2rem,15vw,4rem)}
+}
+</style>
+</head>
+<body>
+
+<div class="progress"><span id="progressBar"></span></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="brand" href="#top"><span class="brand-dot"></span>One Degree</a>
+  <div class="nav-meta">
+    <span>Global anomaly</span>
+    <b id="navNum">+0.00°C</b>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="top">
+    <canvas class="hero-stripes" id="heroStripes" aria-hidden="true"></canvas>
+    <div class="hero-veil" aria-hidden="true"></div>
+
+    <div class="hero-inner">
+      <div class="hero-top">
+        <div>A climate data story</div>
+        <div class="r">1850 &mdash; 2024<br>175 years, 175 stripes</div>
+      </div>
+
+      <div class="hero-bottom">
+        <h1 class="hero-title">
+          <span class="line"><span>One</span></span>
+          <span class="line"><span><em>Degree</em></span></span>
+        </h1>
+        <div class="hero-row">
+          <p class="hero-sub">
+            The planet has warmed 1.30°C since the industrial revolution. Small enough
+            to dismiss in a conversation. Large enough to redraw the map, the coastline
+            and the harvest.
+          </p>
+          <div class="hero-stat">
+            <div class="num"><span id="heroNum">0.00</span><i>°C</i></div>
+            <div class="lbl">Global surface temperature anomaly vs. 1850&ndash;1900</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-cue">Scroll<i></i></div>
+  </section>
+
+  <!-- ================= 01 MANIFESTO ================= -->
+  <section class="manifesto" id="baseline">
+    <div class="wrap">
+      <div class="eyebrow reveal">01 &mdash; The baseline</div>
+      <h2 class="big-statement reveal">
+        For eleven thousand years the thermostat barely moved. In two lifetimes,
+        we <em>turned it up</em>.
+      </h2>
+
+      <div class="manifesto-grid">
+        <p class="reveal">
+          Ice cores pulled from the Antarctic hold air that fell as snow 800,000 years ago.
+          In all of that time, atmospheric CO&#8322; never climbed past 300 parts per million.
+          Today it reads 424 &mdash; a concentration the planet has not seen since before
+          our species existed.
+        </p>
+        <p class="reveal">
+          The number at the centre of this story is not a forecast. It is a measurement:
+          1.30°C of extra heat, averaged across every ocean, every continent and every hour
+          since the industrial revolution. Averaged, because that is the only way a number
+          that large becomes a number that small.
+        </p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat reveal"><b data-count="424">0</b><span>ppm CO&#8322; in the atmosphere today</span></div>
+        <div class="stat reveal"><b data-count="1.30" data-dec="2" data-prefix="+">0</b><span>°C above the 1850&ndash;1900 baseline</span></div>
+        <div class="stat reveal"><b data-count="1.5" data-dec="1">0</b><span>°C &mdash; the line the world agreed not to cross</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 02 SCROLLY ================= -->
+  <section class="scrolly" id="instrument">
+    <div class="scrolly-head">
+      <div class="eyebrow reveal">02 &mdash; The instrument</div>
+      <h2 class="section-title reveal">Read the planet<br><em>like a graph.</em></h2>
+    </div>
+
+    <div class="scrolly-grid">
+
+      <!-- viz column (first in DOM so it sticks above steps on mobile) -->
+      <div class="viz-col">
+        <div class="viz-sticky">
+          <div class="panel" id="panel" data-focus="stripes">
+            <div class="panel-head">
+              <div class="panel-label">Global temperature<br>anomaly</div>
+              <div class="panel-num"><span class="sign">+</span><span id="bigNum">0.00</span><i>°C</i></div>
+            </div>
+
+            <div class="panel-body">
+              <div class="thermo-wrap"><canvas id="thermo" aria-hidden="true"></canvas></div>
+              <div class="map-wrap">
+                <svg id="map" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Regional warming map">
+                  <!-- graticule -->
+                  <g aria-hidden="true">
+                    <path class="graticule" d="M4,20 L396,20"/>
+                    <path class="graticule" d="M4,116 L396,116"/>
+                    <path class="graticule" d="M4,206 L396,206"/>
+                    <text class="glabel" x="4" y="16">60°N</text>
+                    <text class="glabel" x="4" y="112">0°</text>
+                    <text class="glabel" x="4" y="202">60°S</text>
+                  </g>
+
+                  <!-- arctic band -->
+                  <path class="region" id="r-ar" d="M4,24 C96,4 304,4 396,24 L396,38 C304,20 96,20 4,38 Z" fill="#16222E"/>
+                  <!-- north america -->
+                  <path class="region" id="r-na" d="M44,62 C50,42 84,28 112,36 C136,42 142,58 130,70 C124,76 126,84 118,90 C108,98 100,112 90,114 C82,116 76,106 72,96 C64,84 40,80 44,62 Z" fill="#16222E"/>
+                  <!-- south america -->
+                  <path class="region" id="r-sa" d="M104,126 C118,120 128,130 126,144 C124,160 116,178 108,190 C102,200 94,196 94,184 C94,168 96,152 98,140 C99,132 100,128 104,126 Z" fill="#16222E"/>
+                  <!-- europe -->
+                  <path class="region" id="r-eu" d="M182,44 C192,36 212,36 218,46 C222,54 214,62 204,64 C194,66 184,62 180,54 C178,50 179,47 182,44 Z" fill="#16222E"/>
+                  <!-- africa -->
+                  <path class="region" id="r-af" d="M186,78 C202,70 226,74 232,88 C238,102 232,120 226,136 C220,152 212,174 202,178 C192,182 184,168 182,152 C180,134 178,114 180,98 C181,88 182,81 186,78 Z" fill="#16222E"/>
+                  <!-- asia -->
+                  <path class="region" id="r-as" d="M226,40 C248,26 292,24 320,34 C344,42 348,58 336,68 C328,74 330,82 320,88 C306,96 288,94 274,88 C258,82 240,76 232,64 C226,56 222,46 226,40 Z" fill="#16222E"/>
+                  <!-- oceania -->
+                  <path class="region" id="r-oc" d="M322,150 C334,142 352,146 356,158 C360,170 350,180 338,180 C326,180 318,170 318,160 C318,156 319,152 322,150 Z" fill="#16222E"/>
+
+                  <!-- labels -->
+                  <g id="rlabels" aria-hidden="true">
+                    <text class="rlabel" id="l-ar" x="200" y="24"  text-anchor="middle" dominant-baseline="middle">+3.8°</text>
+                    <text class="rlabel" id="l-na" x="90"  y="66"  text-anchor="middle" dominant-baseline="middle">+1.9°</text>
+                    <text class="rlabel" id="l-sa" x="110" y="156" text-anchor="middle" dominant-baseline="middle">+1.1°</text>
+                    <text class="rlabel" id="l-eu" x="200" y="50"  text-anchor="middle" dominant-baseline="middle">+2.3°</text>
+                    <text class="rlabel" id="l-af" x="205" y="122" text-anchor="middle" dominant-baseline="middle">+1.6°</text>
+                    <text class="rlabel" id="l-as" x="286" y="58"  text-anchor="middle" dominant-baseline="middle">+2.0°</text>
+                    <text class="rlabel" id="l-oc" x="338" y="162" text-anchor="middle" dominant-baseline="middle">+1.4°</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div class="panel-foot">
+              <canvas id="stripes" aria-hidden="true"></canvas>
+              <div class="stripes-axis">
+                <span>1850</span><span>1900</span><span>1950</span><span>2000</span><span>2024</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- steps -->
+      <div class="steps" id="steps">
+        <article class="step" data-step="0">
+          <div class="step-idx">STEP 01 / 05</div>
+          <h3>Every stripe is a year.</h3>
+          <p>
+            Between 1850 and 1900 the global thermometer kept a rhythm. Some years ran warm,
+            some cold, but the average barely drifted. Blue here means cooler than the
+            twentieth-century average. Red means hotter. Watch the right-hand edge.
+          </p>
+        </article>
+
+        <article class="step" data-step="1">
+          <div class="step-idx">STEP 02 / 05</div>
+          <h3>The stripes turn red.</h3>
+          <p>
+            The ten warmest years ever measured are the last ten. <b>2024 closed at 1.55°C</b>
+            above the pre-industrial baseline &mdash; the first calendar year on record to
+            cross 1.5. The cool blues now live almost entirely in the nineteenth century.
+          </p>
+        </article>
+
+        <article class="step" data-step="2">
+          <div class="step-idx">STEP 03 / 05</div>
+          <h3>The mercury.</h3>
+          <p>
+            One degree of global average is not a warm afternoon. It is energy. The extra
+            heat trapped in the system runs to roughly <b>eight zettajoules a year</b> &mdash;
+            more than ten times humanity's entire annual energy consumption, absorbed
+            silently by the oceans.
+          </p>
+        </article>
+
+        <article class="step" data-step="3">
+          <div class="step-idx">STEP 04 / 05</div>
+          <h3>No region is average.</h3>
+          <p>
+            Warming is not a blanket. The <b>Arctic is heating nearly four times faster</b>
+            than the global mean. Europe, the fastest-warming continent, has already passed
+            2.3 degrees. The tropics move slower &mdash; and have the most to lose.
+          </p>
+        </article>
+
+        <article class="step" data-step="4">
+          <div class="step-idx">STEP 05 / 05</div>
+          <h3>The next degree is a choice.</h3>
+          <p>
+            Every tenth of a degree is a decision about how much carbon we release. The
+            gap between 1.5 and 2.0 is not half a degree of comfort &mdash; it is hundreds
+            of millions of people living with heat they cannot escape. The dotted line up
+            there is not a forecast. Yet.
+          </p>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 03 IMPACTS ================= -->
+  <section class="impacts" id="what">
+    <div class="wrap">
+      <div class="eyebrow reveal">03 &mdash; Consequences</div>
+      <h2 class="section-title reveal">What one degree<br><em>actually does.</em></h2>
+
+      <div class="cards">
+        <article class="card reveal">
+          <div class="card-num">70&ndash;90<span>%</span></div>
+          <h3>of warm-water coral reefs</h3>
+          <p>
+            Are lost at 1.5°C. At 2°C the figure passes 99% &mdash; the reefs stop being
+            reefs and become rubble fields within a single human generation.
+          </p>
+          <span class="card-src">IPCC SR1.5</span>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-num">+4.5<span>mm</span></div>
+          <h3>of sea level every year</h3>
+          <p>
+            And accelerating. The ocean has risen about 21 centimetres since 1900, and the
+            rate has more than doubled since the satellite record began.
+          </p>
+          <span class="card-src">NASA Sea Level Change</span>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-num">&minus;12.2<span>%</span></div>
+          <h3>of Arctic sea ice per decade</h3>
+          <p>
+            September sea ice is thinning and retreating at once. Summer pack ice may
+            disappear entirely before mid-century on a high-emissions path.
+          </p>
+          <span class="card-src">NSIDC Sea Ice Index</span>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-num">61,000</div>
+          <h3>heat deaths in Europe, summer 2022</h3>
+          <p>
+            One season. A single summer, measured after the fact, in a wealthy continent
+            with air conditioning. Most of the dead were over seventy-five.
+          </p>
+          <span class="card-src">Ballester et al., Nature Medicine</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 BUDGET ================= -->
+  <section class="budget" id="budget">
+    <div class="wrap">
+      <div class="eyebrow reveal">04 &mdash; The budget</div>
+      <h2 class="section-title reveal">The last degree<br><em>is a budget.</em></h2>
+
+      <p class="lede reveal">
+        To hold warming at 1.5°C with a coin-flip chance, the world can release roughly
+        <b>200 billion more tonnes of CO&#8322;</b>. At the current rate of about
+        41 billion tonnes a year, that is <b>five years of business as usual</b> &mdash;
+        a budget already almost entirely spent.
+      </p>
+
+      <div class="budget-viz reveal">
+        <div class="budget-track">
+          <div class="budget-fill" id="budgetFill"></div>
+        </div>
+        <div class="budget-labels">
+          <span>500 GtCO&#8322; &mdash; the 1.5°C budget</span>
+          <span class="last">200 GtCO&#8322; remaining</span>
+        </div>
+      </div>
+
+      <div class="budget-stats">
+        <div class="stat reveal"><b data-count="200">0</b><span>GtCO&#8322; left in the 1.5°C budget</span></div>
+        <div class="stat reveal"><b data-count="41">0</b><span>GtCO&#8322; emitted every year</span></div>
+        <div class="stat reveal"><b data-count="5">0</b><span>years until that budget is spent</span></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-mark">One<br><em>Degree</em></div>
+      <p class="foot-note">
+        A scrollable data story about the number that quietly reorganised the planet.
+        Built with canvas, SVG and scroll position.
+      </p>
+    </div>
+
+    <div class="foot-sources">
+      <div>
+        <h4>Temperature</h4>
+        <ul>
+          <li>WMO State of the Global Climate 2024</li>
+          <li>NASA GISS Surface Temperature Analysis</li>
+          <li>HadCRUT5 / Met Office Hadley Centre</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Cryosphere &amp; ocean</h4>
+        <ul>
+          <li>NSIDC Sea Ice Index, September</li>
+          <li>NASA Sea Level Change Portal</li>
+          <li>IPCC AR6 Working Group I</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Impacts &amp; budget</h4>
+        <ul>
+          <li>IPCC Special Report on 1.5°C</li>
+          <li>Global Carbon Budget 2024</li>
+          <li>Ballester et al., Nature Medicine 2023</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <span>Data approximate. The trend is not.</span>
+      <span>1850 &mdash; 2024</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  var reduced = document.documentElement.classList.contains('reduced');
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------------- utilities ---------------- */
+  function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function easeInOut(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+  function easeOutCubic(t){ return 1-Math.pow(1-t,3); }
+
+  function rampColor(ramp,t){
+    t = clamp(t,0,1);
+    for(var i=1;i<ramp.length;i++){
+      if(t<=ramp[i][0]){
+        var a=ramp[i-1], b=ramp[i];
+        var k=(t-a[0])/((b[0]-a[0])||1);
+        return [
+          Math.round(lerp(a[1][0],b[1][0],k)),
+          Math.round(lerp(a[1][1],b[1][1],k)),
+          Math.round(lerp(a[1][2],b[1][2],k))
+        ];
+      }
+    }
+    return ramp[ramp.length-1][1];
+  }
+
+  /* ---------------- colour ramps ---------------- */
+  var STRIPE_RAMP = [
+    [0.00,[14,32,58]],
+    [0.16,[31,78,121]],
+    [0.32,[78,140,191]],
+    [0.46,[168,200,220]],
+    [0.56,[237,230,211]],
+    [0.68,[242,193,78]],
+    [0.80,[224,123,57]],
+    [0.90,[192,57,43]],
+    [1.00,[110,15,15]]
+  ];
+  var HEAT_RAMP = [
+    [0.00,[78,140,191]],
+    [0.34,[168,200,220]],
+    [0.54,[242,193,78]],
+    [0.78,[224,123,57]],
+    [1.00,[214,69,47]]
+  ];
+  var MAP_RAMP = [
+    [0.00,[26,38,50]],
+    [0.28,[70,74,74]],
+    [0.52,[180,132,74]],
+    [0.74,[214,94,52]],
+    [1.00,[142,27,16]]
+  ];
+
+  /* ---------------- synthetic anomaly series (1850–2024) ---------------- */
+  var N = 175;
+  var anomalies = new Array(N);
+  for(var i=0;i<N;i++){
+    var tt = i/(N-1);
+    var trend = -0.42 + 1.92*Math.pow(tt,2.1);
+    var noise = 0.13*Math.sin(i*1.71) + 0.09*Math.cos(i*0.53+1.1) + 0.06*Math.sin(i*0.29+2.3);
+    anomalies[i] = trend + noise;
+  }
+
+  /* ---------------- canvas fitting ---------------- */
+  function fitCanvas(cv){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    var r = cv.getBoundingClientRect();
+    var w = Math.max(1, r.width), h = Math.max(1, r.height);
+    cv.width = Math.round(w*dpr);
+    cv.height = Math.round(h*dpr);
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return { cv:cv, ctx:ctx, w:w, h:h };
+  }
+
+  var heroCanvas = document.getElementById('heroStripes');
+  var stripeCanvas = document.getElementById('stripes');
+  var thermoCanvas = document.getElementById('thermo');
+
+  var heroC = fitCanvas(heroCanvas);
+  var stripeC = fitCanvas(stripeCanvas);
+  var thermoC = fitCanvas(thermoCanvas);
+
+  /* ---------------- state ---------------- */
+  var heroReveal = 0;
+  var stripeReveal = 0;
+  var thermoVal = 0;
+  var mapT = 0;
+  var finaleAlpha = 0;
+
+  /* ---------------- drawing ---------------- */
+  function drawStripeCanvas(c, reveal){
+    var ctx = c.ctx, w = c.w, h = c.h;
+    ctx.clearRect(0,0,w,h);
+    if(w<=0||h<=0) return;
+    var n = anomalies.length;
+    var bw = w/n;
+    var upto = reveal*n;
+    if(upto<=0) return;
+    for(var i=0;i<n;i++){
+      if(i>=upto) break;
+      var t = clamp((anomalies[i]+0.6)/2.2,0,1);
+      var col = rampColor(STRIPE_RAMP,t);
+      ctx.fillStyle = 'rgb('+col[0]+','+col[1]+','+col[2]+')';
+      var x = i*bw;
+      var ww = Math.min(bw+0.6, (upto-i)*bw);
+      ctx.fillRect(x, 0, ww, h);
+    }
+  }
+
+  function drawThermo(v, marker){
+    var ctx = thermoC.ctx, w = thermoC.w, h = thermoC.h;
+    ctx.clearRect(0,0,w,h);
+    if(w<=0||h<=0) return;
+
+    var compact = w < 96;
+    var bulbR = Math.min(w*0.24, 18);
+    var tubeW = bulbR*1.32;
+    var r = tubeW/2;
+    var cx = compact ? w*0.36 : w*0.3;
+    var bulbCY = h - bulbR - 6;
+    var topY = 10;
+
+    var path = new Path2D();
+    var x0 = cx-r, x1 = cx+r;
+    path.moveTo(x0, topY+r);
+    path.arcTo(x0, topY, x1, topY, r);
+    path.arcTo(x1, topY, x1, bulbCY, r);
+    path.arcTo(x1, bulbCY, x0, bulbCY, r);
+    path.arcTo(x0, bulbCY, x0, topY, r);
+    path.closePath();
+    path.arc(cx, bulbCY, bulbR, 0, Math.PI*2);
+
+    // track
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,.06)';
+    ctx.fill(path);
+    ctx.restore();
+
+    // mercury
+    var maxV = 2.0;
+    var trackTop = topY + r*1.4;
+    var trackBot = bulbCY;
+    var frac = clamp(v/maxV, 0, 1);
+    var fillTop = trackBot - (trackBot-trackTop)*frac;
+    var heat = clamp(v/1.8, 0, 1);
+    var mc = rampColor(HEAT_RAMP, 0.12 + 0.88*heat);
+
+    if(frac > 0.0006){
+      ctx.save();
+      ctx.clip(path);
+      var grad = ctx.createLinearGradient(0, fillTop, 0, h);
+      grad.addColorStop(0, 'rgb('+mc[0]+','+mc[1]+','+mc[2]+')');
+      grad.addColorStop(1, 'rgb('+Math.round(mc[0]*0.5)+','+Math.round(mc[1]*0.42)+','+Math.round(mc[2]*0.42)+')');
+      ctx.fillStyle = grad;
+      ctx.shadowColor = 'rgba('+mc[0]+','+mc[1]+','+mc[2]+',.85)';
+      ctx.shadowBlur = 18;
+      ctx.fillRect(0, fillTop, w, h-fillTop);
+      ctx.restore();
+    }
+
+    // ticks
+    var ticks = [0,0.5,1,1.5,2];
+    ctx.font = '500 8px "IBM Plex Mono",monospace';
+    ctx.textBaseline = 'middle';
+    for(var k=0;k<ticks.length;k++){
+      var tv = ticks[k];
+      var y = trackBot - (trackBot-trackTop)*(tv/maxV);
+      var tx1 = cx + bulbR + 6;
+      ctx.strokeStyle = 'rgba(242,238,230,.26)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(tx1, y);
+      ctx.lineTo(tx1+5, y);
+      ctx.stroke();
+      if(!compact){
+        ctx.fillStyle = 'rgba(242,238,230,.4)';
+        ctx.fillText(tv.toFixed(1), tx1+8, y+0.5);
+      }
+    }
+
+    // 1.5 target marker
+    if(marker > 0.01){
+      var my = trackBot - (trackBot-trackTop)*(1.5/maxV);
+      ctx.save();
+      ctx.globalAlpha = marker;
+      ctx.setLineDash([3,3]);
+      ctx.strokeStyle = 'rgba(242,238,230,.8)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx-bulbR-14, my);
+      ctx.lineTo(cx+bulbR+16, my);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  /* ---------------- map ---------------- */
+  var REGIONS = [
+    {id:'ar', v:3.8},
+    {id:'na', v:1.9},
+    {id:'sa', v:1.1},
+    {id:'eu', v:2.3},
+    {id:'af', v:1.6},
+    {id:'as', v:2.0},
+    {id:'oc', v:1.4}
+  ];
+  var regionEls = REGIONS.map(function(r){
+    return { el: document.getElementById('r-'+r.id), norm: 0.42 + 0.58*((r.v-1.1)/(3.8-1.1)) };
+  });
+  var labelEls = REGIONS.map(function(r){ return document.getElementById('l-'+r.id); });
+
+  function paintMap(t){
+    for(var i=0;i<regionEls.length;i++){
+      var reg = regionEls[i];
+      if(!reg.el) continue;
+      var hk = clamp(t*reg.norm, 0, 1);
+      var col = rampColor(MAP_RAMP, hk);
+      reg.el.setAttribute('fill','rgb('+col[0]+','+col[1]+','+col[2]+')');
+    }
+    var labOpacity = clamp((t-0.35)/0.55, 0, 1);
+    for(var j=0;j<labelEls.length;j++){
+      if(labelEls[j]) labelEls[j].style.opacity = labOpacity;
+    }
+  }
+
+  /* ---------------- render pipeline ---------------- */
+  var bigNum = document.getElementById('bigNum');
+  var panelEl = document.getElementById('panel');
+  var stepEls = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var FOCUS = ['stripes','number','thermo','map','finale'];
+
+  var lastStripe = -1, lastThermo = -1, lastMap = -1, lastNum = '', lastFinale = -1;
+  var currentStep = -1;
+
+  function setStep(idx){
+    for(var i=0;i<stepEls.length;i++){
+      stepEls[i].classList.toggle('is-active', i===idx);
+    }
+    panelEl.setAttribute('data-focus', FOCUS[idx] || 'finale');
+  }
+
+  function render(p){
+    var s = clamp(p,0,1)*5;
+
+    // 1 — warming stripes reveal
+    var rv = easeInOut(clamp(s,0,1));
+    if(Math.abs(rv-lastStripe) > 0.0014){
+      lastStripe = rv; stripeReveal = rv;
+      drawStripeCanvas(stripeC, stripeReveal);
+    }
+
+    // 2 — number tween
+    var nv = 1.30*easeOutCubic(clamp(s-1,0,1));
+    var txt = nv.toFixed(2);
+    if(txt !== lastNum){
+      lastNum = txt;
+      bigNum.textContent = txt;
+    }
+
+    // 3 — thermometer rise
+    var tv = 1.30*easeInOut(clamp(s-2,0,1));
+    var fa = easeInOut(clamp(s-4,0,0.85));
+    if(Math.abs(tv-lastThermo) > 0.0007 || Math.abs(fa-lastFinale) > 0.002){
+      lastThermo = tv; lastFinale = fa;
+      thermoVal = tv; finaleAlpha = fa;
+      drawThermo(thermoVal, finaleAlpha);
+    }
+
+    // 4 — map heat colouring
+    var mv = easeInOut(clamp(s-3,0,1));
+    if(Math.abs(mv-lastMap) > 0.0014){
+      lastMap = mv; mapT = mv;
+      paintMap(mapT);
+    }
+
+    // 5 — active step
+    var active = Math.min(4, Math.floor(s + 0.0001));
+    if(active !== currentStep){
+      currentStep = active;
+      setStep(active);
+    }
+  }
+
+  /* ---------------- initial paint ---------------- */
+  setStep(0);
+  if(reduced){
+    drawStripeCanvas(heroC, 1);
+    render(1);
+  } else {
+    drawStripeCanvas(heroC, 0);
+    render(0);
+  }
+
+  /* ---------------- smooth scrolling ---------------- */
+  var lenis = null;
+  if(!reduced && window.Lenis){
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: function(t){ return Math.min(1, 1.001 - Math.pow(2, -10*t)); },
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.6
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function(time){ lenis.raf(time*1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* ---------------- page progress bar ---------------- */
+  var progressBar = document.getElementById('progressBar');
+  ScrollTrigger.create({
+    start: 0,
+    end: 'max',
+    onUpdate: function(self){
+      progressBar.style.transform = 'scaleX(' + self.progress.toFixed(4) + ')';
+    }
+  });
+
+  /* ---------------- scrollytelling driver ---------------- */
+  var targetP = 0, currentP = 0, needsRender = false;
+
+  if(!reduced){
+    ScrollTrigger.create({
+      trigger: '.scrolly-grid',
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: function(self){
+        targetP = self.progress;
+        needsRender = true;
+      }
+    });
+
+    gsap.ticker.add(function(){
+      if(!needsRender) return;
+      currentP += (targetP - currentP) * 0.16;
+      if(Math.abs(targetP - currentP) < 0.0006){
+        currentP = targetP;
+        needsRender = false;
+      }
+      render(currentP);
+    });
+  }
+
+  /* ---------------- hero intro ---------------- */
+  var heroNum = document.getElementById('heroNum');
+  var navNum = document.getElementById('navNum');
+  var heroCounter = {v:0};
+
+  function setHeroNumber(v){
+    var s = v.toFixed(2);
+    heroNum.textContent = s;
+    navNum.textContent = '+' + s + '°C';
+  }
+
+  if(!reduced){
+    var intro = gsap.timeline({ defaults:{ ease:'expo.out' } });
+
+    // stripes wipe in
+    gsap.to(heroReveal, {
+      onUpdate:function(){}, // placeholder
+      duration:0
+    });
+    var heroRevealObj = { v:0 };
+    intro.to(heroRevealObj, {
+      v:1, duration:2.1, ease:'power2.inOut',
+      onUpdate:function(){ drawStripeCanvas(heroC, heroRevealObj.v); }
+    }, 0);
+
+    // title lines
+    intro.fromTo('.hero-title .line > span',
+      { yPercent:112 },
+      { yPercent:0, duration:1.35, stagger:0.09, ease:'expo.out' }, 0.12);
+
+    // meta + sub
+    intro.fromTo('.hero-top > div',
+      { y:16, opacity:0 },
+      { y:0, opacity:1, duration:1.1, stagger:0.08 }, 0.05);
+
+    intro.fromTo('.hero-sub',
+      { y:22, opacity:0 },
+      { y:0, opacity:1, duration:1.1 }, 0.55);
+
+    intro.fromTo('.hero-stat',
+      { y:22, opacity:0 },
+      { y:0, opacity:1, duration:1.1 }, 0.68);
+
+    intro.fromTo('.scroll-cue',
+      { opacity:0, y:10 },
+      { opacity:1, y:0, duration:0.9 }, 1.1);
+
+    // number count-up
+    intro.to(heroCounter, {
+      v:1.30, duration:1.9, ease:'power3.out',
+      onUpdate:function(){ setHeroNumber(heroCounter.v); }
+    }, 0.5);
+
+  } else {
+    heroCounter.v = 1.30;
+    setHeroNumber(1.30);
+  }
+
+  /* ---------------- generic reveals ---------------- */
+  if(!reduced){
+    gsap.utils.toArray('.reveal').forEach(function(el){
+      gsap.from(el, {
+        y:34, opacity:0, duration:1.15, ease:'power3.out',
+        scrollTrigger:{ trigger:el, start:'top 88%', once:true }
+      });
+    });
+  }
+
+  /* ---------------- count-up stats ---------------- */
+  gsap.utils.toArray('[data-count]').forEach(function(el){
+    var end = parseFloat(el.getAttribute('data-count')) || 0;
+    var dec = parseInt(el.getAttribute('data-dec')||'0',10);
+    var prefix = el.getAttribute('data-prefix')||'';
+    var suffix = el.getAttribute('data-suffix')||'';
+    var obj = { v:0 };
+
+    function paint(){
+      el.textContent = prefix + obj.v.toFixed(dec) + suffix;
+    }
+
+    if(reduced){
+      obj.v = end;
+      paint();
+      return;
+    }
+
+    el.textContent = prefix + (0).toFixed(dec) + suffix;
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 88%',
+      once: true,
+      onEnter: function(){
+        gsap.to(obj, {
+          v: end, duration: 1.7, ease:'power3.out',
+          onUpdate: paint
+        });
+      }
+    });
+  });
+
+  /* ---------------- budget bar ---------------- */
+  var budgetFill = document.getElementById('budgetFill');
+  if(budgetFill){
+    if(reduced){
+      budgetFill.style.transform = 'scaleX(0.6)';
+    } else {
+      gsap.to(budgetFill, {
+        scaleX: 0.6,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.budget-viz',
+          start: 'top 85%',
+          end: 'top 35%',
+          scrub: 0.8
+        }
+      });
+    }
+  }
+
+  /* ---------------- resize handling ---------------- */
+  var resizeTimer = null;
+  function handleResize(){
+    heroC = fitCanvas(heroCanvas);
+    stripeC = fitCanvas(stripeCanvas);
+    thermoC = fitCanvas(thermoCanvas);
+
+    // force full redraw from current state
+    lastStripe = -1; lastThermo = -1; lastMap = -1; lastFinale = -1;
+
+    drawStripeCanvas(heroC, reduced ? 1 : heroReveal);
+    drawStripeCanvas(stripeC, stripeReveal);
+    drawThermo(thermoVal, finaleAlpha);
+    paintMap(mapT);
+
+    ScrollTrigger.refresh();
+  }
+
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(handleResize, 160);
+  });
+
+  window.addEventListener('orientationchange', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(handleResize, 260);
+  });
+
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(function(){
+      setTimeout(handleResize, 60);
+    });
+  }
+
+  // ensure correct sizing once layout settles
+  requestAnimationFrame(function(){
+    setTimeout(handleResize, 40);
+  });
+
+})();
+</script>
+</body>
+</html>

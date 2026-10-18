@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Glyphworks — Meridian Variable</title>
+<meta name="description" content="Meridian Variable — one file, every voice. wght 100–1000, wdth 25–151. A variable grotesk by Glyphworks Type Foundry." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS / RESET
+   ============================================================ */
+:root{
+  --ink:#07070a;
+  --ink2:#0c0c11;
+  --paper:#f1efe9;
+  --dim:#84847e;
+  --line:rgba(241,239,233,.13);
+  --accent:#d8ff3c;
+  --pad:clamp(16px,4vw,60px);
+  --sans:"Roboto Flex","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:clip;-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--sans);
+  font-weight:400;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+::selection{background:var(--accent);color:var(--ink)}
+img,canvas{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:2px}
+
+/* film grain */
+.grain{
+  position:fixed;inset:0;z-index:400;pointer-events:none;opacity:.05;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+.label{
+  font-family:var(--mono);font-size:10px;font-weight:400;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+  display:flex;align-items:center;gap:.9em;line-height:1;
+}
+.label::before{content:"";width:26px;height:1px;background:currentColor;opacity:.55;flex:none}
+
+.mask{overflow:hidden;display:block;padding:.16em 0;margin:-.16em 0}
+
+h2{
+  font-size:clamp(2.1rem,5.4vw,4.6rem);
+  line-height:.94;
+  letter-spacing:-.035em;
+  font-variation-settings:"wght" 520,"wdth" 100;
+}
+
+.btn{
+  display:inline-flex;align-items:center;gap:.85em;
+  padding:1em 1.55em;border-radius:100px;
+  background:var(--accent);color:#0a0a0c;
+  font-size:13px;letter-spacing:.005em;
+  font-variation-settings:"wght" 620,"wdth" 100;
+  transition:transform .55s var(--ease),box-shadow .55s var(--ease),background .3s;
+  will-change:transform;
+}
+.btn:hover{transform:translateY(-3px);box-shadow:0 14px 34px -14px rgba(216,255,60,.7)}
+.btn span{transition:transform .45s var(--ease)}
+.btn:hover span{transform:translateX(4px)}
+.btn--ghost{
+  background:transparent;color:var(--paper);
+  border:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  font-variation-settings:normal;
+}
+.btn--ghost:hover{border-color:var(--accent);color:var(--accent);box-shadow:none;transform:translateY(-2px)}
+
+section{padding:clamp(72px,11vh,150px) var(--pad);position:relative}
+
+/* ============================================================
+   LOADER
+   ============================================================ */
+.loader{
+  position:fixed;inset:0;z-index:1000;background:var(--ink);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:26px;
+  transition:transform .95s cubic-bezier(.76,0,.24,1);
+  will-change:transform;
+}
+.loader.is-out{transform:translateY(-101%);pointer-events:none}
+.loader__word{
+  font-size:clamp(1.7rem,4.4vw,3.2rem);
+  letter-spacing:-.02em;line-height:1;
+  font-variation-settings:"wght" 150,"wdth" 100;
+  white-space:nowrap;
+}
+.loader__bar{width:min(260px,52vw);height:1px;background:var(--line);position:relative;overflow:hidden}
+.loader__bar i{position:absolute;inset:0;background:var(--accent);transform-origin:0 50%;transform:scaleX(0)}
+.loader__count{font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--dim)}
+
+/* ============================================================
+   PROGRESS + NAV
+   ============================================================ */
+.progress{
+  position:fixed;top:0;left:0;right:0;height:2px;z-index:300;
+  background:var(--accent);transform-origin:0 50%;transform:scaleX(0);
+  will-change:transform;pointer-events:none;
+}
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:20px var(--pad);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  background:linear-gradient(to bottom,rgba(7,7,10,.9),rgba(7,7,10,0));
+}
+.nav__logo{font-variation-settings:"wght" 700,"wdth" 100;letter-spacing:.06em;font-size:12px;display:flex;align-items:flex-start;gap:2px}
+.nav__logo sup{font-size:7px;letter-spacing:0;opacity:.7;transform:translateY(-1px)}
+.nav__links{display:flex;gap:clamp(16px,2.6vw,38px)}
+.nav__links a{position:relative;color:var(--dim);transition:color .3s}
+.nav__links a::after{
+  content:"";position:absolute;left:0;bottom:-4px;width:100%;height:1px;background:var(--accent);
+  transform:scaleX(0);transform-origin:0 50%;transition:transform .45s var(--ease);
+}
+.nav__links a:hover{color:var(--paper)}
+.nav__links a:hover::after{transform:scaleX(1)}
+.nav__meta{color:var(--dim);display:flex;align-items:center;gap:.7em;white-space:nowrap}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  position:relative;min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;
+  padding:calc(var(--pad) + 58px) var(--pad) var(--pad);
+  overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;left:50%;top:-14%;width:120vw;height:70vh;
+  transform:translateX(-50%);pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 50%,rgba(216,255,60,.10),transparent 70%);
+}
+.hero__inner{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(18px,4vh,46px);position:relative;z-index:1}
+
+.hero__meta{
+  display:flex;justify-content:space-between;align-items:baseline;gap:20px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+  border-bottom:1px solid var(--line);padding-bottom:14px;
+}
+.hero__meta b{color:var(--paper);font-weight:400;font-variation-settings:"wght" 600,"wdth" 100}
+
+.hero__word{
+  font-size:clamp(3.1rem,13.2vw,11rem);
+  line-height:.86;letter-spacing:-.045em;
+  white-space:nowrap;text-align:center;
+  font-variation-settings:"wght" 420,"wdth" 100;
+  will-change:font-variation-settings;
+  position:relative;
+}
+.hero__sub{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px}
+.hero__sub p{
+  max-width:34ch;color:var(--dim);font-size:14.5px;line-height:1.55;
+  font-variation-settings:"wght" 380,"wdth" 100;
+}
+.hero__sub p b{color:var(--paper);font-weight:400;font-variation-settings:"wght" 620,"wdth" 100}
+
+.hero__meters{
+  display:flex;align-items:center;gap:clamp(20px,4vw,54px);flex-wrap:wrap;
+  border-top:1px solid var(--line);padding-top:16px;margin-top:clamp(14px,3vh,30px);
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+}
+.hmeter{display:flex;align-items:center;gap:10px;min-width:132px}
+.hmeter__v{color:var(--paper);font-variant-numeric:tabular-nums;min-width:3.2em;font-size:11px}
+.hmeter__bar{flex:1;height:1px;background:var(--line);position:relative;overflow:hidden;min-width:44px}
+.hmeter__bar i{position:absolute;inset:0;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);will-change:transform}
+.hmeter--hint{margin-left:auto;color:var(--dim);opacity:.75}
+.hmeter--hint::after{content:"";width:18px;height:1px;background:currentColor;display:inline-block}
+
+/* ============================================================
+   MARQUEE
+   ============================================================ */
+.marquee{
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  overflow:hidden;background:var(--ink2);
+}
+.marquee__track{display:flex;width:max-content;animation:slide 32s linear infinite;will-change:transform}
+.marquee__group{display:flex}
+.marquee__group span{
+  padding:14px 0;margin-right:34px;white-space:nowrap;
+  font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--dim);
+}
+.marquee__group span em{font-style:normal;color:var(--accent)}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* ============================================================
+   AXES (sticky scroll morph)
+   ============================================================ */
+.axes{height:320vh;position:relative;padding:0}
+.axes__sticky{
+  position:sticky;top:0;height:100vh;height:100svh;
+  display:flex;flex-direction:column;justify-content:center;gap:clamp(16px,3vh,34px);
+  padding:clamp(70px,10vh,110px) var(--pad) clamp(28px,5vh,50px);
+  overflow:hidden;
+}
+.axes__head{display:flex;flex-direction:column;gap:14px;max-width:640px}
+.axes__word{
+  text-align:center;
+  font-size:clamp(2.3rem,11.5vw,8.6rem);
+  line-height:1;letter-spacing:-.04em;white-space:nowrap;
+  font-variation-settings:"wght" 100,"wdth" 151;
+  will-change:font-variation-settings;
+  padding:clamp(6px,2vh,26px) 0;
+}
+.axes__meters{display:flex;gap:clamp(18px,4vw,60px);flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px}
+.meter{flex:1 1 180px;display:flex;flex-direction:column;gap:9px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.meter__top{display:flex;justify-content:space-between;align-items:baseline}
+.meter__top b{color:var(--paper);font-weight:400;font-size:12px;font-variant-numeric:tabular-nums}
+.meter__track{height:2px;background:var(--line);position:relative;overflow:hidden}
+.meter__track i{position:absolute;inset:0;background:var(--accent);transform-origin:0 50%;transform:scaleX(.1);will-change:transform}
+.axes__note{font-size:13.5px;line-height:1.55;color:var(--dim);max-width:46ch}
+
+/* ============================================================
+   BURST (particles)
+   ============================================================ */
+.burst{background:linear-gradient(180deg,var(--ink) 0%,var(--ink2) 45%,var(--ink) 100%)}
+.burst .sec-head{margin-bottom:clamp(24px,4vw,44px)}
+.burst__stage{
+  position:relative;width:100%;
+  height:clamp(270px,50vw,470px);
+  border:1px solid var(--line);border-radius:14px;
+  background:radial-gradient(60% 80% at 50% 50%,rgba(216,255,60,.05),transparent 70%);
+  overflow:hidden;cursor:crosshair;
+  touch-action:manipulation;
+}
+.burst__stage canvas{position:absolute;inset:0}
+.detonate{
+  position:absolute;left:clamp(12px,2vw,22px);bottom:clamp(12px,2vw,22px);
+  display:inline-flex;align-items:center;gap:.7em;
+  padding:.78em 1.15em;border-radius:100px;border:1px solid var(--line);
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  background:rgba(7,7,10,.66);backdrop-filter:blur(6px);
+  transition:border-color .35s,color .35s,transform .45s var(--ease);
+}
+.detonate:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.detonate span{display:inline-block;transition:transform .6s var(--ease)}
+.detonate:hover span{transform:rotate(90deg) scale(1.15)}
+.burst__hint{
+  position:absolute;right:clamp(12px,2vw,22px);bottom:clamp(12px,2vw,22px);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+  pointer-events:none;
+}
+
+/* ============================================================
+   SEC HEAD
+   ============================================================ */
+.sec-head{
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:22px;margin-bottom:clamp(34px,5vw,66px);
+}
+.sec-head > .label{flex:1 0 100%}
+.sec-head h2{flex:0 1 auto}
+.sec-head__note{flex:0 1 340px;max-width:400px;font-size:14px;line-height:1.6;color:var(--dim)}
+.sec-head__note b{color:var(--paper);font-weight:400;font-variation-settings:"wght" 620,"wdth" 100}
+
+/* ============================================================
+   TESTER
+   ============================================================ */
+.tester{border-top:1px solid var(--line)}
+.tester__panel{
+  display:grid;grid-template-columns:1fr;gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+}
+@media(min-width:940px){.tester__panel{grid-template-columns:1.55fr .95fr}}
+.tester__stage{
+  background:var(--ink2);padding:clamp(20px,3.4vw,44px);
+  display:flex;align-items:center;min-height:clamp(220px,30vw,340px);
+}
+.tester__text{
+  width:100%;outline:none;word-break:break-word;
+  font-size:56px;line-height:1.06;letter-spacing:-.025em;
+  font-variation-settings:"wght" 400,"wdth" 100;
+  caret-color:var(--accent);
+  transition:font-size .18s linear;
+}
+.tester__text:empty::before{content:"Type something…";color:var(--dim)}
+.tester__controls{
+  background:var(--ink2);padding:clamp(20px,3vw,34px);
+  display:flex;flex-direction:column;gap:20px;
+}
+.ctrl{display:flex;flex-direction:column;gap:9px}
+.ctrl__top{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+.ctrl__top b{color:var(--accent);font-weight:400;font-size:11px;font-variant-numeric:tabular-nums}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:2px;
+  background:var(--line);border-radius:2px;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--accent);border:0;cursor:grab;
+  box-shadow:0 0 0 4px rgba(216,255,60,.13);
+  transition:transform .2s var(--ease),box-shadow .3s;
+}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.18);box-shadow:0 0 0 6px rgba(216,255,60,.16)}
+input[type=range]::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;background:var(--accent);border:0;cursor:grab;
+  box-shadow:0 0 0 4px rgba(216,255,60,.13);
+}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.preset{
+  padding:.6em 1em;border-radius:100px;border:1px solid var(--line);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+  transition:color .3s,border-color .3s,background .3s;
+}
+.preset:hover,.preset.is-active{color:var(--ink);background:var(--accent);border-color:var(--accent)}
+.tester__code{
+  display:block;margin-top:auto;padding-top:16px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:10.5px;line-height:1.7;color:var(--dim);
+  word-break:break-word;
+}
+.tester__code b{color:var(--accent);font-weight:400}
+
+/* ============================================================
+   SPECIMEN
+   ============================================================ */
+.styles{
+  display:grid;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  grid-template-columns:repeat(2,1fr);
+}
+@media(min-width:760px){.styles{grid-template-columns:repeat(3,1fr)}}
+.style{
+  background:var(--ink2);padding:clamp(16px,2.4vw,30px);
+  display:flex;flex-direction:column;justify-content:space-between;gap:clamp(20px,4vw,44px);
+  min-height:clamp(150px,17vw,220px);
+  transition:background .5s var(--ease),color .5s var(--ease);
+  position:relative;overflow:hidden;
+}
+.style:hover{background:var(--accent);color:var(--ink)}
+.style__glyph{
+  font-size:clamp(2.6rem,6.2vw,4.6rem);line-height:.86;letter-spacing:-.05em;
+  transition:transform .7s var(--ease);
+  will-change:transform;
+}
+.style:hover .style__glyph{transform:translateX(4px) scale(1.04)}
+.style__meta{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase}
+.style__meta span:last-child{opacity:.55}
+
+.charset{margin-top:clamp(40px,6vw,80px)}
+.charset__row{
+  display:flex;flex-wrap:wrap;gap:0 .32em;
+  border-top:1px solid var(--line);padding:clamp(12px,1.8vw,22px) 0;
+  font-size:clamp(1.05rem,2.9vw,2.1rem);
+  letter-spacing:-.01em;line-height:1.25;
+  font-variation-settings:"wght" 400,"wdth" 100;
+}
+.charset__row span{
+  display:inline-block;transition:transform .35s var(--ease),color .25s;
+  will-change:transform;cursor:default;
+}
+.charset__row span:hover{color:var(--accent);transform:translateY(-6px) scale(1.12)}
+
+/* ============================================================
+   FOUNDRY
+   ============================================================ */
+.foundry{border-top:1px solid var(--line)}
+.foundry__grid{display:flex;flex-wrap:wrap;gap:clamp(32px,6vw,80px);justify-content:space-between}
+.foundry__col{flex:1 1 340px;max-width:560px;display:flex;flex-direction:column;gap:20px}
+.foundry__col p{color:var(--dim);font-size:14.5px;line-height:1.65;max-width:48ch}
+.foundry__col p b{color:var(--paper);font-weight:400;font-variation-settings:"wght" 620,"wdth" 100}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;flex:1 1 320px}
+.stat{background:var(--ink2);padding:clamp(16px,2.4vw,26px);display:flex;flex-direction:column;gap:6px}
+.stat b{
+  font-size:clamp(1.9rem,4vw,3rem);line-height:1;letter-spacing:-.04em;
+  font-variation-settings:"wght" 800,"wdth" 82;
+}
+.stat span{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{padding:clamp(70px,11vh,140px) var(--pad) calc(var(--pad) + 8px);border-top:1px solid var(--line);position:relative;overflow:hidden}
+.footer__cta{display:flex;flex-direction:column;gap:22px;align-items:flex-start;margin-bottom:clamp(40px,8vh,90px)}
+.footer__cta h2{max-width:16ch}
+.footer__word{
+  font-size:clamp(2.1rem,11.6vw,9.4rem);
+  line-height:.8;letter-spacing:-.045em;white-space:nowrap;text-align:center;
+  font-variation-settings:"wght" 300,"wdth" 100;
+  padding:.06em 0;overflow:hidden;
+  transition:font-variation-settings .9s var(--ease);
+}
+.footer__word:hover{font-variation-settings:"wght" 900,"wdth" 62}
+.footer__base{
+  display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--line);margin-top:clamp(30px,6vh,60px);padding-top:22px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+}
+.footer__base nav{display:flex;flex-wrap:wrap;gap:18px}
+.footer__base a{transition:color .3s}
+.footer__base a:hover{color:var(--accent)}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:760px){
+  .nav__links{display:none}
+  .nav__meta{font-size:9px}
+  .hero__meta{flex-direction:column;gap:6px;align-items:flex-start;font-size:9px}
+  .hero__word{font-size:clamp(2.7rem,15vw,6rem)}
+  .hero__sub p{max-width:100%;font-size:13.5px}
+  .hmeter--hint{display:none}
+  .axes{height:260vh}
+  .axes__word{font-size:clamp(2rem,12.5vw,4rem)}
+  .meter{flex:1 1 100%}
+  .tester__text{font-size:38px}
+  .style{min-height:140px}
+  .footer__word{font-size:clamp(1.7rem,10.6vw,5rem)}
+  .grain{opacity:.035}
+}
+@media(max-width:420px){
+  .btn{font-size:12px;padding:.95em 1.3em}
+  .stat b{font-size:1.7rem}
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .marquee__track{animation:none}
+  .hero__word,.axes__word,.style__glyph{will-change:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<!-- LOADER -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader__word" id="loaderWord">GLYPHWORKS</div>
+  <div class="loader__bar"><i id="loaderBar"></i></div>
+  <div class="loader__count" id="loaderCount">000</div>
+</div>
+
+<!-- NAV -->
+<header class="nav">
+  <a class="nav__logo" href="#top">GLYPHWORKS<sup>®</sup></a>
+  <nav class="nav__links" aria-label="Sections">
+    <a href="#axes">Axes</a>
+    <a href="#particles">Behaviour</a>
+    <a href="#tester">Tester</a>
+    <a href="#specimen">Specimen</a>
+  </nav>
+  <div class="nav__meta"><span class="dot" aria-hidden="true"></span>Meridian Variable · 2025</div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero__inner">
+      <div class="hero__meta">
+        <span>Variable Grotesk — <b>Meridian</b></span>
+        <span>wght 100–1000 · wdth 25–151 · 986 glyphs</span>
+      </div>
+
+      <h1 class="hero__word" id="heroWord" aria-label="Meridian">MERIDIAN</h1>
+
+      <div class="hero__sub">
+        <p>One file. Every voice. A grotesk that stretches from <b>whisper-thin hairlines</b> to poster-black slabs — drawn on two axes and interpolated in the browser.</p>
+        <a class="btn" href="#tester">Open the tester <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="hero__meters">
+        <div class="hmeter">
+          <span>wght</span>
+          <span class="hmeter__v" id="heroWght">420</span>
+          <span class="hmeter__bar"><i id="heroWghtBar"></i></span>
+        </div>
+        <div class="hmeter">
+          <span>wdth</span>
+          <span class="hmeter__v" id="heroWdth">100</span>
+          <span class="hmeter__bar"><i id="heroWdthBar"></i></span>
+        </div>
+        <div class="hmeter hmeter--hint">Move your cursor</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <div class="marquee__group">
+        <span>Meridian Variable</span><span><em>✦</em></span><span>1000 weights</span><span><em>✦</em></span><span>25–151 widths</span><span><em>✦</em></span><span>986 glyphs</span><span><em>✦</em></span><span>104 languages</span><span><em>✦</em></span>
+      </div>
+      <div class="marquee__group">
+        <span>Meridian Variable</span><span><em>✦</em></span><span>1000 weights</span><span><em>✦</em></span><span>25–151 widths</span><span><em>✦</em></span><span>986 glyphs</span><span><em>✦</em></span><span>104 languages</span><span><em>✦</em></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AXES -->
+  <section class="axes" id="axes">
+    <div class="axes__sticky">
+      <div class="axes__head">
+        <p class="label">01 — The axes</p>
+        <h2>Two dials.<br>Infinite voices.</h2>
+      </div>
+
+      <div class="axes__word" id="axisWord">VARIABLE</div>
+
+      <div class="axes__meters">
+        <div class="meter">
+          <div class="meter__top"><span>wght · weight</span><b id="axWght">100</b></div>
+          <span class="meter__track"><i id="axWghtBar"></i></span>
+        </div>
+        <div class="meter">
+          <div class="meter__top"><span>wdth · width</span><b id="axWdth">151</b></div>
+          <span class="meter__track"><i id="axWdthBar"></i></span>
+        </div>
+      </div>
+
+      <p class="axes__note">Scroll and the letterforms do the talking: the weight climbs first, then the width condenses. Nothing is swapped — every state is the same file, interpolated live.</p>
+    </div>
+  </section>
+
+  <!-- BURST -->
+  <section class="burst" id="particles">
+    <div class="sec-head">
+      <p class="label">02 — Behaviour</p>
+      <h2>Break it.<br>It comes back.</h2>
+      <p class="sec-head__note" data-reveal>Meridian is drawn as outlines, so every letter can be taken apart. Sweep your cursor through the glyphs to push them around — or <b>detonate</b> the whole thing and watch it find its way home.</p>
+    </div>
+
+    <div class="burst__stage" id="burstStage">
+      <canvas id="burstCanvas"></canvas>
+      <button class="detonate" id="detonate">Detonate <span aria-hidden="true">✦</span></button>
+      <span class="burst__hint">Click anywhere to disrupt</span>
+    </div>
+  </section>
+
+  <!-- TESTER -->
+  <section class="tester" id="tester">
+    <div class="sec-head">
+      <p class="label">03 — Type tester</p>
+      <h2>Put it through<br>its paces.</h2>
+      <p class="sec-head__note" data-reveal>Click the specimen and type your own line. Weight, width, size and tracking are all live — the CSS underneath updates as you drag.</p>
+    </div>
+
+    <div class="tester__panel">
+      <div class="tester__stage">
+        <div class="tester__text" id="testerText" contenteditable="true" spellcheck="false" role="textbox" aria-label="Type tester specimen" aria-multiline="true">Meridian keeps its composure at any width.</div>
+      </div>
+
+      <div class="tester__controls">
+        <div class="ctrl">
+          <div class="ctrl__top"><span>Weight</span><b id="vWght">400</b></div>
+          <input type="range" id="sWght" min="100" max="1000" step="1" value="400" aria-label="Weight">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl__top"><span>Width</span><b id="vWdth">100</b></div>
+          <input type="range" id="sWdth" min="25" max="151" step="1" value="100" aria-label="Width">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl__top"><span>Size</span><b id="vSize">56</b></div>
+          <input type="range" id="sSize" min="24" max="140" step="1" value="56" aria-label="Size">
+        </div>
+        <div class="ctrl">
+          <div class="ctrl__top"><span>Tracking</span><b id="vTrack">-0.025</b></div>
+          <input type="range" id="sTrack" min="-60" max="80" step="1" value="-25" aria-label="Tracking">
+        </div>
+
+        <div class="presets">
+          <button class="preset" data-w="110" data-d="120" data-s="78" data-t="-10">Whisper</button>
+          <button class="preset is-active" data-w="400" data-d="100" data-s="56" data-t="-25">Editorial</button>
+          <button class="preset" data-w="880" data-d="64" data-s="92" data-t="-40">Poster</button>
+          <button class="preset" data-w="700" data-d="151" data-s="62" data-t="-20">Signage</button>
+        </div>
+
+        <code class="tester__code" id="testerCode"></code>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECIMEN -->
+  <section class="specimen" id="specimen">
+    <div class="sec-head">
+      <p class="label">04 — Specimen</p>
+      <h2>Twelve cuts,<br>one file.</h2>
+      <p class="sec-head__note" data-reveal>Named instances are just coordinates. Every card below is the <b>same font</b> — nothing is swapped, nothing is faked.</p>
+    </div>
+
+    <div class="styles" id="styles">
+      <article class="style" data-reveal>
+        <div class="style__glyph" style="font-variation-settings:'wght' 100,'wdth' 100">Aa</div>
+        <div class="style__meta"><span>Thin</span><span>100 · 100</span></div>
+      </article>
+      <article class="style" data-reveal>
+        <div class="style__glyph" style="font-variation-settings:'wght' 250,'wdth' 118">Aa</div>
+        <div class="style__meta"><span>Light Wide</span><span>250 · 118</span></div>
+      </article>
+      <article class="style" data-reveal>
+        <div class="style__glyph" style="font-variation-settings:'wght' 400,'wdth' 100">Aa</div>
+        <div class="style__meta"><span>Regular</span><span>400 · 100</span></div>
+      </article>
+      <article class="style" data-reveal>
+        <div class="style__glyph" style="font-variation-settings:'wght' 560,'wdth' 84">Aa</div>
+        <div class="style__meta"><span>Medium Condensed</span><span>560 · 84</span></div>
+      </article>
+      <article class="style" data-reveal>
+        <div class="style__glyph" style="font-variation-settings:'wght' 740,'wdth' 100">Aa</div>
+        <div class="style__meta"><span>Bold</span><span>740 · 100</span></div>
+      </article>
+      <article class="style" data-reveal>
+        <div class="style__glyph" style="font-variation-settings:'wght' 1000,'wdth' 60">Aa</div>
+        <div class="style__meta"><span>Black Compressed</span><span>1000 · 60</span></div>
+      </article>
+    </div>
+
+    <div class="charset" id="charset" aria-label="Character set"></div>
+  </section>
+
+  <!-- FOUNDRY -->
+  <section class="foundry">
+    <div class="foundry__grid">
+      <div class="foundry__col">
+        <p class="label">05 — The foundry</p>
+        <h2>Built for people who set type for a living.</h2>
+        <p>Glyphworks is a two-person studio in Rotterdam and Bogotá. We draw type slowly, test it at 9px and 900px, and ship it as a single file that behaves.</p>
+        <p>Meridian ships with <b>104 Latin-based languages</b>, tabular and proportional figures, four arrow sets and a full set of case-sensitive punctuation. Every licence includes the variable file and every static instance.</p>
+        <a class="btn" href="#tester">Get Meridian — from €89 <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b>1</b><span>variable file</span></div>
+        <div class="stat"><b>12</b><span>named styles</span></div>
+        <div class="stat"><b>986</b><span>glyphs</span></div>
+        <div class="stat"><b>104</b><span>languages</span></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__cta">
+    <p class="label">06 — Licensing</p>
+    <h2>Set something<br>worth reading.</h2>
+    <a class="btn" href="#tester">Download the trial <span aria-hidden="true">→</span></a>
+  </div>
+
+  <div class="footer__word" id="footerWord" aria-hidden="true">GLYPHWORKS</div>
+
+  <div class="footer__base">
+    <span>© 2025 Glyphworks Type Foundry</span>
+    <nav aria-label="Footer">
+      <a href="#axes">Axes</a>
+      <a href="#tester">Tester</a>
+      <a href="#specimen">Specimen</a>
+      <a href="#top">Licence</a>
+      <a href="#top">Colophon</a>
+    </nav>
+    <span>Rotterdam / Bogotá</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
+  if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
+
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var easeInOut = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+
+  /* ==========================================================
+     SMOOTH SCROLL
+     ========================================================== */
+  var lenis = null;
+  if (!reduced && typeof window.Lenis !== 'undefined' && hasGSAP) {
+    try {
+      lenis = new Lenis({ duration: 1.1, smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 1.6 });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+      gsap.ticker.lagSmoothing(0);
+    } catch (e) { lenis = null; }
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href');
+      if (!id || id.length < 2) return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(target, { offset: 0, duration: 1.3 });
+      else target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
+
+  /* ==========================================================
+     LOADER  →  HERO INTRO
+     ========================================================== */
+  var loader = document.getElementById('loader');
+  var loaderWord = document.getElementById('loaderWord');
+  var loaderBar = document.getElementById('loaderBar');
+  var loaderCount = document.getElementById('loaderCount');
+
+  if (lenis) lenis.stop();
+
+  function heroIntro() {
+    document.body.classList.add('is-ready');
+    if (lenis) lenis.start();
+    if (!hasGSAP || reduced) return;
+    var tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+    tl.from('.nav > *', { y: -16, opacity: 0, duration: 0.9, stagger: 0.07 }, 0)
+      .from('.hero__meta > *', { y: 20, opacity: 0, duration: 1, stagger: 0.08 }, 0.05)
+      .from('.hero__word', { yPercent: 55, opacity: 0, duration: 1.5 }, 0.1)
+      .from('.hero__sub > *', { y: 24, opacity: 0, duration: 1.1, stagger: 0.1 }, 0.3)
+      .from('.hero__meters', { y: 20, opacity: 0, duration: 1 }, 0.42);
+  }
+
+  function finishLoader() {
+    loader.classList.add('is-out');
+    setTimeout(function () { loader.style.display = 'none'; }, 1000);
+    heroIntro();
+  }
+
+  function runLoader() {
+    if (reduced) {
+      loader.style.display = 'none';
+      heroIntro();
+      return;
+    }
+    var dur = 880, t0 = performance.now();
+    function step(now) {
+      var p = clamp((now - t0) / dur, 0, 1);
+      var e = 1 - Math.pow(1 - p, 3);
+      loaderWord.style.fontVariationSettings = '"wght" ' + Math.round(150 + e * 750) + ', "wdth" ' + Math.round(100 - e * 52);
+      loaderCount.textContent = String(Math.round(e * 100)).padStart(3, '0');
+      loaderBar.style.transform = 'scaleX(' + e.toFixed(3) + ')';
+      if (p < 1) requestAnimationFrame(step);
+      else setTimeout(finishLoader, 130);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ==========================================================
+     HERO — cursor driven axes
+     ========================================================== */
+  var heroWordEl = document.getElementById('heroWord');
+  var heroWghtEl = document.getElementById('heroWght');
+  var heroWdthEl = document.getElementById('heroWdth');
+  var heroWghtBar = document.getElementById('heroWghtBar');
+  var heroWdthBar = document.getElementById('heroWdthBar');
+
+  var heroCur = { w: 420, d: 100 };
+  var heroTgt = { w: 420, d: 100 };
+  var heroLast = { w: -1, d: -1 };
+
+  if (!reduced) {
+    window.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'touch') return;
+      var nx = clamp(e.clientX / window.innerWidth, 0, 1);
+      var ny = clamp(e.clientY / window.innerHeight, 0, 1);
+      heroTgt.w = 120 + nx * 800;          // 120 → 920
+      heroTgt.d = 152 - ny * 118;          // 152 → 34
+    }, { passive: true });
+  }
+
+  function paintHero() {
+    var w = Math.round(heroCur.w);
+    var d = Math.round(heroCur.d);
+    if (w === heroLast.w && d === heroLast.d) return;
+    heroLast.w = w; heroLast.d = d;
+    heroWordEl.style.fontVariationSettings = '"wght" ' + w + ', "wdth" ' + d;
+    heroWghtEl.textContent = w;
+    heroWdthEl.textContent = d;
+    heroWghtBar.style.transform = 'scaleX(' + ((w - 100) / 900).toFixed(3) + ')';
+    heroWdthBar.style.transform = 'scaleX(' + ((d - 25) / 126).toFixed(3) + ')';
+  }
+
+  /* ==========================================================
+     AXES — scroll driven
+     ========================================================== */
+  var axisWordEl = document.getElementById('axisWord');
+  var axWghtEl = document.getElementById('axWght');
+  var axWdthEl = document.getElementById('axWdth');
+  var axWghtBar = document.getElementById('axWghtBar');
+  var axWdthBar = document.getElementById('axWdthBar');
+
+  var axisCur = { w: 100, d: 151 };
+  var axisTgt = { w: 100, d: 151 };
+  var axisLast = { w: -1, d: -1 };
+
+  if (hasGSAP && !reduced) {
+    ScrollTrigger.create({
+      trigger: '.axes',
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: function (self) {
+        var p = self.progress;
+        var wP = easeInOut(clamp(p / 0.62, 0, 1));
+        var dP = easeInOut(clamp((p - 0.36) / 0.64, 0, 1));
+        axisTgt.w = 100 + 900 * wP;
+        axisTgt.d = 151 - 126 * dP;
+      }
+    });
+  }
+
+  function paintAxis() {
+    var w = Math.round(axisCur.w);
+    var d = Math.round(axisCur.d);
+    if (w === axisLast.w && d === axisLast.d) return;
+    axisLast.w = w; axisLast.d = d;
+    axisWordEl.style.fontVariationSettings = '"wght" ' + w + ', "wdth" ' + d;
+    axWghtEl.textContent = w;
+    axWdthEl.textContent = d;
+    axWghtBar.style.transform = 'scaleX(' + ((w - 100) / 900).toFixed(3) + ')';
+    axWdthBar.style.transform = 'scaleX(' + ((d - 25) / 126).toFixed(3) + ')';
+  }
+
+  /* ==========================================================
+     PARTICLE FIELD
+     ========================================================== */
+  var stage = document.getElementById('burstStage');
+  var canvas = document.getElementById('burstCanvas');
+  var ctx = canvas ? canvas.getContext('2d') : null;
+
+  var W = 0, H = 0, DPR = 1;
+  var particles = [];
+  var burstVisible = false;
+  var mouse = { x: -9999, y: -9999 };
+  var ACCENT = '#d8ff3c';
+  var MAX_PARTICLES = 5000;
+
+  function buildParticles() {
+    if (!ctx || !stage) return;
+    var rect = stage.getBoundingClientRect();
+    W = Math.max(1, Math.round(rect.width));
+    H = Math.max(1, Math.round(rect.height));
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    if (reduced) {
+      drawStatic();
+      return;
+    }
+
+    // render glyphs offscreen
+    var off = document.createElement('canvas');
+    off.width = W; off.height = H;
+    var octx = off.getContext('2d');
+    var fs = Math.min(H * 0.9, W * 0.5);
+    octx.font = '900 ' + fs + 'px "Roboto Flex", Helvetica, Arial, sans-serif';
+    octx.textAlign = 'center';
+    octx.textBaseline = 'middle';
+    octx.fillStyle = '#ffffff';
+    octx.fillText('Aa', W / 2, H * 0.53);
+
+    var data;
+    try { data = octx.getImageData(0, 0, W, H).data; }
+    catch (e) { drawStatic(); return; }
+
+    var step = Math.max(2, Math.round(Math.sqrt((W * H) / 70000)));
+    var pts = [];
+    for (var y = 0; y < H; y += step) {
+      for (var x = 0; x < W; x += step) {
+        if (data[(y * W + x) * 4 + 3] > 128) { pts.push(x, y); }
+      }
+    }
+
+    var n = pts.length / 2;
+    if (n === 0) { particles = []; return; }
+
+    // random subsample
+    var idx = new Array(n);
+    for (var i = 0; i < n; i++) idx[i] = i;
+    for (var j = n - 1; j > 0; j--) {
+      var k = (Math.random() * (j + 1)) | 0;
+      var tmp = idx[j]; idx[j] = idx[k]; idx[k] = tmp;
+    }
+    var take = Math.min(n, MAX_PARTICLES);
+
+    particles = new Array(take);
+    for (var q = 0; q < take; q++) {
+      var ii = idx[q];
+      var hx = pts[ii * 2], hy = pts[ii * 2 + 1];
+      var ang = Math.random() * Math.PI * 2;
+      var rad = Math.max(W, H) * (0.55 + Math.random() * 0.55);
+      particles[q] = {
+        x: W / 2 + Math.cos(ang) * rad,
+        y: H / 2 + Math.sin(ang) * rad,
+        hx: hx, hy: hy,
+        vx: 0, vy: 0,
+        s: 1.1 + Math.random() * 1.3
+      };
+    }
+  }
+
+  function drawStatic() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, W, H);
+    var fs = Math.min(H * 0.9, W * 0.5);
+    ctx.font = '900 ' + fs + 'px "Roboto Flex", Helvetica, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = ACCENT;
+    ctx.fillText('Aa', W / 2, H * 0.53);
+  }
+
+  function detonate(cx, cy) {
+    if (!particles.length) return;
+    var ox = (cx == null) ? W / 2 : cx;
+    var oy = (cy == null) ? H / 2 : cy;
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      var dx = p.x - ox, dy = p.y - oy;
+      var d = Math.sqrt(dx * dx + dy * dy) || 1;
+      var force = 5 + Math.random() * 12 + 120 / d;
+      p.vx += (dx / d) * force;
+      p.vy += (dy / d) * force;
+    }
+  }
+
+  function stepParticles() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = ACCENT;
+
+    var k = 0.052, damp = 0.885, mr = 84;
+
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+
+      p.vx += (p.hx - p.x) * k;
+      p.vy += (p.hy - p.y) * k;
+
+      var dx = p.x - mouse.x, dy = p.y - mouse.y;
+      var d2 = dx * dx + dy * dy;
+      if (d2 < mr * mr && d2 > 0.001) {
+        var d = Math.sqrt(d2);
+        var f = (1 - d / mr) * 13;
+        p.vx += (dx / d) * f;
+        p.vy += (dy / d) * f;
+      }
+
+      p.vx *= damp;
+      p.vy *= damp;
+      p.x += p.vx;
+      p.y += p.vy;
+
+      var s = p.s;
+      ctx.fillRect(p.x - s * 0.5, p.y - s * 0.5, s, s);
+    }
+  }
+
+  if (stage && canvas && ctx) {
+    var rectCache = null;
+    stage.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'touch') return;
+      rectCache = stage.getBoundingClientRect();
+      mouse.x = e.clientX - rectCache.left;
+      mouse.y = e.clientY - rectCache.top;
+    }, { passive: true });
+
+    stage.addEventListener('pointerleave', function () {
+      mouse.x = -9999; mouse.y = -9999;
+    });
+
+    stage.addEventListener('pointerdown', function (e) {
+      if (reduced) return;
+      var r = stage.getBoundingClientRect();
+      detonate(e.clientX - r.left, e.clientY - r.top);
+    });
+
+    var dbtn = document.getElementById('detonate');
+    if (dbtn) {
+      dbtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (reduced) return;
+        detonate(W / 2, H / 2);
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { burstVisible = en.isIntersecting; });
+      }, { rootMargin: '120px' });
+      io.observe(stage);
+    } else {
+      burstVisible = true;
+    }
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(buildParticles, 220);
+    });
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(buildParticles).catch(buildParticles);
+    } else {
+      buildParticles();
+    }
+    setTimeout(buildParticles, 900);
+  }
+
+  /* ==========================================================
+     MASTER RAF LOOP
+     ========================================================== */
+  var lastTime = performance.now();
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    var dt = Math.min(48, now - lastTime);
+    lastTime = now;
+
+    // hero axes
+    if (!reduced) {
+      var t = 1 - Math.pow(0.001, dt / 1000);
+      heroCur.w = lerp(heroCur.w, heroTgt.w, t);
+      heroCur.d = lerp(heroCur.d, heroTgt.d, t);
+      paintHero();
+
+      axisCur.w = lerp(axisCur.w, axisTgt.w, t);
+      axisCur.d = lerp(axisCur.d, axisTgt.d, t);
+      paintAxis();
+    }
+
+    if (burstVisible && !reduced && particles.length) stepParticles();
+  }
+
+  paintHero();
+  paintAxis();
+  requestAnimationFrame(frame);
+
+  /* ==========================================================
+     TYPE TESTER
+     ========================================================== */
+  (function () {
+    var txt = document.getElementById('testerText');
+    if (!txt) return;
+    var sW = document.getElementById('sWght'), sD = document.getElementById('sWdth');
+    var sS = document.getElementById('sSize'), sT = document.getElementById('sTrack');
+    var vW = document.getElementById('vWght'), vD = document.getElementById('vWdth');
+    var vS = document.getElementById('vSize'), vT = document.getElementById('vTrack');
+    var code = document.getElementById('testerCode');
+
+    function apply() {
+      var w = +sW.value, d = +sD.value, sz = +sS.value, tr = (+sT.value / 1000);
+      txt.style.fontVariationSettings = '"wght" ' + w + ', "wdth" ' + d;
+      txt.style.fontSize = sz + 'px';
+      txt.style.letterSpacing = tr.toFixed(3) + 'em';
+      vW.textContent = w;
+      vD.textContent = d;
+      vS.textContent = sz;
+      vT.textContent = tr.toFixed(3);
+      code.innerHTML = 'font-variation-settings: <b>"wght" ' + w + '</b>, <b>"wdth" ' + d + '</b>;<br>font-size: ' + sz + 'px; letter-spacing: ' + tr.toFixed(3) + 'em;';
+    }
+
+    [sW, sD, sS, sT].forEach(function (el) { el.addEventListener('input', apply); });
+
+    document.querySelectorAll('.preset').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.preset').forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        var tw = +btn.dataset.w, td = +btn.dataset.d, ts = +btn.dataset.s, tt = +btn.dataset.t;
+        if (hasGSAP && !reduced) {
+          gsap.to(sW, { value: tw, duration: 0.6, ease: 'power2.out', onUpdate: apply });
+          gsap.to(sD, { value: td, duration: 0.6, ease: 'power2.out', onUpdate: apply });
+          gsap.to(sS, { value: ts, duration: 0.6, ease: 'power2.out', onUpdate: apply });
+          gsap.to(sT, { value: tt, duration: 0.6, ease: 'power2.out', onUpdate: apply });
+        } else {
+          sW.value = tw; sD.value = td; sS.value = ts; sT.value = tt; apply();
+        }
+      });
+    });
+
+    txt.addEventListener('paste', function (e) {
+      e.preventDefault();
+      var text = (e.clipboardData || window.clipboardData).getData('text');
+      document.execCommand('insertText', false, text);
+    });
+
+    apply();
+  })();
+
+  /* ==========================================================
+     CHARACTER SET
+     ========================================================== */
+  (function () {
+    var host = document.getElementById('charset');
+    if (!host) return;
+    var rows = [
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      'abcdefghijklmnopqrstuvwxyz',
+      '0123456789 &@€$£¥%#*',
+      '.,:;!?/|()[]{}\u2013\u2014\u2026\u00b7\u2192\u2191'
+    ];
+    var frag = document.createDocumentFragment();
+    rows.forEach(function (row) {
+      var div = document.createElement('div');
+      div.className = 'charset__row';
+      for (var i = 0; i < row.length; i++) {
+        if (row[i] === ' ') { div.appendChild(document.createTextNode('\u00a0')); continue; }
+        var s = document.createElement('span');
+        s.textContent = row[i];
+        div.appendChild(s);
+      }
+      frag.appendChild(div);
+    });
+    host.appendChild(frag);
+  })();
+
+  /* ==========================================================
+     SCROLL CHOREOGRAPHY
+     ========================================================== */
+  if (hasGSAP) {
+    // scroll reveals
+    if (!reduced) {
+      var revealEls = gsap.utils.toArray('[data-reveal]');
+      revealEls.forEach(function (el) {
+        gsap.from(el, {
+          y: 36, opacity: 0, duration: 1.05, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+        });
+      });
+
+      gsap.utils.toArray('.sec-head h2, .axes__head h2, .footer__cta h2').forEach(function (el) {
+        gsap.from(el, {
+          y: 42, opacity: 0, duration: 1.15, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+        });
+      });
+
+      gsap.utils.toArray('.style').forEach(function (el, i) {
+        gsap.from(el, {
+          y: 30, opacity: 0, duration: 0.85, ease: 'power3.out', delay: (i % 3) * 0.06,
+          scrollTrigger: { trigger: el, start: 'top 92%', once: true }
+        });
+      });
+
+      gsap.from('.charset__row', {
+        opacity: 0, y: 24, duration: 0.9, stagger: 0.09, ease: 'power2.out',
+        scrollTrigger: { trigger: '.charset', start: 'top 88%', once: true }
+      });
+
+      gsap.from('.stat', {
+        opacity: 0, y: 24, duration: 0.8, stagger: 0.08, ease: 'power2.out',
+        scrollTrigger: { trigger: '.stats', start: 'top 90%', once: true }
+      });
+
+      gsap.from('.footer__word', {
+        yPercent: 40, opacity: 0, duration: 1.3, ease: 'expo.out',
+        scrollTrigger: { trigger: '.footer__word', start: 'top 95%', once: true }
+      });
+
+      // burst stage entrance
+      gsap.from('.burst__stage', {
+        opacity: 0, y: 40, duration: 1.1, ease: 'power3.out',
+        scrollTrigger: { trigger: '.burst__stage', start: 'top 90%', once: true }
+      });
+
+      // auto-detonate once when the field is first seen
+      var fired = false;
+      ScrollTrigger.create({
+        trigger: '.burst__stage',
+        start: 'top 65%',
+        once: true,
+        onEnter: function () {
+          if (fired || reduced) return;
+          fired = true;
+          setTimeout(function () { detonate(W / 2, H / 2); }, 500);
+        }
+      });
+    }
+
+    // progress bar
+    var prog = document.getElementById('progress');
+    if (prog) {
+      ScrollTrigger.create({
+        trigger: document.body,
+        start: 'top top',
+        end: 'bottom bottom',
+        onUpdate: function (self) {
+          prog.style.transform = 'scaleX(' + self.progress.toFixed(4) + ')';
+        }
+      });
+    }
+  }
+
+  /* ==========================================================
+     GO
+     ========================================================== */
+  runLoader();
+})();
+</script>
+</body>
+</html>

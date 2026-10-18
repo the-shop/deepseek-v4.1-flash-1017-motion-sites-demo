@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Gambit Society — A Chess Club in London</title>
+<meta name="description" content="The Gambit Society. A members' chess club above a bookshop on Cecil Court, London. Three nights a week, eleven boards, no clocks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0908;
+    --bg-2:#0e0d0b;
+    --cream:#f3ede2;
+    --muted:#9b9285;
+    --gold:#c9a35a;
+    --gold-2:#e6c98d;
+    --line:rgba(243,237,226,.13);
+    --line-2:rgba(243,237,226,.07);
+    --sq-l:#e8dcc6;
+    --sq-d:#6d6053;
+    --pad:clamp(20px,5vw,72px);
+    --tilt:46deg;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-weight:300;
+    font-size:16px;
+    line-height:1.65;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  img,svg{display:block;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:rgba(201,163,90,.3);color:#fff;}
+
+  /* ---------- grain + progress ---------- */
+  .grain{
+    position:fixed;inset:0;z-index:200;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  .progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:210;background:rgba(243,237,226,.05);}
+  .progress span{
+    display:block;height:100%;width:100%;
+    background:linear-gradient(90deg,var(--gold),var(--gold-2));
+    transform:scaleX(0);transform-origin:0 50%;
+    will-change:transform;
+  }
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:190;
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+    padding:20px var(--pad);
+    border-bottom:1px solid transparent;
+    transition:background .5s ease,padding .5s ease,border-color .5s ease,backdrop-filter .5s ease;
+  }
+  .nav.scrolled{
+    background:rgba(10,9,8,.74);
+    -webkit-backdrop-filter:blur(16px) saturate(1.3);
+    backdrop-filter:blur(16px) saturate(1.3);
+    border-bottom-color:var(--line-2);
+    padding-top:12px;padding-bottom:12px;
+  }
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand-mark{
+    font-size:21px;line-height:1;color:var(--gold);
+    transform:translateY(-1px);
+  }
+  .brand-text{
+    font-family:'Playfair Display',serif;font-size:16px;letter-spacing:.04em;
+    color:var(--cream);
+  }
+  .nav-links{display:flex;gap:clamp(18px,2.4vw,36px);}
+  .nav-links a{
+    position:relative;font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--muted);transition:color .35s ease;
+  }
+  .nav-links a::after{
+    content:'';position:absolute;left:0;right:0;bottom:-6px;height:1px;
+    background:var(--gold);transform:scaleX(0);transform-origin:0 50%;
+    transition:transform .45s cubic-bezier(.16,1,.3,1);
+  }
+  .nav-links a:hover{color:var(--cream);}
+  .nav-links a:hover::after{transform:scaleX(1);}
+  .nav-cta{
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    padding:10px 18px;border:1px solid var(--line);border-radius:999px;
+    color:var(--cream);transition:border-color .35s,background .35s,transform .35s;
+  }
+  .nav-cta:hover{border-color:rgba(201,163,90,.6);background:rgba(201,163,90,.08);transform:translateY(-1px);}
+  @media(max-width:880px){.nav-links{display:none;}}
+
+  /* ---------- typography ---------- */
+  h1,h2,h3,h4{font-family:'Playfair Display',serif;font-weight:400;letter-spacing:-.022em;}
+  h1{margin:0 0 26px;font-size:clamp(44px,6.6vw,94px);line-height:.94;}
+  h1 em{font-style:italic;color:var(--gold-2);}
+  h2{margin:0 0 22px;font-size:clamp(34px,4.8vw,64px);line-height:1.02;}
+  h3{margin:0 0 12px;font-size:clamp(22px,2.2vw,27px);line-height:1.15;}
+  p{margin:0 0 18px;}
+  p:last-child{margin-bottom:0;}
+
+  .label{
+    display:flex;align-items:center;gap:14px;
+    font-family:'Inter',sans-serif;font-size:10.5px;font-weight:500;
+    letter-spacing:.3em;text-transform:uppercase;color:var(--gold);
+    margin:0 0 26px;
+  }
+  .label::before{content:'';width:38px;height:1px;background:currentColor;opacity:.55;}
+
+  .container{width:100%;max-width:1240px;margin:0 auto;}
+  .section{position:relative;padding:clamp(84px,11vw,158px) var(--pad);}
+  .section-head{max-width:760px;margin-bottom:clamp(44px,5vw,76px);}
+  .section-lede{
+    font-size:clamp(15px,1.15vw,17.5px);color:var(--muted);max-width:58ch;line-height:1.75;
+  }
+  .section-lede em{font-style:italic;color:var(--cream);}
+
+  /* ---------- reveal ---------- */
+  [data-reveal]{
+    opacity:0;transform:translateY(30px);
+    transition:opacity .95s cubic-bezier(.16,1,.3,1),transform 1.1s cubic-bezier(.16,1,.3,1);
+    transition-delay:var(--d,0ms);
+  }
+  [data-reveal].in{opacity:1;transform:none;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    min-height:100svh;display:flex;align-items:center;
+    padding:132px var(--pad) 72px;
+  }
+  .hero::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(880px 620px at 76% 40%,rgba(201,163,90,.11),transparent 68%),
+      radial-gradient(700px 500px at 8% 92%,rgba(120,110,160,.07),transparent 70%);
+  }
+  .hero-inner{
+    position:relative;z-index:2;width:100%;max-width:1280px;margin:0 auto;
+    display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(34px,5vw,76px);
+    align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);
+    margin:0 0 28px;
+  }
+  .eyebrow .dot{
+    width:5px;height:5px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 0 3px rgba(201,163,90,.16);
+    animation:pulse 3.4s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.45;transform:scale(.8);}}
+
+  .lede{
+    font-size:clamp(15px,1.15vw,18px);line-height:1.72;color:var(--muted);
+    max-width:44ch;margin:0 0 36px;
+  }
+  .lede em{font-style:italic;color:var(--cream);}
+
+  .hero-cta{display:flex;align-items:center;gap:clamp(16px,2.4vw,32px);flex-wrap:wrap;}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:15px 28px;border-radius:999px;background:var(--cream);color:#0a0908;
+    font-size:12.5px;font-weight:500;letter-spacing:.03em;
+    transition:transform .45s cubic-bezier(.16,1,.3,1),background .35s,box-shadow .45s;
+    will-change:transform;
+  }
+  .btn:hover{
+    transform:translateY(-2px);background:#fff;
+    box-shadow:0 16px 40px -14px rgba(201,163,90,.85);
+  }
+  .btn-link{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:12.5px;letter-spacing:.03em;color:var(--cream);
+    padding-bottom:3px;border-bottom:1px solid var(--line);
+    transition:border-color .4s,color .4s;
+  }
+  .btn-link span{transition:transform .45s cubic-bezier(.16,1,.3,1);display:inline-block;}
+  .btn-link:hover{border-color:var(--gold);color:var(--gold-2);}
+  .btn-link:hover span{transform:translateY(3px);}
+
+  .hero-meta{
+    display:flex;gap:clamp(22px,3.4vw,52px);flex-wrap:wrap;
+    margin:clamp(38px,5vw,58px) 0 0;padding:0;
+  }
+  .hero-meta>div{border-top:1px solid var(--line);padding-top:12px;min-width:78px;}
+  .hero-meta dt{
+    font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);
+    margin-bottom:5px;
+  }
+  .hero-meta dd{
+    margin:0;font-family:'Playfair Display',serif;font-size:19px;color:var(--cream);
+  }
+
+  /* ---------- board ---------- */
+  .board-stage{
+    position:relative;width:100%;
+    perspective:1400px;
+    perspective-origin:50% 44%;
+  }
+  .board-stage::before{
+    content:'';position:absolute;left:50%;top:52%;
+    width:86%;height:62%;transform:translate(-50%,-50%);
+    background:radial-gradient(closest-side,rgba(201,163,90,.20),transparent 76%);
+    filter:blur(34px);z-index:0;pointer-events:none;
+  }
+  .board-enter{
+    position:relative;z-index:1;
+    transform-style:preserve-3d;
+    transform:translateY(58px) scale(.9);
+    opacity:0;
+    transition:transform 1.6s cubic-bezier(.16,1,.3,1),opacity 1.2s ease;
+  }
+  .board-enter.in{transform:translateY(0) scale(1);opacity:1;}
+
+  .board{
+    position:relative;width:100%;aspect-ratio:1/1;
+    transform-style:preserve-3d;
+    transform:translateY(-3%) rotateX(var(--tilt)) rotateZ(-1.5deg);
+    border-radius:5px;
+    user-select:none;-webkit-user-select:none;
+  }
+  .board-slab{
+    position:absolute;inset:-16px;
+    transform:translateZ(-26px);
+    border-radius:9px;
+    background:linear-gradient(155deg,#221d16,#0c0a08 62%);
+    box-shadow:0 34px 70px -18px rgba(0,0,0,.95),inset 0 0 0 1px rgba(201,163,90,.10);
+  }
+  .squares{
+    position:absolute;inset:0;
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    grid-template-rows:repeat(8,1fr);
+    border-radius:4px;overflow:hidden;
+    box-shadow:0 0 0 1px rgba(0,0,0,.45),0 0 0 2px rgba(201,163,90,.14);
+  }
+  .squares::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(130% 95% at 26% 6%,rgba(255,250,235,.16),transparent 58%),
+      radial-gradient(110% 110% at 78% 100%,rgba(0,0,0,.34),transparent 62%);
+  }
+  .square.light{background:var(--sq-l);}
+  .square.dark{background:var(--sq-d);}
+
+  .pieces{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none;}
+  .piece{
+    position:absolute;left:0;top:0;width:12.5%;height:12.5%;
+    transform-style:preserve-3d;
+    transition:transform 620ms cubic-bezier(.42,.03,.19,1);
+  }
+  .piece-3d{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    transform:translateZ(15px) rotateX(calc(-1 * var(--tilt)));
+    transform-origin:50% 50%;
+    transition:transform 340ms cubic-bezier(.34,1.3,.64,1),opacity 300ms ease;
+  }
+  .glyph{
+    display:block;line-height:1;font-size:var(--ps,32px);
+    font-family:'Segoe UI Symbol','Apple Symbols','Noto Sans Symbols 2','DejaVu Sans',serif;
+    transform:translateY(-24%);
+    will-change:transform;
+  }
+  .piece.w .glyph{
+    color:#fffaf0;
+    -webkit-text-stroke:1px rgba(44,33,20,.55);
+    text-shadow:0 3px 6px rgba(0,0,0,.30);
+  }
+  .piece.b .glyph{
+    color:#151210;
+    -webkit-text-stroke:.7px rgba(255,242,215,.40);
+    text-shadow:0 3px 6px rgba(0,0,0,.35);
+  }
+  .piece.is-moving .piece-3d{
+    transform:translateZ(42px) rotateX(calc(-1 * var(--tilt))) scale(1.07);
+  }
+  .piece.captured .piece-3d{
+    transform:translateZ(66px) rotateX(calc(-1 * var(--tilt))) scale(.62);
+    opacity:0;
+  }
+
+  .board-caption{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    margin-top:clamp(20px,3vw,32px);
+    font-size:11.5px;letter-spacing:.05em;color:var(--muted);
+  }
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:5px 11px;border-radius:999px;
+    border:1px solid rgba(201,163,90,.35);color:var(--gold-2);
+    font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  }
+
+  /* ---------- game section ---------- */
+  .game-grid{
+    display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);
+    gap:clamp(28px,4vw,64px);align-items:start;
+  }
+  @media(max-width:920px){
+    .game-grid{grid-template-columns:1fr;gap:40px;}
+  }
+
+  .caption{
+    margin-top:clamp(20px,2.6vw,28px);
+    min-height:3.6em;
+    display:flex;gap:14px;align-items:baseline;
+    font-size:14px;line-height:1.6;color:var(--muted);
+  }
+  .cap-move{
+    flex:0 0 auto;
+    font-family:'Playfair Display',serif;font-size:17px;color:var(--gold-2);
+    font-variant-numeric:tabular-nums;
+  }
+  .cap-text{max-width:52ch;}
+
+  .controls{
+    display:flex;align-items:center;gap:9px;
+    margin-top:clamp(18px,2.4vw,26px);
+  }
+  .ctrl{
+    width:44px;height:44px;border-radius:50%;
+    border:1px solid var(--line);background:transparent;color:var(--cream);
+    display:grid;place-items:center;cursor:pointer;padding:0;
+    transition:background .3s,border-color .3s,transform .35s cubic-bezier(.16,1,.3,1),color .3s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .ctrl svg{width:15px;height:15px;fill:currentColor;}
+  .ctrl:hover{background:rgba(243,237,226,.07);border-color:rgba(201,163,90,.5);transform:translateY(-2px);}
+  .ctrl:active{transform:translateY(0) scale(.96);}
+  .ctrl.primary{
+    width:56px;height:56px;background:var(--cream);color:#0a0908;border-color:transparent;
+    box-shadow:0 10px 30px -12px rgba(201,163,90,.9);
+  }
+  .ctrl.primary svg{width:18px;height:18px;}
+  .ctrl.primary:hover{background:#fff;transform:translateY(-2px) scale(1.03);}
+  .speed{
+    margin-left:6px;width:auto;padding:0 18px;height:38px;border-radius:999px;
+    font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.16em;
+  }
+
+  .panel{
+    display:flex;flex-direction:column;
+    border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(180deg,rgba(243,237,226,.045),rgba(243,237,226,.012));
+    overflow:hidden;
+    max-height:640px;
+  }
+  .panel-head{
+    display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+    padding:17px 20px;border-bottom:1px solid var(--line-2);
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--cream);
+    flex:0 0 auto;
+  }
+  .panel-head span:last-child{color:var(--muted);letter-spacing:.14em;}
+  .movelist{
+    position:relative;flex:1 1 auto;overflow-y:auto;overflow-x:hidden;
+    padding:10px 0;scroll-behavior:smooth;
+    scrollbar-width:thin;scrollbar-color:rgba(243,237,226,.18) transparent;
+  }
+  .movelist::-webkit-scrollbar{width:6px;}
+  .movelist::-webkit-scrollbar-track{background:transparent;}
+  .movelist::-webkit-scrollbar-thumb{background:rgba(243,237,226,.16);border-radius:3px;}
+  .mrow{
+    display:grid;grid-template-columns:42px 1fr 1fr;align-items:center;
+    padding:0 12px;
+  }
+  .mnum{
+    font-size:11px;color:rgba(243,237,226,.28);
+    font-variant-numeric:tabular-nums;letter-spacing:.05em;
+  }
+  .san{
+    font-family:'Playfair Display',serif;font-size:17px;color:var(--cream);
+    background:none;border:0;padding:8px 12px;border-radius:8px;text-align:left;
+    cursor:pointer;font-weight:400;
+    transition:background .25s,color .25s,box-shadow .25s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .san:hover{background:rgba(243,237,226,.07);}
+  .san.done{color:rgba(243,237,226,.36);}
+  .san.active{
+    background:rgba(201,163,90,.16);color:var(--gold-2);
+    box-shadow:inset 0 0 0 1px rgba(201,163,90,.35);
+  }
+  .san.empty{cursor:default;pointer-events:none;}
+  .panel-foot{
+    flex:0 0 auto;padding:13px 20px;border-top:1px solid var(--line-2);
+    font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+    display:flex;justify-content:space-between;gap:12px;
+  }
+
+  /* ---------- society ---------- */
+  .society-grid{
+    display:grid;grid-template-columns:1.15fr .85fr;
+    gap:clamp(34px,5vw,86px);align-items:start;
+  }
+  @media(max-width:900px){.society-grid{grid-template-columns:1fr;gap:52px;}}
+  .society-copy p{color:var(--muted);font-size:clamp(15px,1.1vw,17px);line-height:1.8;max-width:54ch;}
+  .society-copy p:first-child{color:var(--cream);font-size:clamp(17px,1.45vw,21px);line-height:1.7;}
+  .society-copy p:first-child::first-letter{
+    font-family:'Playfair Display',serif;float:left;
+    font-size:3.55em;line-height:.82;padding:6px 12px 0 0;color:var(--gold-2);
+  }
+  .rules{list-style:none;margin:0 0 44px;padding:0;}
+  .rules li{
+    display:flex;gap:16px;align-items:baseline;
+    padding:15px 0;border-bottom:1px solid var(--line-2);
+    font-family:'Playfair Display',serif;font-size:clamp(16px,1.35vw,19px);
+    color:var(--cream);
+  }
+  .rules li:first-child{border-top:1px solid var(--line-2);}
+  .rules li span{
+    font-size:11px;letter-spacing:.16em;color:var(--gold);flex:0 0 26px;
+    font-family:'Inter',sans-serif;
+  }
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .stats>div{border-top:1px solid var(--line);padding-top:14px;}
+  .stats b{
+    display:block;font-family:'Playfair Display',serif;font-weight:400;
+    font-size:clamp(30px,3.6vw,44px);line-height:1;color:var(--gold-2);
+  }
+  .stats span{
+    display:block;margin-top:8px;font-size:9.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--muted);
+  }
+
+  /* ---------- nights ---------- */
+  .nights{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(16px,2vw,26px);
+  }
+  @media(max-width:900px){.nights{grid-template-columns:1fr;}}
+  .night{
+    position:relative;
+    padding:clamp(24px,2.6vw,34px);
+    border:1px solid var(--line);border-radius:14px;
+    background:linear-gradient(180deg,rgba(243,237,226,.035),rgba(243,237,226,.008));
+    transition:transform .6s cubic-bezier(.16,1,.3,1),border-color .5s,background .5s;
+    overflow:hidden;
+  }
+  .night::after{
+    content:'';position:absolute;left:0;right:0;top:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(201,163,90,.7),transparent);
+    opacity:0;transition:opacity .5s;
+  }
+  .night:hover{transform:translateY(-5px);border-color:rgba(201,163,90,.32);background:linear-gradient(180deg,rgba(201,163,90,.075),rgba(243,237,226,.01));}
+  .night:hover::after{opacity:1;}
+  .night-top{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    margin-bottom:30px;
+  }
+  .night-top .day{color:var(--gold);}
+  .night-top .time{color:var(--muted);letter-spacing:.14em;}
+  .night p{color:var(--muted);font-size:14.5px;line-height:1.7;}
+  .night ul{
+    list-style:none;margin:24px 0 0;padding:0;
+    display:flex;flex-wrap:wrap;gap:7px;
+  }
+  .night li{
+    font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:5px 11px;border-radius:999px;border:1px solid var(--line-2);color:var(--muted);
+  }
+
+  /* ---------- membership ---------- */
+  .tiers{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,24px);
+    align-items:stretch;
+  }
+  @media(max-width:900px){.tiers{grid-template-columns:1fr;}}
+  .tier{
+    display:flex;flex-direction:column;
+    padding:clamp(26px,3vw,38px);
+    border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(180deg,rgba(243,237,226,.03),rgba(243,237,226,.006));
+    transition:transform .6s cubic-bezier(.16,1,.3,1),border-color .5s;
+  }
+  .tier:hover{transform:translateY(-5px);border-color:rgba(201,163,90,.35);}
+  .tier.featured{
+    border-color:rgba(201,163,90,.42);
+    background:linear-gradient(180deg,rgba(201,163,90,.09),rgba(243,237,226,.012));
+    box-shadow:0 30px 70px -40px rgba(201,163,90,.65);
+  }
+  .tier-name{
+    font-size:10px;letter-spacing:.26em;text-transform:uppercase;
+    color:var(--gold);margin:0 0 20px;
+  }
+  .tier-price{
+    font-family:'Playfair Display',serif;font-size:clamp(34px,3.4vw,44px);line-height:1;
+    color:var(--cream);margin:0 0 18px;
+  }
+  .tier-price span{
+    font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .tier-desc{font-size:14px;color:var(--muted);line-height:1.7;margin:0 0 24px;}
+  .tier ul{list-style:none;margin:0 0 30px;padding:0;flex:1 1 auto;}
+  .tier li{
+    font-size:13px;color:var(--cream);padding:9px 0;
+    border-bottom:1px solid var(--line-2);display:flex;gap:10px;align-items:baseline;
+  }
+  .tier li::before{content:'—';color:var(--gold);font-size:11px;}
+  .tier .btn,.tier .btn-outline{align-self:flex-start;}
+  .btn-outline{
+    display:inline-flex;align-items:center;gap:9px;
+    padding:12px 22px;border-radius:999px;border:1px solid var(--line);
+    font-size:11.5px;letter-spacing:.05em;color:var(--cream);
+    transition:border-color .4s,background .4s,transform .4s cubic-bezier(.16,1,.3,1);
+  }
+  .btn-outline:hover{border-color:rgba(201,163,90,.65);background:rgba(201,163,90,.1);transform:translateY(-2px);}
+
+  .membership-note{
+    margin-top:clamp(36px,4vw,58px);
+    padding-top:26px;border-top:1px solid var(--line-2);
+    display:flex;justify-content:space-between;gap:22px;flex-wrap:wrap;
+    font-size:13px;color:var(--muted);
+  }
+  .membership-note a{color:var(--gold-2);border-bottom:1px solid rgba(201,163,90,.4);transition:border-color .35s;}
+  .membership-note a:hover{border-color:var(--gold-2);}
+
+  /* ---------- footer ---------- */
+  .footer{
+    padding:clamp(64px,8vw,110px) var(--pad) 38px;
+    border-top:1px solid var(--line-2);
+    background:linear-gradient(180deg,rgba(243,237,226,.015),transparent);
+  }
+  .footer-top{
+    display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(34px,5vw,80px);
+    padding-bottom:clamp(44px,6vw,72px);
+  }
+  @media(max-width:820px){.footer-top{grid-template-columns:1fr;gap:44px;}}
+  .footer-brand .brand-mark{font-size:26px;display:block;margin-bottom:16px;}
+  .footer-brand p{
+    font-family:'Playfair Display',serif;font-size:clamp(24px,2.6vw,32px);
+    line-height:1.2;margin:0 0 12px;
+  }
+  .footer-brand .footer-line{
+    font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);
+    line-height:1.7;max-width:32ch;margin:0;
+  }
+  .footer-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media(max-width:560px){.footer-cols{grid-template-columns:1fr 1fr;}}
+  .footer-cols h4{
+    font-family:'Inter',sans-serif;font-size:9.5px;font-weight:500;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+    margin:0 0 14px;
+  }
+  .footer-cols p{font-size:13.5px;color:var(--muted);line-height:1.75;margin:0;}
+  .footer-cols a{transition:color .35s;}
+  .footer-cols a:hover{color:var(--cream);}
+  .footer-bottom{
+    display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;
+    padding-top:26px;border-top:1px solid var(--line-2);
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(155,146,133,.7);
+  }
+  .footer-bottom em{font-family:'Playfair Display',serif;font-style:italic;font-size:13px;letter-spacing:.02em;text-transform:none;color:var(--muted);}
+
+  /* ---------- reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{
+      animation-duration:.001ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;
+      transition-delay:0ms !important;
+    }
+    [data-reveal]{opacity:1 !important;transform:none !important;}
+    .board-enter{opacity:1 !important;transform:none !important;}
+    .movelist{scroll-behavior:auto;}
+  }
+
+  @media (max-width:640px){
+    :root{--tilt:44deg;}
+    .hero{padding-top:112px;padding-bottom:52px;}
+    .hero-meta{gap:26px;}
+    .caption{font-size:13px;min-height:4.4em;}
+    .controls{gap:7px;}
+    .ctrl{width:40px;height:40px;}
+    .ctrl.primary{width:50px;height:50px;}
+    .panel{max-height:440px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="The Gambit Society — home">
+    <span class="brand-mark" aria-hidden="true">♞</span>
+    <span class="brand-text">The Gambit Society</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#game">The Game</a>
+    <a href="#society">The Society</a>
+    <a href="#nights">Club Nights</a>
+    <a href="#membership">Membership</a>
+  </nav>
+  <a class="nav-cta" href="#membership">Apply</a>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow" data-reveal style="--d:80ms"><span class="dot"></span> Cecil Court, London · Est. 2011</p>
+        <h1 data-reveal style="--d:170ms">The Gambit<br><em>Society</em></h1>
+        <p class="lede" data-reveal style="--d:280ms">
+          A members' chess club above a bookshop in Covent Garden. Eleven boards,
+          three nights a week, and <em>no clocks</em> — ever.
+        </p>
+        <div class="hero-cta" data-reveal style="--d:380ms">
+          <a class="btn" href="#membership">Apply for membership</a>
+          <a class="btn-link" href="#game">Watch the Immortal Game <span aria-hidden="true">↓</span></a>
+        </div>
+        <dl class="hero-meta" data-reveal style="--d:470ms">
+          <div><dt>Founded</dt><dd>2011</dd></div>
+          <div><dt>Members</dt><dd>42</dd></div>
+          <div><dt>Clocks</dt><dd>None</dd></div>
+        </dl>
+      </div>
+
+      <div class="hero-board">
+        <div class="board-stage" aria-hidden="true">
+          <div class="board-enter" id="heroEnter">
+            <div class="board" id="heroBoard">
+              <div class="board-slab"></div>
+              <div class="squares"></div>
+              <div class="pieces"></div>
+            </div>
+          </div>
+        </div>
+        <div class="board-caption" data-reveal style="--d:900ms">
+          <span class="chip">Final position</span>
+          <span>Anderssen – Kieseritzky, London 1851 · 23. Be7 mate</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 THE GAME ============ -->
+  <section class="section" id="game">
+    <div class="container">
+      <div class="section-head">
+        <p class="label" data-reveal>The Game · 01</p>
+        <h2 data-reveal style="--d:90ms">The Immortal Game</h2>
+        <p class="section-lede" data-reveal style="--d:180ms">
+          London, June 1851. Adolf Anderssen and Lionel Kieseritzky play a casual game at the
+          Simpson's Divan. Anderssen gives up a bishop, both rooks and his queen — and mates
+          with two bishops and a knight. <em>Play it through below.</em>
+        </p>
+      </div>
+
+      <div class="game-grid">
+        <div class="game-board-col" data-reveal style="--d:60ms">
+          <div class="board-stage">
+            <div class="board-enter" id="gameEnter">
+              <div class="board" id="gameBoard">
+                <div class="board-slab"></div>
+                <div class="squares"></div>
+                <div class="pieces"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="caption" id="caption" aria-live="polite">
+            <span class="cap-move" id="capMove">—</span>
+            <span class="cap-text" id="capText">The board is set. Press play, or pick any move from the list.</span>
+          </div>
+
+          <div class="controls">
+            <button class="ctrl" id="btnReset" aria-label="Restart the game" title="Restart">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+            </button>
+            <button class="ctrl" id="btnPrev" aria-label="Previous move" title="Previous move">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h2.2v14H7zM19 5v14l-9.4-7z"/></svg>
+            </button>
+            <button class="ctrl primary" id="btnPlay" aria-label="Play the game" title="Play">
+              <svg viewBox="0 0 24 24" id="playIcon" aria-hidden="true"><path d="M8 5.1v13.8L19 12z"/></svg>
+            </button>
+            <button class="ctrl" id="btnNext" aria-label="Next move" title="Next move">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.8 5H17v14h-2.2zM5 5l9.4 7L5 19z"/></svg>
+            </button>
+            <button class="ctrl speed" id="btnSpeed" aria-label="Playback speed" title="Playback speed">1×</button>
+          </div>
+        </div>
+
+        <aside class="panel" data-reveal style="--d:160ms">
+          <div class="panel-head">
+            <span>Anderssen – Kieseritzky</span>
+            <span>London, 1851</span>
+          </div>
+          <div class="movelist" id="moveList" tabindex="0" aria-label="Move list"></div>
+          <div class="panel-foot">
+            <span>Click a move to jump</span>
+            <span id="moveCounter">0 / 45</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 THE SOCIETY ============ -->
+  <section class="section" id="society">
+    <div class="container">
+      <div class="section-head">
+        <p class="label" data-reveal>The Society · 02</p>
+        <h2 data-reveal style="--d:90ms">A room, a board,<br>and no clocks.</h2>
+      </div>
+
+      <div class="society-grid">
+        <div class="society-copy" data-reveal style="--d:60ms">
+          <p>We meet above Goldsboro Books on Cecil Court — the narrow street that has sold secondhand print in London since the seventeenth century. There is one long table, eleven boards, and a kettle that has not been switched off since 2011.</p>
+          <p>The club is capped at forty-two members so that everyone gets a game on the night they turn up. We do not play for ratings. We do not play for money. We play because a well-made combination is the only kind of argument that can be won twice.</p>
+          <p>Newcomers are welcome on Tuesdays. Bring nothing but an interest in the beautiful move.</p>
+        </div>
+
+        <div class="society-side" data-reveal style="--d:150ms">
+          <ul class="rules">
+            <li><span>i.</span> No clocks, ever.</li>
+            <li><span>ii.</span> Say the move, then play it.</li>
+            <li><span>iii.</span> Analysis after the game — never during.</li>
+            <li><span>iv.</span> Bring one game a month to share.</li>
+          </ul>
+          <div class="stats">
+            <div><b>42</b><span>Members, capped</span></div>
+            <div><b>11</b><span>Boards in the room</span></div>
+            <div><b>0</b><span>Clocks running</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 CLUB NIGHTS ============ -->
+  <section class="section" id="nights">
+    <div class="container">
+      <div class="section-head">
+        <p class="label" data-reveal>Club Nights · 03</p>
+        <h2 data-reveal style="--d:90ms">Three nights,<br>three habits.</h2>
+        <p class="section-lede" data-reveal style="--d:180ms">
+          The grandfather clock by the door has not run since the lease was signed.
+          Nobody has ever suggested fixing it.
+        </p>
+      </div>
+
+      <div class="nights">
+        <article class="night" data-reveal style="--d:0ms">
+          <div class="night-top"><span class="day">Tuesday</span><span class="time">19:00 — late</span></div>
+          <h3>The Ladder</h3>
+          <p>Winner stays on, loser fetches the tea. Open to visitors, no booking, no fee. Come alone and you will be seated within ten minutes.</p>
+          <ul><li>All strengths</li><li>Visitors welcome</li><li>Tea, unlimited</li></ul>
+        </article>
+
+        <article class="night" data-reveal style="--d:110ms">
+          <div class="night-top"><span class="day">Thursday</span><span class="time">19:30 — 22:00</span></div>
+          <h3>The Study</h3>
+          <p>One game, read aloud, move by move, with the board set up at the head of the table. This month: Anderssen–Kieseritzky, 1851 — the game on this page.</p>
+          <ul><li>Annotated games</li><li>Members &amp; guests</li><li>Notes provided</li></ul>
+        </article>
+
+        <article class="night" data-reveal style="--d:220ms">
+          <div class="night-top"><span class="day">Saturday</span><span class="time">14:00 — 18:00</span></div>
+          <h3>The Long Game</h3>
+          <p>Slow chess. Four hours a side, lunch at two, and nobody counting. Bring a position you cannot solve and leave it on the sideboard.</p>
+          <ul><li>Correspondence pace</li><li>Lunch included</li><li>Members only</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 MEMBERSHIP ============ -->
+  <section class="section" id="membership">
+    <div class="container">
+      <div class="section-head">
+        <p class="label" data-reveal>Membership · 04</p>
+        <h2 data-reveal style="--d:90ms">Forty-two seats.<br>One of them is yours.</h2>
+      </div>
+
+      <div class="tiers">
+        <article class="tier" data-reveal style="--d:0ms">
+          <p class="tier-name">Visitor</p>
+          <p class="tier-price">Free</p>
+          <p class="tier-desc">Two Tuesday nights, no obligation. Turn up, play a game, and see whether the room suits you.</p>
+          <ul>
+            <li>Two visits</li>
+            <li>Tuesday ladder</li>
+            <li>Tea, unlimited</li>
+          </ul>
+          <a class="btn-outline" href="mailto:hello@gambitsociety.co.uk?subject=A%20Tuesday%20visit">Come on a Tuesday</a>
+        </article>
+
+        <article class="tier featured" data-reveal style="--d:110ms">
+          <p class="tier-name">Member</p>
+          <p class="tier-price">£18 <span>/ month</span></p>
+          <p class="tier-desc">The whole week, the whole library, and a standing seat at the long table.</p>
+          <ul>
+            <li>Every club night</li>
+            <li>The lending library</li>
+            <li>Ladder &amp; study room</li>
+            <li>Guest on Thursdays</li>
+          </ul>
+          <a class="btn" href="mailto:hello@gambitsociety.co.uk?subject=Membership">Apply for a seat</a>
+        </article>
+
+        <article class="tier" data-reveal style="--d:220ms">
+          <p class="tier-name">Patron</p>
+          <p class="tier-price">£60 <span>/ month</span></p>
+          <p class="tier-desc">Everything above, plus the annual dinner and the key that opens the reading room at any hour.</p>
+          <ul>
+            <li>All Member benefits</li>
+            <li>The annual dinner</li>
+            <li>Saturday long game</li>
+            <li>Key to the room</li>
+          </ul>
+          <a class="btn-outline" href="mailto:hello@gambitsociety.co.uk?subject=Patronage">Enquire</a>
+        </article>
+      </div>
+
+      <div class="membership-note" data-reveal style="--d:120ms">
+        <p>Membership is capped at forty-two so that everyone gets a game. There is currently a waiting list of six.</p>
+        <p>Write to <a href="mailto:hello@gambitsociety.co.uk">hello@gambitsociety.co.uk</a></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand" data-reveal>
+        <span class="brand-mark" aria-hidden="true">♞</span>
+        <p>The Gambit Society</p>
+        <p class="footer-line">A chess club above a bookshop on Cecil Court. Founded 2011. No clocks.</p>
+      </div>
+      <div class="footer-cols" data-reveal style="--d:110ms">
+        <div>
+          <h4>Visit</h4>
+          <p>14 Cecil Court<br>London WC2N 4EZ</p>
+        </div>
+        <div>
+          <h4>Write</h4>
+          <p><a href="mailto:hello@gambitsociety.co.uk">hello@<br>gambitsociety.co.uk</a></p>
+        </div>
+        <div>
+          <h4>Hours</h4>
+          <p>Tuesday 19:00<br>Thursday 19:30<br>Saturday 14:00</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 The Gambit Society</span>
+      <em>Play the beautiful move.</em>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ------------------------------------------------------------------ *
+   *  Data: the Immortal Game, Anderssen – Kieseritzky, London 1851
+   * ------------------------------------------------------------------ */
+  var FILES = 'abcdefgh';
+  var GLYPH = { k: '\u265A', q: '\u265B', r: '\u265C', b: '\u265D', n: '\u265E', p: '\u265F' };
+
+  // [from, to, SAN]
+  var GAME = [
+    ['e2','e4','e4'],       ['e7','e5','e5'],
+    ['f2','f4','f4'],       ['e5','f4','exf4'],
+    ['f1','c4','Bc4'],      ['d8','h4','Qh4+'],
+    ['e1','f1','Kf1'],      ['b7','b5','b5'],
+    ['c4','b5','Bxb5'],     ['g8','f6','Nf6'],
+    ['g1','f3','Nf3'],      ['h4','h6','Qh6'],
+    ['d2','d3','d3'],       ['f6','h5','Nh5'],
+    ['f3','h4','Nh4'],      ['h6','g5','Qg5'],
+    ['h4','f5','Nf5'],      ['c7','c6','c6'],
+    ['g2','g4','g4'],       ['h5','f6','Nf6'],
+    ['h1','g1','Rg1'],      ['c6','b5','cxb5'],
+    ['h2','h4','h4'],       ['g5','g6','Qg6'],
+    ['h4','h5','h5'],       ['g6','g5','Qg5'],
+    ['d1','f3','Qf3'],      ['f6','g8','Ng8'],
+    ['c1','f4','Bxf4'],     ['g5','f6','Qf6'],
+    ['b1','c3','Nc3'],      ['f8','c5','Bc5'],
+    ['c3','d5','Nd5'],      ['f6','b2','Qxb2'],
+    ['f4','d6','Bd6'],      ['c5','g1','Bxg1'],
+    ['e4','e5','e5'],       ['b2','a1','Qxa1+'],
+    ['f1','e2','Ke2'],      ['b8','a6','Na6'],
+    ['f5','g7','Nxg7+'],    ['e8','d8','Kd8'],
+    ['f3','f6','Qf6+'],     ['g8','f6','Nxf6'],
+    ['d6','e7','Be7#']
+  ];
+
+  var NOTES = [
+    'Anderssen opens with the king\u2019s pawn \u2014 the oldest first move in chess.',
+    'Kieseritzky answers symmetrically.',
+    'The King\u2019s Gambit. A pawn is offered for the centre.',
+    'Black accepts. That pawn will sit on f4 for twenty-five moves.',
+    'The Bishop\u2019s Gambit \u2014 a second pawn, offered just as casually.',
+    'Kieseritzky takes the invitation and gives check.',
+    'White forfeits castling without a flicker. The king will spend the day in the open.',
+    'Black counterattacks on the queenside.',
+    'The bishop takes \u2014 and will not survive the middlegame.',
+    'A knight develops toward the king.',
+    'White ignores the check on h4 and simply develops.',
+    'The queen drops back to h6, still eyeing f4.',
+    'A quiet pawn move. White opens a diagonal for the bishop on c1.',
+    'The knight heads for f4 by way of h5.',
+    'White\u2019s knight goes hunting in the same corner.',
+    'The queen steps away.',
+    'The knight lands on f5, staring at g7.',
+    'Black hits the bishop on b5.',
+    'White offers the bishop a second time and takes space.',
+    'The knight retreats \u2014 and the bishop on b5 is left hanging.',
+    'A rook shuffled to g1. Pure provocation: White defends nothing.',
+    'Black takes the bishop. The b5 pawn becomes a monster.',
+    'White storms the kingside.',
+    'The queen retreats again.',
+    'The pawn kicks the queen a second time.',
+    'Qg5 \u2014 out of squares, out of ideas.',
+    'The queen enters. Every white piece now points at the black king.',
+    'The knight trudges home to g8.',
+    'The bishop recovers the pawn and takes aim at the long diagonal.',
+    'Black offers a queen trade to blunt the attack.',
+    'White declines, and develops instead.',
+    'The bishop finds the long diagonal.',
+    'The knight lands on d5. It is attacked, and it does not care.',
+    'Black takes the pawn on b2 \u2014 and the rook behind it.',
+    'The bishop steps to d6 and offers itself.',
+    'Black takes the rook on g1. The first of four major pieces to fall.',
+    'Anderssen ignores the queen on b2 entirely.',
+    'Black takes the second rook and checks. White is now a queen and two rooks down.',
+    'The king walks into the middle of the board, unbothered.',
+    'Black brings the last piece to the defence.',
+    'The knight crashes into g7 with check.',
+    'The king must go to d8.',
+    'The queen is offered. It cannot be declined.',
+    'Forced.',
+    'Mate. Two bishops and a knight against a queen, two rooks and a bishop.'
+  ];
+
+  var MOVE_MS = 820;
+
+  /* ------------------------------------------------------------------ *
+   *  Position model
+   * ------------------------------------------------------------------ */
+  function toXY(sq) {
+    return { x: FILES.indexOf(sq.charAt(0)), y: 7 - (parseInt(sq.charAt(1), 10) - 1) };
+  }
+
+  function initialPosition() {
+    var pos = new Map();
+    var back = ['r','n','b','q','k','b','n','r'];
+    for (var i = 0; i < 8; i++) {
+      var f = FILES.charAt(i);
+      pos.set(f + '1', { t: back[i], c: 'w' });
+      pos.set(f + '8', { t: back[i], c: 'b' });
+      pos.set(f + '2', { t: 'p', c: 'w' });
+      pos.set(f + '7', { t: 'p', c: 'b' });
+    }
+    return pos;
+  }
+
+  function replay(n) {
+    var pos = initialPosition();
+    for (var i = 0; i < n && i < GAME.length; i++) {
+      var from = GAME[i][0], to = GAME[i][1];
+      var p = pos.get(from);
+      if (!p) continue;
+      pos.delete(from);
+      pos.delete(to);
+      pos.set(to, p);
+    }
+    return pos;
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Board component
+   * ------------------------------------------------------------------ */
+  function createBoard(root) {
+    var squaresEl = root.querySelector('.squares');
+    var piecesEl = root.querySelector('.pieces');
+    var map = new Map();
+
+    if (!squaresEl.childElementCount) {
+      for (var y = 0; y < 8; y++) {
+        for (var x = 0; x < 8; x++) {
+          var d = document.createElement('div');
+          d.className = 'square ' + (((x + y) % 2 === 0) ? 'light' : 'dark');
+          squaresEl.appendChild(d);
+        }
+      }
+    }
+
+    function makePiece(sq, p) {
+      var el = document.createElement('div');
+      el.className = 'piece ' + p.c;
+      var inner = document.createElement('div');
+      inner.className = 'piece-3d';
+      var g = document.createElement('span');
+      g.className = 'glyph';
+      g.textContent = GLYPH[p.t] || GLYPH.p;
+      inner.appendChild(g);
+      el.appendChild(inner);
+      var xy = toXY(sq);
+      el.style.transform = 'translate3d(' + (xy.x * 100) + '%, ' + (xy.y * 100) + '%, 0)';
+      piecesEl.appendChild(el);
+      return el;
+    }
+
+    return {
+      el: root,
+      set: function (position) {
+        while (piecesEl.firstChild) piecesEl.removeChild(piecesEl.firstChild);
+        map.clear();
+        position.forEach(function (p, sq) {
+          map.set(sq, { el: makePiece(sq, p), t: p.t, c: p.c });
+        });
+      },
+      move: function (from, to) {
+        var p = map.get(from);
+        if (!p) return;
+        var cap = map.get(to);
+        if (cap) {
+          cap.el.classList.add('captured');
+          map.delete(to);
+          (function (el) {
+            window.setTimeout(function () {
+              if (el.parentNode) el.parentNode.removeChild(el);
+            }, 460);
+          })(cap.el);
+        }
+        map.delete(from);
+        map.set(to, p);
+        var xy = toXY(to);
+        p.el.classList.add('is-moving');
+        p.el.style.transform = 'translate3d(' + (xy.x * 100) + '%, ' + (xy.y * 100) + '%, 0)';
+        window.setTimeout(function () {
+          p.el.classList.remove('is-moving');
+        }, 360);
+      }
+    };
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Size the glyphs
+   * ------------------------------------------------------------------ */
+  var boards = [document.getElementById('heroBoard'), document.getElementById('gameBoard')];
+  var heroBoard = createBoard(boards[0]);
+  var gameBoard = createBoard(boards[1]);
+
+  if ('ResizeObserver' in window) {
+    var ro = new ResizeObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var w = entries[i].contentRect.width;
+        if (!w) continue;
+        entries[i].target.style.setProperty('--ps', (w / 8 * 1.14) + 'px');
+      }
+    });
+    boards.forEach(function (b) { ro.observe(b); });
+  } else {
+    var sizeBoards = function () {
+      boards.forEach(function (b) {
+        var w = b.getBoundingClientRect().width;
+        if (w) b.style.setProperty('--ps', (w / 8 * 1.14) + 'px');
+      });
+    };
+    sizeBoards();
+    window.addEventListener('resize', sizeBoards);
+  }
+
+  /* hero board: the final mating position */
+  heroBoard.set(replay(GAME.length));
+
+  /* ------------------------------------------------------------------ *
+   *  Build the move list
+   * ------------------------------------------------------------------ */
+  var listEl = document.getElementById('moveList');
+  var counterEl = document.getElementById('moveCounter');
+  var capMoveEl = document.getElementById('capMove');
+  var capTextEl = document.getElementById('capText');
+
+  (function buildList() {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < GAME.length; i += 2) {
+      var row = document.createElement('div');
+      row.className = 'mrow';
+
+      var num = document.createElement('span');
+      num.className = 'mnum';
+      num.textContent = (i / 2 + 1) + '.';
+      row.appendChild(num);
+
+      for (var j = 0; j < 2; j++) {
+        var idx = i + j;
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'san';
+        if (idx < GAME.length) {
+          b.textContent = GAME[idx][2];
+          b.dataset.ply = String(idx);
+          b.setAttribute('aria-label', 'Go to move ' + (Math.floor(idx / 2) + 1) + ' ' + GAME[idx][2]);
+        } else {
+          b.className = 'san empty';
+          b.textContent = '';
+          b.disabled = true;
+        }
+        row.appendChild(b);
+      }
+      frag.appendChild(row);
+    }
+    listEl.appendChild(frag);
+  })();
+
+  /* ------------------------------------------------------------------ *
+   *  Playback controller
+   * ------------------------------------------------------------------ */
+  var ply = 0;
+  var playing = false;
+  var timer = null;
+  var speed = 1;
+  var started = false;
+  var autoPaused = false;
+  var userPaused = false;
+
+  var btnPlay = document.getElementById('btnPlay');
+  var btnPrev = document.getElementById('btnPrev');
+  var btnNext = document.getElementById('btnNext');
+  var btnReset = document.getElementById('btnReset');
+  var btnSpeed = document.getElementById('btnSpeed');
+  var playIcon = document.getElementById('playIcon');
+
+  function iconPlay() { playIcon.innerHTML = '<path d="M8 5.1v13.8L19 12z"/>'; }
+  function iconPause() { playIcon.innerHTML = '<path d="M7 5h3.4v14H7zM13.6 5H17v14h-3.6z"/>'; }
+  function iconReplay() { playIcon.innerHTML = '<path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/>'; }
+
+  function updateControls() {
+    if (ply >= GAME.length) {
+      iconReplay();
+      btnPlay.setAttribute('aria-label', 'Replay the game');
+      btnPlay.title = 'Replay';
+    } else if (playing) {
+      iconPause();
+      btnPlay.setAttribute('aria-label', 'Pause');
+      btnPlay.title = 'Pause';
+    } else {
+      iconPlay();
+      btnPlay.setAttribute('aria-label', 'Play the game');
+      btnPlay.title = 'Play';
+    }
+    counterEl.textContent = ply + ' / ' + GAME.length;
+  }
+
+  function updateCaption() {
+    if (ply === 0) {
+      capMoveEl.textContent = '\u2014';
+      capTextEl.textContent = 'The board is set. Press play, or pick any move from the list.';
+      return;
+    }
+    var i = ply - 1;
+    var num = Math.floor(i / 2) + 1;
+    capMoveEl.textContent = num + (i % 2 === 0 ? '.' : '\u2026') + ' ' + GAME[i][2];
+    capTextEl.textContent = NOTES[i] || '';
+  }
+
+  function highlight() {
+    var cells = listEl.querySelectorAll('.san');
+    var activeCell = null;
+    for (var i = 0; i < cells.length; i++) {
+      var c = cells[i];
+      if (!c.dataset.ply) continue;
+      var idx = parseInt(c.dataset.ply, 10);
+      var isActive = (idx === ply - 1);
+      c.classList.toggle('active', isActive);
+      c.classList.toggle('done', idx < ply - 1);
+      if (isActive) activeCell = c;
+    }
+    if (activeCell && activeCell.parentElement) {
+      var row = activeCell.parentElement;
+      var target = row.offsetTop - listEl.clientHeight / 2 + row.offsetHeight / 2;
+      if (target < 0) target = 0;
+      if (REDUCED) {
+        listEl.scrollTop = target;
+      } else if (typeof listEl.scrollTo === 'function') {
+        listEl.scrollTo({ top: target, behavior: 'smooth' });
+      } else {
+        listEl.scrollTop = target;
+      }
+    }
+    updateControls();
+  }
+
+  function setPosition(n) {
+    ply = n;
+    gameBoard.set(replay(n));
+    updateCaption();
+    highlight();
+  }
+
+  function step() {
+    if (!playing) return;
+    if (ply >= GAME.length) { pause(); return; }
+
+    var mv = GAME[ply];
+    gameBoard.move(mv[0], mv[1]);
+    ply++;
+    updateCaption();
+    highlight();
+
+    if (ply >= GAME.length) {
+      window.setTimeout(function () { pause(); }, 260);
+      return;
+    }
+    if (playing) {
+      timer = window.setTimeout(step, Math.round(MOVE_MS / speed));
+    }
+  }
+
+  function play() {
+    if (playing) return;
+    if (ply >= GAME.length) setPosition(0);
+    playing = true;
+    updateControls();
+    timer = window.setTimeout(step, 280);
+  }
+
+  function pause() {
+    playing = false;
+    if (timer) { window.clearTimeout(timer); timer = null; }
+    updateControls();
+  }
+
+  btnPlay.addEventListener('click', function () {
+    if (playing) {
+      userPaused = true;
+      autoPaused = false;
+      pause();
+    } else {
+      userPaused = false;
+      autoPaused = false;
+      play();
+    }
+  });
+
+  btnPrev.addEventListener('click', function () {
+    userPaused = true;
+    pause();
+    setPosition(Math.max(0, ply - 1));
+  });
+
+  btnNext.addEventListener('click', function () {
+    userPaused = true;
+    pause();
+    if (ply >= GAME.length) return;
+    setPosition(ply + 1);
+  });
+
+  btnReset.addEventListener('click', function () {
+    userPaused = true;
+    pause();
+    setPosition(0);
+  });
+
+  btnSpeed.addEventListener('click', function () {
+    speed = speed === 1 ? 2 : 1;
+    btnSpeed.textContent = speed + '\u00D7';
+    if (playing) {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(step, Math.round(MOVE_MS / speed));
+    }
+  });
+
+  listEl.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.san') : null;
+    if (!btn || !btn.dataset.ply) return;
+    userPaused = true;
+    pause();
+    setPosition(parseInt(btn.dataset.ply, 10) + 1);
+  });
+
+  setPosition(0);
+
+  /* ------------------------------------------------------------------ *
+   *  Autoplay when the game scrolls into view
+   * ------------------------------------------------------------------ */
+  var gameSection = document.getElementById('game');
+  if ('IntersectionObserver' in window) {
+    var gameIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var r = entry.intersectionRatio;
+        if (entry.isIntersecting && r > 0.25) {
+          if (!started) {
+            started = true;
+            if (!REDUCED) play();
+          } else if (autoPaused && !userPaused && !playing && ply < GAME.length) {
+            autoPaused = false;
+            play();
+          }
+        } else if (r < 0.08 && playing) {
+          autoPaused = !userPaused;
+          pause();
+        }
+      });
+    }, { threshold: [0, 0.08, 0.25, 0.6] });
+    gameIO.observe(gameSection);
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Reveals
+   * ------------------------------------------------------------------ */
+  var revealEls = document.querySelectorAll('[data-reveal]');
+  if ('IntersectionObserver' in window) {
+    var revIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          revIO.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+    for (var i = 0; i < revealEls.length; i++) revIO.observe(revealEls[i]);
+  } else {
+    for (var k = 0; k < revealEls.length; k++) revealEls[k].classList.add('in');
+  }
+
+  /* board entrance */
+  window.setTimeout(function () {
+    var he = document.getElementById('heroEnter');
+    var ge = document.getElementById('gameEnter');
+    if (he) he.classList.add('in');
+    if (ge) ge.classList.add('in');
+  }, REDUCED ? 0 : 320);
+
+  /* ------------------------------------------------------------------ *
+   *  Nav + progress
+   * ------------------------------------------------------------------ */
+  var nav = document.getElementById('nav');
+  var bar = document.getElementById('progressBar');
+  var ticking = false;
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(function () {
+      var y = window.pageYOffset || window.scrollY || 0;
+      nav.classList.toggle('scrolled', y > 24);
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - window.innerHeight);
+      var p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+      bar.style.transform = 'scaleX(' + p + ')';
+      ticking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ------------------------------------------------------------------ *
+   *  Smooth scrolling (Lenis, if available)
+   * ------------------------------------------------------------------ */
+  if (window.Lenis && !REDUCED) {
+    try {
+      var lenis = new window.Lenis({
+        duration: 1.15,
+        easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        smoothWheel: true
+      });
+      var raf = function (time) {
+        lenis.raf(time);
+        window.requestAnimationFrame(raf);
+      };
+      window.requestAnimationFrame(raf);
+
+      document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          var id = a.getAttribute('href');
+          if (!id || id === '#') return;
+          var target = document.querySelector(id);
+          if (!target) return;
+          e.preventDefault();
+          lenis.scrollTo(target, { offset: -10, duration: 1.4 });
+        });
+      });
+    } catch (err) {
+      /* graceful fallback to native scrolling */
+    }
+  }
+})();
+</script>
+</body>
+</html>
